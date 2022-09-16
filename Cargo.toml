@@ -3,6 +3,7 @@ name = "starknet-cast"
 description = "Like Foundry's but for StarkNet"
 version = "0.1.0"
 edition = "2021"
+repository = "https://github.com/kariy/starknet-cast"
 
 [[bin]]
 name = "starknet-cast"
@@ -12,5 +13,6 @@ path = "./src/main.rs"
 
 [dependencies]
 clap = { version = "3.2.21", features = ["derive"] }
+eyre = "0.6.8"
 hex = "0.4.3"
 starknet-core = { git = "https://github.com/xJonathanLEI/starknet-rs/" }

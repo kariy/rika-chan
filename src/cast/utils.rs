@@ -1,9 +1,5 @@
 use eyre::Result;
-use starknet::core::{
-    crypto::pedersen_hash,
-    types::FieldElement,
-    utils::{cairo_short_string_to_felt, starknet_keccak},
-};
+use starknet::core::{types::FieldElement, utils::cairo_short_string_to_felt};
 
 // const STARKNET_ACCOUNT_FILEPATH: &'static str = "~/.starknet_accounts";
 pub const SIGNED_FELT_MIN: &'static str =
@@ -20,27 +16,7 @@ where
     format!("0x{hex_str}")
 }
 
-pub fn keccak(data: &str) -> Result<String> {
-    let hash = match data.as_bytes() {
-        // 0x prefix => read as hex data
-        [b'0', b'x', rest @ ..] => starknet_keccak(&hex::decode(rest)?),
-        // No 0x prefix => read as text
-        _ => starknet_keccak(data.as_bytes()),
-    };
-
-    Ok(hex_encode(hash.to_bytes_be()))
-}
-
-pub fn pedersen(x: &str, y: &str) -> Result<String> {
-    let x = parse_as_felt(x)?;
-    let y = parse_as_felt(y)?;
-
-    let hash = pedersen_hash(&x, &y);
-
-    Ok(hex_encode(hash.to_bytes_be()))
-}
-
-fn parse_as_felt(data: &str) -> Result<FieldElement> {
+pub fn parse_hex_or_str_as_felt(data: &str) -> Result<FieldElement> {
     let felt = match data.as_bytes() {
         // 0x prefix => read as hex data
         [b'0', b'x', restx @ ..] => {

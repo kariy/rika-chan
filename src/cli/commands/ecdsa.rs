@@ -1,6 +1,6 @@
 use clap::{Args, Subcommand};
 use eyre::Result;
-use starknet_core::{
+use starknet::core::{
     crypto::{ecdsa_sign, ecdsa_verify, Signature},
     types::FieldElement,
 };

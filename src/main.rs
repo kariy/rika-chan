@@ -8,7 +8,7 @@ use crate::cli::{
 
 use clap::Parser;
 use eyre::Result;
-use starknet_core::{
+use starknet::core::{
     types::FieldElement,
     utils::{cairo_short_string_to_felt, parse_cairo_short_string},
 };

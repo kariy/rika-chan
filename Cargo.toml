@@ -12,7 +12,7 @@ path = "./src/main.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = { version = "3.2.21", features = ["derive"] }
+clap = { version = "3.2.21", features = ["derive", "env"] }
 eyre = "0.6.8"
 hex = "0.4.3"
-starknet-core = { git = "https://github.com/xJonathanLEI/starknet-rs/" }
+starknet = { git = "https://github.com/xJonathanLEI/starknet-rs/" }

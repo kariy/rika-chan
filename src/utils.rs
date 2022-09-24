@@ -1,5 +1,5 @@
 use eyre::Result;
-use starknet_core::{
+use starknet::core::{
     crypto::pedersen_hash,
     types::FieldElement,
     utils::{cairo_short_string_to_felt, starknet_keccak},

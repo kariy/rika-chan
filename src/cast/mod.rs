@@ -1,13 +1,143 @@
 pub mod utils;
 
-use eyre::{Report, Result};
-use starknet::core::{
-    crypto::{ecdsa_sign, ecdsa_verify, pedersen_hash, Signature},
-    types::FieldElement,
-    utils::{cairo_short_string_to_felt, parse_cairo_short_string, starknet_keccak},
+use eyre::{eyre, Report, Result};
+use reqwest::Url;
+use starknet::providers::jsonrpc::models::BlockId;
+use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
+use starknet::{
+    core::{
+        crypto::{ecdsa_sign, ecdsa_verify, pedersen_hash, Signature},
+        types::FieldElement,
+        utils::{cairo_short_string_to_felt, parse_cairo_short_string, starknet_keccak},
+    },
+    providers::jsonrpc::models::MaybePendingBlockWithTxs,
 };
 
-pub struct Cast {}
+pub struct Cast {
+    client: JsonRpcClient<HttpTransport>,
+}
+
+impl Cast {
+    pub fn new(url: Url) -> Self {
+        Self {
+            client: JsonRpcClient::new(HttpTransport::new(url)),
+        }
+    }
+
+    pub async fn block(
+        &self,
+        block_id: BlockId,
+        full: bool,
+        field: Option<String>,
+    ) -> Result<String> {
+        let block = self.client.get_block_with_txs(&block_id).await?;
+        let mut block_json = match block {
+            MaybePendingBlockWithTxs::Block(block) => serde_json::to_value(&block)?,
+            MaybePendingBlockWithTxs::PendingBlock(block) => serde_json::to_value(&block)?,
+        };
+
+        if !full {
+            block_json
+                .as_object_mut()
+                .unwrap()
+                .remove_entry("transactions");
+        }
+
+        if let Some(field) = field {
+            block_json = block_json
+                .get(&field)
+                .ok_or(eyre!("`{}` is not a valid block field.", field))?
+                .to_owned();
+        }
+
+        Ok(serde_json::to_string_pretty(&block_json)?)
+    }
+
+    pub async fn get_block_transaction_count(&self, block_id: BlockId) -> Result<u64> {
+        let total = self.client.get_block_transaction_count(&block_id).await?;
+        Ok(total)
+    }
+
+    pub async fn block_number(&self) -> Result<u64> {
+        Ok(self.client.block_number().await?)
+    }
+
+    pub async fn chain_id(&self) -> Result<String> {
+        Ok(self.client.chain_id().await?.to_string())
+    }
+
+    pub async fn get_transaction_by_hash(
+        &self,
+        transaction_hash: FieldElement,
+        field: Option<String>,
+    ) -> Result<String> {
+        let tx = self
+            .client
+            .get_transaction_by_hash(transaction_hash)
+            .await?;
+
+        let mut tx_json = serde_json::to_value(tx)?;
+
+        if let Some(field) = field {
+            tx_json = tx_json
+                .get(&field)
+                .ok_or(eyre!("`{}` is not a valid transaction field.", field))?
+                .to_owned();
+        }
+
+        Ok(serde_json::to_string_pretty(&tx_json)?)
+    }
+
+    pub async fn get_transaction_receipt(
+        &self,
+        transaction_hash: FieldElement,
+        field: Option<String>,
+    ) -> Result<String> {
+        let tx = self
+            .client
+            .get_transaction_receipt(transaction_hash)
+            .await?;
+
+        let mut tx_json = serde_json::to_value(tx)?;
+
+        if let Some(field) = field {
+            tx_json = tx_json
+                .get(&field)
+                .ok_or(eyre!(
+                    "`{}` is not a valid transaction receipt field.",
+                    field
+                ))?
+                .to_owned();
+        }
+
+        Ok(serde_json::to_string_pretty(&tx_json)?)
+    }
+
+    pub async fn pending_transactions(&self) -> Result<String> {
+        let res = self.client.pending_transactions().await?;
+        Ok(serde_json::to_string_pretty(&res)?)
+    }
+
+    pub async fn get_nonce(&self, contract_address: FieldElement) -> Result<String> {
+        let nonce = self.client.get_nonce(contract_address).await?;
+        let nonce = format!("{:x}", nonce.to_string().parse::<u128>()?);
+        Ok(nonce)
+    }
+
+    pub async fn get_storage_at(
+        &self,
+        contract_address: FieldElement,
+        key: FieldElement,
+        block_id: BlockId,
+    ) -> Result<String> {
+        let res = self
+            .client
+            .get_storage_at(contract_address, key, &block_id)
+            .await?;
+
+        Ok(utils::hex_encode(res.to_bytes_be()))
+    }
+}
 
 pub struct SimpleCast;
 

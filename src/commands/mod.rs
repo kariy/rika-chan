@@ -277,6 +277,21 @@ pub enum Commands {
         #[clap(default_value = "http://localhost:5050/rpc")]
         rpc_url: String,
     },
+
+    #[clap(about = "Perform a raw JSON-RPC request.")]
+    Rpc {
+        #[clap(help = "RPC method name")]
+        method: String,
+
+        #[clap(help = "RPC parameters")]
+        params: Vec<String>,
+
+        #[clap(long)]
+        #[clap(value_name = "URL")]
+        #[clap(env = "STARKNET_RPC_URL")]
+        #[clap(default_value = "http://localhost:5050/rpc")]
+        rpc_url: String,
+    },
 }
 
 #[derive(Subcommand, Debug)]

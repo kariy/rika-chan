@@ -216,6 +216,15 @@ async fn main() -> Result<()> {
 
             println!("{}", res);
         }
+
+        Commands::Rpc {
+            method,
+            params,
+            rpc_url,
+        } => {
+            let res = Cast::rpc(Url::parse(&rpc_url)?, &method, &params).await?;
+            println!("{}", res);
+        }
     }
 
     Ok(())

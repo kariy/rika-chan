@@ -2,6 +2,8 @@ pub mod utils;
 
 use eyre::{eyre, Report, Result};
 use reqwest::Url;
+use serde::Serialize;
+use serde_json::{json, Value};
 use starknet::providers::jsonrpc::models::BlockId;
 use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 use starknet::{
@@ -136,6 +138,25 @@ impl Cast {
             .await?;
 
         Ok(utils::hex_encode(res.to_bytes_be()))
+    }
+
+    pub async fn rpc<T>(url: impl Into<Url>, method: &str, params: &[T]) -> Result<String>
+    where
+        T: Serialize + Send,
+    {
+        let res = reqwest::Client::new()
+            .post(url.into())
+            .json(&json!({
+                "id": 1,
+                "jsonrpc": "2.0",
+                "method": method,
+                "params": params
+            }))
+            .send()
+            .await?
+            .json::<Value>()
+            .await?;
+        Ok(serde_json::to_string_pretty(&res)?)
     }
 }
 

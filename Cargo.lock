@@ -1548,6 +1548,7 @@ dependencies = [
  "eyre",
  "hex",
  "reqwest",
+ "serde",
  "serde_json",
  "starknet",
  "tokio",

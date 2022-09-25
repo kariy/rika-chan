@@ -1,6 +1,6 @@
 # `starknet-cast`
 
-Like the one in [foundry](https://github.com/foundry-rs/foundry/tree/master/cast) but for StarkNet.
+A command-line tool for performing RPC calls to the StarkNet network. Similar to the one found in [foundry](https://github.com/foundry-rs/foundry/tree/master/cast).
 
 ## Features
 
@@ -11,15 +11,20 @@ Like the one in [foundry](https://github.com/foundry-rs/foundry/tree/master/cast
 -   [x] `--max-felt`
 -   [x] `--max-signed-felt`
 -   [x] `--min-signed-felt`
+-   [x] `age`
 -   [ ] `balance`
--   [ ] `block`
--   [ ] `block-number`
--   [ ] `chain-id`
+-   [x] `block`
+-   [x] `block-number`
+-   [x] `chain-id`
 -   [x] `ecdsa`
 -   [ ] `estimate`
 -   [ ] `events`
 -   [x] `keccak`
+-   [x] `nonce`
 -   [x] `pedersen`
--   [ ] `receipt`
--   [ ] `tx`
--   [ ] `tx-status`
+-   [x] `receipt`
+-   [x] `storage`
+-   [x] `tx`
+-   [x] `tx-count`
+-   [x] `tx-pending`
+-   [x] `tx-status`

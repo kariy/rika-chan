@@ -16,14 +16,12 @@ impl SimpleCast {
         utils::hex_encode(FieldElement::ZERO.to_bytes_be())
     }
 
-    pub fn to_hex(dec: &str) -> Result<String> {
-        let felt = FieldElement::from_dec_str(dec)?;
-        Ok(utils::hex_encode(felt.to_bytes_be()))
+    pub fn to_hex(dec: &FieldElement) -> Result<String> {
+        Ok(utils::hex_encode(dec.to_bytes_be()))
     }
 
-    pub fn to_dec(hex: &str) -> Result<String> {
-        let felt = FieldElement::from_hex_be(hex)?;
-        Ok(felt.to_string())
+    pub fn to_dec(hex: &FieldElement) -> Result<String> {
+        Ok(hex.to_string())
     }
 
     pub fn keccak(data: &str) -> Result<String> {
@@ -62,30 +60,27 @@ impl SimpleCast {
         Ok(utils::hex_encode(felt.to_bytes_be()))
     }
 
-    pub fn from_utf8(felt: &str) -> Result<String> {
-        parse_cairo_short_string(&FieldElement::from_hex_be(felt)?).map_err(|e| Report::new(e))
+    pub fn from_utf8(felt: &FieldElement) -> Result<String> {
+        parse_cairo_short_string(&felt).map_err(|e| Report::new(e))
     }
 
-    pub fn ecdsa_sign(private_key: &str, message_hash: &str) -> Result<Signature> {
-        ecdsa_sign(
-            &FieldElement::from_hex_be(private_key)?,
-            &FieldElement::from_hex_be(message_hash)?,
-        )
-        .map_err(|e| Report::new(e))
+    pub fn ecdsa_sign(private_key: &FieldElement, message_hash: &str) -> Result<Signature> {
+        ecdsa_sign(private_key, &FieldElement::from_hex_be(message_hash)?)
+            .map_err(|e| Report::new(e))
     }
 
     pub fn ecdsa_verify(
-        public_key: &str,
+        public_key: &FieldElement,
         message_hash: &str,
-        signature_r: &str,
-        signature_s: &str,
+        signature_r: &FieldElement,
+        signature_s: &FieldElement,
     ) -> Result<bool> {
         ecdsa_verify(
-            &FieldElement::from_hex_be(public_key)?,
+            public_key,
             &FieldElement::from_hex_be(message_hash)?,
             &Signature {
-                r: FieldElement::from_hex_be(signature_r)?,
-                s: FieldElement::from_hex_be(signature_s)?,
+                r: signature_r.to_owned(),
+                s: signature_s.to_owned(),
             },
         )
         .map_err(|e| Report::new(e))

@@ -10,6 +10,8 @@ use eyre::Result;
 fn main() -> Result<()> {
     let cli = App::parse();
 
+    println!("[DEBUG] Commands : {:?}", cli.command);
+
     match &cli.command {
         Commands::AddressZero => {
             println!("{}", SimpleCast::address_zero());

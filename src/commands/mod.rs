@@ -1,4 +1,9 @@
+mod parser;
+
+use self::parser::{FieldElementParser, TokenChoice, TokenValueParser};
+
 use clap::{Parser, Subcommand};
+use starknet::core::types::FieldElement;
 
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
@@ -17,21 +22,24 @@ pub enum Commands {
     #[clap(about = "Convert decimal felt to hexadecimal.")]
     DecToHex {
         #[clap(value_name = "DECIMAL")]
-        dec: String,
+        #[clap(value_parser(FieldElementParser))]
+        dec: FieldElement,
     },
 
     #[clap(name = "--from-utf8")]
     #[clap(about = "Convert felt to utf-8 short string.")]
     FromUtf8 {
         #[clap(value_name = "FELT")]
-        felt: String,
+        #[clap(value_parser(FieldElementParser))]
+        felt: FieldElement,
     },
 
     #[clap(name = "--to-dec")]
     #[clap(about = "Convert hexadecimal felt to decimal.")]
     HexToDec {
         #[clap(value_name = "HEX")]
-        hex: String,
+        #[clap(value_parser(FieldElementParser))]
+        hex: FieldElement,
     },
 
     #[clap(name = "--max-felt")]
@@ -73,16 +81,48 @@ pub enum Commands {
         y: String,
     },
 
+    #[clap(name = "tx")]
     #[clap(about = "Get information about a transaction.")]
     Transaction {
-        hash: String,
+        #[clap(value_name = "TX_HASH")]
+        #[clap(value_parser(FieldElementParser))]
+        hash: FieldElement,
 
         field: Option<String>,
 
         #[clap(long)]
         #[clap(value_name = "URL")]
         #[clap(env = "STARKNET_RPC_URL")]
-        rpc_url: Option<String>,
+        #[clap(default_value = "http://localhost:5050/rpc")]
+        rpc_url: String,
+    },
+
+    #[clap(name = "tx-status")]
+    #[clap(about = "Get the status of a transaction.")]
+    TransactionStatus {
+        #[clap(value_name = "TX_HASH")]
+        #[clap(value_parser(FieldElementParser))]
+        hash: FieldElement,
+
+        #[clap(long)]
+        #[clap(value_name = "URL")]
+        #[clap(env = "STARKNET_RPC_URL")]
+        #[clap(default_value = "http://localhost:5050/rpc")]
+        rpc_url: String,
+    },
+
+    #[clap(name = "receipt")]
+    #[clap(about = "Get the receipt of a transaction.")]
+    TransactionReceipt {
+        #[clap(value_name = "TX_HASH")]
+        #[clap(value_parser(FieldElementParser))]
+        hash: FieldElement,
+
+        #[clap(long)]
+        #[clap(value_name = "URL")]
+        #[clap(env = "STARKNET_RPC_URL")]
+        #[clap(default_value = "http://localhost:5050/rpc")]
+        rpc_url: String,
     },
 
     #[clap(about = "Get the StarkNet chain ID.")]
@@ -90,7 +130,48 @@ pub enum Commands {
         #[clap(long)]
         #[clap(value_name = "URL")]
         #[clap(env = "STARKNET_RPC_URL")]
-        rpc_url: Option<String>,
+        #[clap(default_value = "http://localhost:5050/rpc")]
+        rpc_url: String,
+    },
+
+    #[clap(about = "Get information about a block.")]
+    Block {
+        #[clap(long)]
+        #[clap(short)]
+        #[clap(value_name = "BLOCK_HASH")]
+        #[clap(conflicts_with = "number")]
+        #[clap(value_parser(FieldElementParser))]
+        hash: Option<FieldElement>,
+
+        #[clap(long)]
+        #[clap(short)]
+        #[clap(value_name = "BLOCK_NUMBER")]
+        number: Option<String>,
+
+        #[clap(long)]
+        #[clap(value_name = "URL")]
+        #[clap(env = "STARKNET_RPC_URL")]
+        #[clap(default_value = "http://localhost:5050/rpc")]
+        rpc_url: String,
+    },
+
+    #[clap(about = "Get the latest block number.")]
+    BlockNumber {
+        #[clap(long)]
+        #[clap(value_name = "URL")]
+        #[clap(env = "STARKNET_RPC_URL")]
+        #[clap(default_value = "http://localhost:5050/rpc")]
+        rpc_url: String,
+    },
+
+    #[clap(about = "Get the token balance of an address.")]
+    Balance {
+        #[clap(value_parser(FieldElementParser))]
+        address: FieldElement,
+
+        #[clap(value_parser(TokenValueParser))]
+        #[clap(help = "Can also be the literal contract address of the token.")]
+        token: TokenChoice,
     },
 }
 
@@ -101,8 +182,9 @@ pub enum EcdsaCommand {
         #[clap(long)]
         #[clap(value_name = "PRIVATEKEY")]
         // #[clap(conflicts_with = "account-dir")]
+        #[clap(value_parser(FieldElementParser))]
         #[clap(help = "Specify a private key for signing.")]
-        private_key: Option<String>,
+        private_key: Option<FieldElement>,
 
         #[clap(value_name = "MESSAGE")]
         #[clap(help = "Message hash to be signed.")]
@@ -127,18 +209,21 @@ pub enum EcdsaCommand {
         #[clap(long)]
         #[clap(value_name = "PUBLICKEY")]
         // #[clap(conflicts_with = "account-dir")]
+        #[clap(value_parser(FieldElementParser))]
         #[clap(help = "Specify a public key for verification.")]
-        public_key: Option<String>,
+        public_key: Option<FieldElement>,
 
         #[clap(value_name = "MESSAGE")]
         #[clap(help = "Message hash used in the signature.")]
         message: String,
 
+        #[clap(value_parser(FieldElementParser))]
         #[clap(help = "R value of the signature.")]
-        signature_r: String,
+        signature_r: FieldElement,
 
+        #[clap(value_parser(FieldElementParser))]
         #[clap(help = "S value of the signature.")]
-        signature_s: String,
+        signature_s: FieldElement,
         //
 
         // #[clap(long)]

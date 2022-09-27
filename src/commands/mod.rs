@@ -1,9 +1,9 @@
 mod parser;
 
-use self::parser::{FieldElementParser, TokenChoice, TokenValueParser};
+use self::parser::{BlockIdParser, FieldElementParser};
 
 use clap::{Parser, Subcommand};
-use starknet::core::types::FieldElement;
+use starknet::{core::types::FieldElement, providers::jsonrpc::models::BlockId};
 
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
@@ -138,20 +138,13 @@ pub enum Commands {
         rpc_url: String,
     },
 
-    /// TODO:
-    /// create a value parse for block id to automatically
-    /// parse as hash, number, or tags (latest, pending)
     #[clap(about = "Get information about a block.")]
     Block {
-        #[clap(long)]
-        #[clap(value_name = "BLOCK_HASH")]
-        #[clap(conflicts_with = "number")]
-        #[clap(value_parser(FieldElementParser))]
-        hash: Option<FieldElement>,
-
-        #[clap(long)]
-        #[clap(value_name = "BLOCK_NUMBER")]
-        number: Option<u64>,
+        #[clap(value_name = "BLOCK_ID")]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending).")]
+        id: BlockId,
 
         #[clap(long)]
         #[clap(action(clap::ArgAction::SetTrue))]
@@ -177,32 +170,13 @@ pub enum Commands {
         rpc_url: String,
     },
 
-    // #[clap(about = "Get the token balance of an address.")]
-    // Balance {
-    //     #[clap(value_parser(FieldElementParser))]
-    //     address: FieldElement,
-
-    //     #[clap(value_parser(TokenValueParser))]
-    //     #[clap(help = "Can also be the literal contract address of the token.")]
-    //     token: TokenChoice,
-
-    //     #[clap(long)]
-    //     #[clap(value_name = "URL")]
-    //     #[clap(env = "STARKNET_RPC_URL")]
-    //     #[clap(default_value = "http://localhost:5050/rpc")]
-    //     rpc_url: String,
-    // },
     #[clap(about = "Get the timestamp of a block.")]
     Age {
-        #[clap(long)]
-        #[clap(value_name = "BLOCK_HASH")]
-        #[clap(conflicts_with = "number")]
-        #[clap(value_parser(FieldElementParser))]
-        hash: Option<FieldElement>,
-
-        #[clap(long)]
-        #[clap(value_name = "BLOCK_NUMBER")]
-        number: Option<u64>,
+        #[clap(value_name = "BLOCK_ID")]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending).")]
+        id: BlockId,
 
         #[clap(long)]
         #[clap(value_name = "URL")]
@@ -236,15 +210,11 @@ pub enum Commands {
     #[clap(name = "tx-count")]
     #[clap(about = "Get the number of transactions in a block.")]
     CountTransactions {
-        #[clap(long = "--block-hash")]
-        #[clap(value_name = "BLOCK_HASH")]
-        #[clap(conflicts_with = "number")]
-        #[clap(value_parser(FieldElementParser))]
-        hash: Option<FieldElement>,
-
-        #[clap(long = "--block-number")]
-        #[clap(value_name = "BLOCK_NUMBER")]
-        number: Option<u64>,
+        #[clap(value_name = "BLOCK_ID")]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending).")]
+        id: BlockId,
 
         #[clap(long)]
         #[clap(value_name = "URL")]

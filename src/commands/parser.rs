@@ -1,5 +1,8 @@
 use clap::{builder::TypedValueParser, PossibleValue};
-use starknet::core::types::FieldElement;
+use starknet::{
+    core::types::FieldElement,
+    providers::jsonrpc::models::{BlockId, BlockTag},
+};
 
 #[derive(Debug, Clone, Copy)]
 pub struct FieldElementParser;
@@ -73,5 +76,48 @@ impl TypedValueParser for TokenValueParser {
         let possible_values: Vec<PossibleValue<'static>> =
             vec![PossibleValue::new("ether"), PossibleValue::new("dai")];
         Some(Box::new(possible_values.into_iter()))
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct BlockIdParser;
+
+#[allow(unused_variables)]
+impl TypedValueParser for BlockIdParser {
+    type Value = BlockId;
+
+    fn parse_ref(
+        &self,
+        cmd: &clap::Command,
+        arg: Option<&clap::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, clap::Error> {
+        let value = value.to_str().ok_or(clap::Error::raw(
+            clap::ErrorKind::InvalidUtf8,
+            "Invalid utf-8",
+        ))?;
+
+        // There must be a more idiomatic way of doing this.
+        if value.starts_with("0x") {
+            let hash = FieldElement::from_hex_be(value)
+                .map_err(|e| clap::Error::raw(clap::ErrorKind::InvalidValue, e))?;
+
+            Ok(BlockId::Hash(hash))
+        } else {
+            if let Ok(number) = value.parse::<u64>() {
+                Ok(BlockId::Number(number))
+            } else {
+                match value.to_lowercase().as_str() {
+                    "latest" => Ok(BlockId::Tag(BlockTag::Latest)),
+
+                    "pending" => Ok(BlockId::Tag(BlockTag::Pending)),
+
+                    _ => Err(clap::Error::raw(
+                        clap::ErrorKind::InvalidValue,
+                        "Invalid value",
+                    )),
+                }
+            }
+        }
     }
 }

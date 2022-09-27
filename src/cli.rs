@@ -7,7 +7,7 @@ use crate::commands::{App, Commands};
 use clap::Parser;
 use eyre::Result;
 use reqwest::Url;
-use starknet::providers::jsonrpc::models::{BlockId, BlockTag};
+use starknet::providers::jsonrpc::models::BlockId;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -119,62 +119,29 @@ async fn main() -> Result<()> {
         }
 
         Commands::Block {
-            hash,
-            number,
+            id,
             full,
             field,
             rpc_url,
         } => {
-            let id = if let Some(hash) = hash {
-                BlockId::Hash(hash.to_owned())
-            } else if number.is_some() {
-                BlockId::Number(number.unwrap())
-            } else {
-                BlockId::Tag(BlockTag::Latest)
-            };
-
             let block = Cast::new(Url::parse(rpc_url.as_str())?)
-                .block(id, full.clone(), field.to_owned())
+                .block(id.to_owned(), full.clone(), field.to_owned())
                 .await?;
 
             println!("{}", block)
         }
 
-        Commands::Age {
-            hash,
-            number,
-            rpc_url,
-        } => {
-            let id = if let Some(hash) = hash {
-                BlockId::Hash(hash.to_owned())
-            } else if number.is_some() {
-                BlockId::Number(number.unwrap())
-            } else {
-                BlockId::Tag(BlockTag::Latest)
-            };
-
+        Commands::Age { id, rpc_url } => {
             let timestamp = Cast::new(Url::parse(rpc_url.as_str())?)
-                .block(id, false, Some("timestamp".to_string()))
+                .block(id.to_owned(), false, Some("timestamp".to_string()))
                 .await?;
 
             println!("{}", timestamp);
         }
 
-        Commands::CountTransactions {
-            hash,
-            number,
-            rpc_url,
-        } => {
-            let id = if let Some(hash) = hash {
-                BlockId::Hash(hash.to_owned())
-            } else if number.is_some() {
-                BlockId::Number(number.unwrap())
-            } else {
-                BlockId::Tag(BlockTag::Latest)
-            };
-
+        Commands::CountTransactions { id, rpc_url } => {
             let total = Cast::new(Url::parse(&rpc_url)?)
-                .get_block_transaction_count(id)
+                .get_block_transaction_count(id.to_owned())
                 .await?;
 
             println!("{}", total);

@@ -140,7 +140,7 @@ impl Cast {
         Ok(utils::hex_encode(res.to_bytes_be()))
     }
 
-    pub async fn rpc<T>(url: impl Into<Url>, method: &str, params: &[T]) -> Result<String>
+    pub async fn rpc<T>(url: impl Into<Url>, method: &str, params: T) -> Result<String>
     where
         T: Serialize + Send,
     {

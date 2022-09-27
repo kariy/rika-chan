@@ -189,6 +189,16 @@ async fn main() -> Result<()> {
             params,
             rpc_url,
         } => {
+            let params = serde_json::Value::Array(
+                params
+                    .into_iter()
+                    .map(|value| {
+                        serde_json::from_str(value)
+                            .unwrap_or(serde_json::Value::String(value.to_owned()))
+                    })
+                    .collect(),
+            );
+
             let res = Cast::rpc(Url::parse(&rpc_url)?, &method, &params).await?;
             println!("{}", res);
         }

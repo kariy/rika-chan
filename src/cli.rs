@@ -26,23 +26,22 @@ async fn main() -> Result<()> {
 
         Commands::Ecdsa { commands } => match commands {
             commands::EcdsaCommand::Sign {
-                private_key,
                 message,
+                private_key,
             } => {
-                let private_key = private_key.to_owned().unwrap();
-                let signature = SimpleCast::ecdsa_sign(&private_key, &message)?;
+                let key = private_key.to_owned();
+                let signature = SimpleCast::ecdsa_sign(&key, &message)?;
                 println!("{} {}", signature.r, signature.s);
             }
 
             commands::EcdsaCommand::Verify {
-                public_key,
                 message,
-                signature_r,
-                signature_s,
+                signature,
+                verifying_key,
             } => {
-                let public_key = public_key.to_owned().unwrap();
+                let key = verifying_key.to_owned();
                 let is_valid =
-                    SimpleCast::ecdsa_verify(&public_key, &message, &signature_r, &signature_s)?;
+                    SimpleCast::ecdsa_verify(&key, &message, &signature[0], &signature[1])?;
                 println!("{}", is_valid);
             }
         },

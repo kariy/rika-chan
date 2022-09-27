@@ -215,20 +215,22 @@ impl SimpleCast {
         parse_cairo_short_string(&felt).map_err(|e| Report::new(e))
     }
 
-    pub fn ecdsa_sign(private_key: &FieldElement, message_hash: &str) -> Result<Signature> {
-        ecdsa_sign(private_key, &FieldElement::from_hex_be(message_hash)?)
-            .map_err(|e| Report::new(e))
+    pub fn ecdsa_sign(
+        private_key: &FieldElement,
+        message_hash: &FieldElement,
+    ) -> Result<Signature> {
+        ecdsa_sign(private_key, message_hash).map_err(|e| Report::new(e))
     }
 
     pub fn ecdsa_verify(
         public_key: &FieldElement,
-        message_hash: &str,
+        message_hash: &FieldElement,
         signature_r: &FieldElement,
         signature_s: &FieldElement,
     ) -> Result<bool> {
         ecdsa_verify(
             public_key,
-            &FieldElement::from_hex_be(message_hash)?,
+            &message_hash,
             &Signature {
                 r: signature_r.to_owned(),
                 s: signature_s.to_owned(),

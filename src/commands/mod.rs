@@ -276,69 +276,32 @@ pub enum Commands {
 pub enum EcdsaCommand {
     #[clap(about = "Sign a message.")]
     Sign {
-        #[clap(long)]
-        #[clap(value_name = "PRIVATEKEY")]
-        // #[clap(conflicts_with = "account-dir")]
+        #[clap(value_name = "MESSAGE_HASH")]
         #[clap(value_parser(FieldElementParser))]
-        #[clap(help = "Specify a private key for signing.")]
-        private_key: Option<FieldElement>,
-
-        #[clap(value_name = "MESSAGE")]
         #[clap(help = "Message hash to be signed.")]
-        message: String,
-        //
+        message: FieldElement,
 
-        // #[clap(long)]
-        // #[clap(value_name = "NAME")]
-        // #[clap(help = "Use an account from the StarkNet keystore.")]
-        // account: Option<String>,
-
-        // #[clap(long)]
-        // #[clap(value_name = "DIR")]
-        // #[clap(requires = "account")]
-        // #[clap(default_value = "~/.starknet_accounts")]
-        // #[clap(help = "The directory containing the StarkNet keystore.")]
-        // account_dir: String,
+        #[clap(short, long)]
+        #[clap(value_name = "PRIVATE_KEY")]
+        #[clap(value_parser(FieldElementParser))]
+        #[clap(help = "The private key for signing.")]
+        private_key: FieldElement,
     },
 
     #[clap(about = "Verify the signature of a message.")]
     Verify {
-        #[clap(long)]
-        #[clap(value_name = "PUBLICKEY")]
-        // #[clap(conflicts_with = "account-dir")]
+        #[clap(value_name = "MESSAGE_HASH")]
         #[clap(value_parser(FieldElementParser))]
-        #[clap(help = "Specify a public key for verification.")]
-        public_key: Option<FieldElement>,
-
-        #[clap(value_name = "MESSAGE")]
         #[clap(help = "Message hash used in the signature.")]
-        message: String,
+        message: FieldElement,
 
         #[clap(value_parser(FieldElementParser))]
-        #[clap(help = "R value of the signature.")]
-        signature_r: FieldElement,
+        signature: Vec<FieldElement>,
 
+        #[clap(short, long)]
+        #[clap(value_name = "VERIFYING_KEY")]
         #[clap(value_parser(FieldElementParser))]
-        #[clap(help = "S value of the signature.")]
-        signature_s: FieldElement,
-        //
-
-        // #[clap(long)]
-        // #[clap(value_name = "ACCOUNTNAME")]
-        // #[clap(help = "Use an account from the StarkNet keystore.")]
-        // account: Option<String>,
-
-        // #[clap(long)]
-        // #[clap(value_name = "DIR")]
-        // #[clap(requires = "account")]
-        // #[clap(default_value = "~/.starknet_accounts")]
-        // #[clap(help = "The directory containing the StarkNet keystore.")]
-        // account_dir: String,
-        // #[clap(long)]
-        // #[clap(required = true)]
-        // #[clap(number_of_values = 2)]
-        // #[clap(help = "ECDSA signature, r and s.")]
-        // #[clap(value_names = &["R", "S"])]
-        // signature: Vec<String>,
+        #[clap(help = "The key for verification.")]
+        verifying_key: FieldElement,
     },
 }

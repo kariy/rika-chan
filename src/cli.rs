@@ -8,6 +8,8 @@ use clap::Parser;
 use eyre::Result;
 use reqwest::Url;
 use starknet::providers::jsonrpc::models::BlockId;
+use std::fs;
+use std::path::Path;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -187,17 +189,24 @@ async fn main() -> Result<()> {
         Commands::Rpc {
             method,
             params,
+            file,
             rpc_url,
         } => {
-            let params = serde_json::Value::Array(
-                params
-                    .into_iter()
-                    .map(|value| {
-                        serde_json::from_str(value)
-                            .unwrap_or(serde_json::Value::String(value.to_owned()))
-                    })
-                    .collect(),
-            );
+            let params = if let Some(path) = file {
+                let content = fs::read_to_string(Path::new(path))?;
+                serde_json::from_str(&content)?
+            } else {
+                let params = params.clone().unwrap();
+                serde_json::Value::Array(
+                    params
+                        .into_iter()
+                        .map(|value| {
+                            serde_json::from_str(&value)
+                                .unwrap_or(serde_json::Value::String(value.to_owned()))
+                        })
+                        .collect(),
+                )
+            };
 
             let res = Cast::rpc(Url::parse(&rpc_url)?, &method, &params).await?;
             println!("{}", res);

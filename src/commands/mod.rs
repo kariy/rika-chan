@@ -2,7 +2,7 @@ mod parser;
 
 use self::parser::{BlockIdParser, FieldElementParser};
 
-use clap::{Parser, Subcommand};
+use clap::{ArgGroup, Parser, Subcommand};
 use starknet::{core::types::FieldElement, providers::jsonrpc::models::BlockId};
 
 #[derive(Parser, Debug)]
@@ -249,12 +249,20 @@ pub enum Commands {
     },
 
     #[clap(about = "Perform a raw JSON-RPC request.")]
+    #[clap(group(ArgGroup::new("params-src").required(true).args(&["params", "file"])))]
     Rpc {
         #[clap(help = "RPC method name")]
         method: String,
 
+        #[clap(long)]
+        #[clap(group = "params-src")]
         #[clap(help = "RPC parameters")]
-        params: Vec<String>,
+        params: Option<Vec<String>>,
+
+        #[clap(long)]
+        #[clap(group = "params-src")]
+        #[clap(help = "Get RPC parameters from a file")]
+        file: Option<String>,
 
         #[clap(long)]
         #[clap(value_name = "URL")]

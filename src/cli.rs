@@ -27,7 +27,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::DecToHex { dec } => {
-            println!("{}", SimpleCast::to_hex(dec)?);
+            println!("{}", SimpleCast::to_hex(dec));
         }
 
         Commands::Ecdsa { commands } => match commands {
@@ -37,7 +37,7 @@ async fn main() -> Result<()> {
             } => {
                 let key = private_key.to_owned();
                 let signature = SimpleCast::ecdsa_sign(&key, &message)?;
-                println!("{} {}", signature.r, signature.s);
+                println!("{:#x} {:#x}", signature.r, signature.s);
             }
 
             commands::EcdsaCommand::Verify {
@@ -57,7 +57,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::HexToDec { hex } => {
-            println!("{}", SimpleCast::to_dec(hex)?);
+            println!("{}", SimpleCast::to_dec(hex));
         }
 
         Commands::Keccak { data } => {

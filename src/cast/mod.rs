@@ -139,7 +139,7 @@ impl Cast {
             .get_storage_at(contract_address, key, &block_id)
             .await?;
 
-        Ok(utils::hex_encode(res.to_bytes_be()))
+        Ok(format!("{:#x}", res))
     }
 
     pub async fn rpc<T>(url: impl Into<Url>, method: &str, params: T) -> Result<String>
@@ -194,15 +194,15 @@ pub struct SimpleCast;
 
 impl SimpleCast {
     pub fn address_zero() -> String {
-        utils::hex_encode(FieldElement::ZERO.to_bytes_be())
+        format!("{:#x}", FieldElement::ZERO)
     }
 
-    pub fn to_hex(dec: &FieldElement) -> Result<String> {
-        Ok(utils::hex_encode(dec.to_bytes_be()))
+    pub fn to_hex(dec: &FieldElement) -> String {
+        format!("{:#x}", dec)
     }
 
-    pub fn to_dec(hex: &FieldElement) -> Result<String> {
-        Ok(hex.to_string())
+    pub fn to_dec(hex: &FieldElement) -> String {
+        hex.to_string()
     }
 
     pub fn keccak(data: &str) -> Result<String> {
@@ -213,7 +213,7 @@ impl SimpleCast {
             _ => starknet_keccak(data.as_bytes()),
         };
 
-        Ok(utils::hex_encode(hash.to_bytes_be()))
+        Ok(format!("{:#x}", hash))
     }
 
     pub fn pedersen(x: &str, y: &str) -> Result<String> {
@@ -221,7 +221,7 @@ impl SimpleCast {
         let y = utils::parse_hex_or_str_as_felt(y)?;
         let hash = pedersen_hash(&x, &y);
 
-        Ok(utils::hex_encode(hash.to_bytes_be()))
+        Ok(format!("{:#x}", hash))
     }
 
     pub fn max_felt() -> String {
@@ -238,7 +238,7 @@ impl SimpleCast {
 
     pub fn str_to_felt(short_str: &str) -> Result<String> {
         let felt = cairo_short_string_to_felt(short_str)?;
-        Ok(utils::hex_encode(felt.to_bytes_be()))
+        Ok(format!("{:#x}", felt))
     }
 
     pub fn from_utf8(felt: &FieldElement) -> Result<String> {

@@ -1,10 +1,12 @@
 pub mod utils;
 
+use std::str::FromStr;
+
 use eyre::{eyre, Report, Result};
 use reqwest::Url;
 use serde::Serialize;
 use serde_json::{json, Value};
-use starknet::providers::jsonrpc::models::BlockId;
+use starknet::providers::jsonrpc::models::{BlockId, BlockTag, FunctionCall};
 use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 use starknet::{
     core::{
@@ -157,6 +159,34 @@ impl Cast {
             .json::<Value>()
             .await?;
         Ok(serde_json::to_string_pretty(&res)?)
+    }
+
+    pub async fn call(
+        &self,
+        contract_address: &FieldElement,
+        selector: &str,
+        calldata: Vec<FieldElement>,
+        block_id: &BlockId,
+    ) -> Result<String> {
+        let entry_point_selector = FieldElement::from_hex_be(&SimpleCast::keccak(selector)?)?;
+        let res = self
+            .client
+            .call(
+                FunctionCall {
+                    contract_address: contract_address.to_owned(),
+                    entry_point_selector,
+                    calldata,
+                },
+                block_id,
+            )
+            .await?;
+
+        let res = res
+            .into_iter()
+            .map(|value| format!("{:#x}", value))
+            .collect::<Vec<String>>();
+
+        Ok(res.join(" "))
     }
 }
 

@@ -270,6 +270,35 @@ pub enum Commands {
         #[clap(default_value = "http://localhost:5050/rpc")]
         rpc_url: String,
     },
+
+    Call {
+        #[clap(value_name = "FUNCTION_NAME")]
+        function_name: String,
+
+        #[clap(short, long)]
+        #[clap(help = "Path to the contract's abi file")]
+        abi: String,
+
+        #[clap(short, long)]
+        #[clap(multiple_values = true)]
+        inputs: Vec<FieldElement>,
+
+        #[clap(short, long)]
+        contract_address: FieldElement,
+
+        #[clap(short, long)]
+        #[clap(value_name = "BLOCK_ID")]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending)")]
+        block_id: BlockId,
+
+        #[clap(long)]
+        #[clap(value_name = "URL")]
+        #[clap(env = "STARKNET_RPC_URL")]
+        #[clap(default_value = "http://localhost:5050/rpc")]
+        rpc_url: String,
+    },
 }
 
 #[derive(Subcommand, Debug)]

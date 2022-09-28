@@ -1,19 +1,25 @@
+#![allow(warnings)]
+
 mod cast;
 mod commands;
 
 use crate::cast::{Cast, SimpleCast};
 use crate::commands::{App, Commands};
 
+use cast::utils;
 use clap::Parser;
 use eyre::Result;
 use reqwest::Url;
 use starknet::providers::jsonrpc::models::BlockId;
 use std::fs;
 use std::path::Path;
+use std::str::FromStr;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = App::parse();
+
+    // println!("{:?}", cli.command);
 
     match &cli.command {
         Commands::AddressZero => {
@@ -209,6 +215,37 @@ async fn main() -> Result<()> {
 
             let res = Cast::rpc(Url::parse(&rpc_url)?, &method, &params).await?;
             println!("{}", res);
+        }
+
+        Commands::Call {
+            function_name,
+            abi,
+            inputs,
+            contract_address,
+            block_id,
+            rpc_url,
+        } => {
+            let expected_params_count = utils::count_function_inputs_from_abi(abi, function_name)?;
+            let inputs = inputs.to_owned();
+            let len = inputs.len();
+
+            if expected_params_count == len as u8 {
+                let res = Cast::new(Url::parse(&rpc_url)?)
+                    .call(contract_address, function_name, inputs, block_id)
+                    .await?;
+
+                println!("{}", res);
+            } else {
+                return Err(eyre::eyre!(
+                    "expected {} inputs but got {}.",
+                    expected_params_count,
+                    len,
+                ));
+            }
+        }
+
+        _ => {
+            println!("{:?}", cli.command);
         }
     }
 

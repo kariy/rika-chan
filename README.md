@@ -1,6 +1,6 @@
 # `starknet-cast`
 
-A command-line tool for performing RPC calls to the StarkNet network. Similar to the one found in [foundry](https://github.com/foundry-rs/foundry/tree/master/cast).
+A command-line tool for performing RPC calls to the StarkNet network.
 
 ## Features
 
@@ -15,14 +15,19 @@ A command-line tool for performing RPC calls to the StarkNet network. Similar to
 -   [ ] `balance`
 -   [x] `block`
 -   [x] `block-number`
+-   [x] `call`
 -   [x] `chain-id`
+-   [ ] `declare`
+-   [ ] `deploy`
 -   [x] `ecdsa`
 -   [ ] `estimate`
 -   [ ] `events`
+-   [ ] `invoke`
 -   [x] `keccak`
 -   [x] `nonce`
 -   [x] `pedersen`
 -   [x] `receipt`
+-   [x] `rpc`
 -   [x] `storage`
 -   [x] `tx`
 -   [x] `tx-count`

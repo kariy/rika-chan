@@ -14,6 +14,7 @@ use starknet::{
         types::FieldElement,
         utils::{cairo_short_string_to_felt, parse_cairo_short_string, starknet_keccak},
     },
+    accounts::Call,
     providers::jsonrpc::models::MaybePendingBlockWithTxs,
 };
 
@@ -142,25 +143,6 @@ impl Cast {
         Ok(format!("{:#x}", res))
     }
 
-    pub async fn rpc<T>(url: impl Into<Url>, method: &str, params: T) -> Result<String>
-    where
-        T: Serialize + Send,
-    {
-        let res = reqwest::Client::new()
-            .post(url.into())
-            .json(&json!({
-                "id": 1,
-                "jsonrpc": "2.0",
-                "method": method,
-                "params": params
-            }))
-            .send()
-            .await?
-            .json::<Value>()
-            .await?;
-        Ok(serde_json::to_string_pretty(&res)?)
-    }
-
     pub async fn call(
         &self,
         contract_address: &FieldElement,
@@ -187,6 +169,17 @@ impl Cast {
             .collect::<Vec<String>>();
 
         Ok(res.join(" "))
+    }
+
+    pub async fn invoke(&self, 
+        contract_address: &FieldElement,
+        calls: &[Call]
+    ) {
+        // create a signer
+        // create function call object, call
+        // hash function call object, t_h = hash(call)
+        // sign transaction hash s = sign(t_h)
+        // send transaction
     }
 }
 

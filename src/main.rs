@@ -1,19 +1,15 @@
 #![allow(warnings)]
 
 mod cast;
-mod commands;
+mod cli;
 
 use crate::cast::{Cast, SimpleCast};
-use crate::commands::{App, Commands};
+use crate::cli::commands::{App, Commands, EcdsaCommand, RpcArgs};
 
-use cast::utils;
-use clap::Parser;
+use cast::utils; use clap::Parser;
 use eyre::Result;
 use reqwest::Url;
 use starknet::providers::jsonrpc::models::BlockId;
-use std::fs;
-use std::path::Path;
-use std::str::FromStr;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -31,7 +27,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::Ecdsa { commands } => match commands {
-            commands::EcdsaCommand::Sign {
+            EcdsaCommand::Sign {
                 message,
                 private_key,
             } => {
@@ -40,7 +36,7 @@ async fn main() -> Result<()> {
                 println!("{:#x} {:#x}", signature.r, signature.s);
             }
 
-            commands::EcdsaCommand::Verify {
+            EcdsaCommand::Verify {
                 message,
                 signature,
                 verifying_key,
@@ -84,31 +80,31 @@ async fn main() -> Result<()> {
             println!("{}", SimpleCast::pedersen(x, y)?);
         }
 
-        Commands::BlockNumber { rpc_url } => {
-            let res = Cast::new(Url::parse(rpc_url.as_str())?)
+        Commands::BlockNumber { starknet } => {
+            let res = Cast::new(Url::parse(starknet.rpc_url.as_str())?)
                 .block_number()
                 .await?;
             println!("{:?}", res);
         }
 
-        Commands::ChainId { rpc_url } => {
-            let chain_id = Cast::new(Url::parse(rpc_url.as_str())?).chain_id().await?;
+        Commands::ChainId { starknet } => {
+            let chain_id = Cast::new(Url::parse(starknet.rpc_url.as_str())?).chain_id().await?;
             println!("{}", chain_id);
         }
 
         Commands::Transaction {
             hash,
             field,
-            rpc_url,
+            starknet,
         } => {
-            let res = Cast::new(Url::parse(rpc_url.as_str())?)
+            let res = Cast::new(Url::parse(starknet.rpc_url.as_str())?)
                 .get_transaction_by_hash(hash.to_owned(), field.to_owned())
                 .await?;
             println!("{}", res);
         }
 
-        Commands::TransactionStatus { hash, rpc_url } => {
-            let res = Cast::new(Url::parse(&rpc_url)?)
+        Commands::TransactionStatus { hash, starknet } => {
+            let res = Cast::new(Url::parse(&starknet.rpc_url)?)
                 .get_transaction_by_hash(hash.to_owned(), Some("status".to_string()))
                 .await?;
             println!("{}", res);
@@ -117,9 +113,9 @@ async fn main() -> Result<()> {
         Commands::TransactionReceipt {
             hash,
             field,
-            rpc_url,
+            starknet,
         } => {
-            let res = Cast::new(Url::parse(&rpc_url)?)
+            let res = Cast::new(Url::parse(&starknet.rpc_url)?)
                 .get_transaction_receipt(hash.to_owned(), field.to_owned())
                 .await?;
             println!("{}", res);
@@ -129,25 +125,25 @@ async fn main() -> Result<()> {
             id,
             full,
             field,
-            rpc_url,
+            starknet,
         } => {
-            let block = Cast::new(Url::parse(rpc_url.as_str())?)
+            let block = Cast::new(Url::parse(starknet.rpc_url.as_str())?)
                 .block(id.to_owned(), full.clone(), field.to_owned())
                 .await?;
 
             println!("{}", block)
         }
 
-        Commands::Age { id, rpc_url } => {
-            let timestamp = Cast::new(Url::parse(rpc_url.as_str())?)
+        Commands::Age { id, starknet } => {
+            let timestamp = Cast::new(Url::parse(starknet.rpc_url.as_str())?)
                 .block(id.to_owned(), false, Some("timestamp".to_string()))
                 .await?;
 
             println!("{}", timestamp);
         }
 
-        Commands::CountTransactions { id, rpc_url } => {
-            let total = Cast::new(Url::parse(&rpc_url)?)
+        Commands::CountTransactions { id, starknet } => {
+            let total = Cast::new(Url::parse(&starknet.rpc_url)?)
                 .get_block_transaction_count(id.to_owned())
                 .await?;
 
@@ -156,16 +152,16 @@ async fn main() -> Result<()> {
 
         Commands::Nonce {
             contract_address,
-            rpc_url,
+            starknet,
         } => {
-            let nonce = Cast::new(Url::parse(&rpc_url)?)
+            let nonce = Cast::new(Url::parse(&starknet.rpc_url)?)
                 .get_nonce(contract_address.to_owned())
                 .await?;
             println!("{}", nonce);
         }
 
-        Commands::PendingTransactions { rpc_url } => {
-            let transactions = Cast::new(Url::parse(&rpc_url)?)
+        Commands::PendingTransactions { starknet } => {
+            let transactions = Cast::new(Url::parse(&starknet.rpc_url)?)
                 .pending_transactions()
                 .await?;
             println!("{}", transactions);
@@ -176,7 +172,7 @@ async fn main() -> Result<()> {
             key,
             hash,
             number,
-            rpc_url,
+            starknet,
         } => {
             let block_id = if let Some(hash) = hash {
                 BlockId::Hash(hash.to_owned())
@@ -184,36 +180,15 @@ async fn main() -> Result<()> {
                 BlockId::Number(number.unwrap())
             };
 
-            let res = Cast::new(Url::parse(&rpc_url)?)
+            let res = Cast::new(Url::parse(&starknet.rpc_url)?)
                 .get_storage_at(contract_address.to_owned(), key.to_owned(), block_id)
                 .await?;
 
             println!("{}", res);
         }
 
-        Commands::Rpc {
-            method,
-            params,
-            file,
-            rpc_url,
-        } => {
-            let params = if let Some(path) = file {
-                let content = fs::read_to_string(Path::new(path))?;
-                serde_json::from_str(&content)?
-            } else {
-                let params = params.clone().unwrap();
-                serde_json::Value::Array(
-                    params
-                        .into_iter()
-                        .map(|value| {
-                            serde_json::from_str(&value)
-                                .unwrap_or(serde_json::Value::String(value.to_owned()))
-                        })
-                        .collect(),
-                )
-            };
-
-            let res = Cast::rpc(Url::parse(&rpc_url)?, &method, &params).await?;
+        Commands::Rpc(rpc_args) => {
+            let res = rpc_args.to_owned().run().await?;
             println!("{}", res);
         }
 
@@ -223,14 +198,14 @@ async fn main() -> Result<()> {
             inputs,
             contract_address,
             block_id,
-            rpc_url,
+            starknet
         } => {
             let expected_params_count = utils::count_function_inputs_from_abi(abi, function_name)?;
             let inputs = inputs.to_owned();
             let len = inputs.len();
 
             if expected_params_count == len as u8 {
-                let res = Cast::new(Url::parse(&rpc_url)?)
+                let res = Cast::new(Url::parse(&starknet.rpc_url)?)
                     .call(contract_address, function_name, inputs, block_id)
                     .await?;
 

@@ -1,6 +1,10 @@
-mod parser;
+pub mod opts;
+mod rpc;
 
-use self::parser::{BlockIdParser, FieldElementParser};
+pub use rpc::RpcArgs;
+
+use self::opts::{StarkNetOptions, WalletOptions};
+use crate::cli::parser::{BlockIdParser, FieldElementParser};
 
 use clap::{ArgGroup, Parser, Subcommand};
 use starknet::{core::types::FieldElement, providers::jsonrpc::models::BlockId};
@@ -33,7 +37,7 @@ pub enum Commands {
         #[clap(value_parser(FieldElementParser))]
         felt: FieldElement,
     },
-
+     
     #[clap(name = "--to-dec")]
     #[clap(about = "Convert hexadecimal felt to decimal.")]
     HexToDec {
@@ -91,11 +95,8 @@ pub enum Commands {
         #[clap(long)]
         field: Option<String>,
 
-        #[clap(long)]
-        #[clap(value_name = "URL")]
-        #[clap(env = "STARKNET_RPC_URL")]
-        #[clap(default_value = "http://localhost:5050/rpc")]
-        rpc_url: String,
+        #[clap(flatten)]
+        starknet: StarkNetOptions
     },
 
     #[clap(name = "tx-status")]
@@ -105,11 +106,8 @@ pub enum Commands {
         #[clap(value_parser(FieldElementParser))]
         hash: FieldElement,
 
-        #[clap(long)]
-        #[clap(value_name = "URL")]
-        #[clap(env = "STARKNET_RPC_URL")]
-        #[clap(default_value = "http://localhost:5050/rpc")]
-        rpc_url: String,
+        #[clap(flatten)]
+        starknet: StarkNetOptions
     },
 
     #[clap(name = "receipt")]
@@ -122,20 +120,14 @@ pub enum Commands {
         #[clap(long)]
         field: Option<String>,
 
-        #[clap(long)]
-        #[clap(value_name = "URL")]
-        #[clap(env = "STARKNET_RPC_URL")]
-        #[clap(default_value = "http://localhost:5050/rpc")]
-        rpc_url: String,
+        #[clap(flatten)]
+        starknet: StarkNetOptions
     },
 
     #[clap(about = "Get the StarkNet chain ID.")]
     ChainId {
-        #[clap(long)]
-        #[clap(value_name = "URL")]
-        #[clap(env = "STARKNET_RPC_URL")]
-        #[clap(default_value = "http://localhost:5050/rpc")]
-        rpc_url: String,
+        #[clap(flatten)]
+        starknet: StarkNetOptions
     },
 
     #[clap(about = "Get information about a block.")]
@@ -154,20 +146,14 @@ pub enum Commands {
         #[clap(long)]
         field: Option<String>,
 
-        #[clap(long)]
-        #[clap(value_name = "URL")]
-        #[clap(env = "STARKNET_RPC_URL")]
-        #[clap(default_value = "http://localhost:5050/rpc")]
-        rpc_url: String,
+        #[clap(flatten)]
+        starknet: StarkNetOptions
     },
 
     #[clap(about = "Get the latest block number.")]
     BlockNumber {
-        #[clap(long)]
-        #[clap(value_name = "URL")]
-        #[clap(env = "STARKNET_RPC_URL")]
-        #[clap(default_value = "http://localhost:5050/rpc")]
-        rpc_url: String,
+        #[clap(flatten)]
+        starknet: StarkNetOptions
     },
 
     #[clap(about = "Get the timestamp of a block.")]
@@ -178,11 +164,8 @@ pub enum Commands {
         #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending).")]
         id: BlockId,
 
-        #[clap(long)]
-        #[clap(value_name = "URL")]
-        #[clap(env = "STARKNET_RPC_URL")]
-        #[clap(default_value = "http://localhost:5050/rpc")]
-        rpc_url: String,
+        #[clap(flatten)]
+        starknet: StarkNetOptions
     },
 
     #[clap(about = "Get the latest nonce associated with the address.")]
@@ -190,21 +173,15 @@ pub enum Commands {
         #[clap(value_parser(FieldElementParser))]
         contract_address: FieldElement,
 
-        #[clap(long)]
-        #[clap(value_name = "URL")]
-        #[clap(env = "STARKNET_RPC_URL")]
-        #[clap(default_value = "http://localhost:5050/rpc")]
-        rpc_url: String,
+        #[clap(flatten)]
+        starknet: StarkNetOptions
     },
 
     #[clap(name = "tx-pending")]
     #[clap(about = "Get the transactions in the transaction pool, recognized by the sequencer.")]
     PendingTransactions {
-        #[clap(long)]
-        #[clap(value_name = "URL")]
-        #[clap(env = "STARKNET_RPC_URL")]
-        #[clap(default_value = "http://localhost:5050/rpc")]
-        rpc_url: String,
+        #[clap(flatten)]
+        starknet: StarkNetOptions
     },
 
     #[clap(name = "tx-count")]
@@ -216,11 +193,8 @@ pub enum Commands {
         #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending).")]
         id: BlockId,
 
-        #[clap(long)]
-        #[clap(value_name = "URL")]
-        #[clap(env = "STARKNET_RPC_URL")]
-        #[clap(default_value = "http://localhost:5050/rpc")]
-        rpc_url: String,
+        #[clap(flatten)]
+        starknet: StarkNetOptions
     },
 
     #[clap(about = "Get the value of the storage at the given address and key")]
@@ -241,35 +215,12 @@ pub enum Commands {
         #[clap(value_name = "BLOCK_NUMBER")]
         number: Option<u64>,
 
-        #[clap(long)]
-        #[clap(value_name = "URL")]
-        #[clap(env = "STARKNET_RPC_URL")]
-        #[clap(default_value = "http://localhost:5050/rpc")]
-        rpc_url: String,
+        #[clap(flatten)]
+        starknet: StarkNetOptions
     },
 
     #[clap(about = "Perform a raw JSON-RPC request.")]
-    #[clap(group(ArgGroup::new("params-src").required(true).args(&["params", "file"])))]
-    Rpc {
-        #[clap(help = "RPC method name")]
-        method: String,
-
-        #[clap(long)]
-        #[clap(group = "params-src")]
-        #[clap(help = "RPC parameters")]
-        params: Option<Vec<String>>,
-
-        #[clap(long)]
-        #[clap(group = "params-src")]
-        #[clap(help = "Get RPC parameters from a file")]
-        file: Option<String>,
-
-        #[clap(long)]
-        #[clap(value_name = "URL")]
-        #[clap(env = "STARKNET_RPC_URL")]
-        #[clap(default_value = "http://localhost:5050/rpc")]
-        rpc_url: String,
-    },
+    Rpc(RpcArgs),
 
     Call {
         #[clap(value_name = "FUNCTION_NAME")]
@@ -293,11 +244,9 @@ pub enum Commands {
         #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending)")]
         block_id: BlockId,
 
-        #[clap(long)]
-        #[clap(value_name = "URL")]
-        #[clap(env = "STARKNET_RPC_URL")]
-        #[clap(default_value = "http://localhost:5050/rpc")]
-        rpc_url: String,
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions
     },
 }
 
@@ -334,3 +283,4 @@ pub enum EcdsaCommand {
         verifying_key: FieldElement,
     },
 }
+

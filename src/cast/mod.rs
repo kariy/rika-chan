@@ -181,6 +181,14 @@ impl Cast {
         // sign transaction hash s = sign(t_h)
         // send transaction
     }
+
+    pub async fn get_state_update(
+        &self, block_id: &BlockId
+    ) -> Result<String> {
+        let res = self.client.get_state_update(block_id).await?;
+        let res = serde_json::to_value(res)?;
+        Ok(serde_json::to_string_pretty(&res)?)
+    }
 }
 
 pub struct SimpleCast;

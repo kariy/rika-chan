@@ -219,6 +219,12 @@ async fn main() -> Result<()> {
             }
         }
 
+        Commands::StateUpdate { block_id, starknet } => {
+            let url = Url::parse(&starknet.rpc_url)?;
+            let res = Cast::new(url).get_state_update(block_id).await?;
+            println!("{}", res);
+        }
+
         _ => {
             println!("{:?}", cli.command);
         }

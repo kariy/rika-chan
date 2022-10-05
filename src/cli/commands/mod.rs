@@ -248,6 +248,20 @@ pub enum Commands {
         #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions
     },
+    
+    #[clap(about = "Get the information about the result of executing the requested block")]
+    StateUpdate {
+        #[clap(short, long)]
+        #[clap(value_name = "BLOCK_ID")]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending)")]
+        block_id: BlockId,
+
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions
+    }
 }
 
 #[derive(Subcommand, Debug)]

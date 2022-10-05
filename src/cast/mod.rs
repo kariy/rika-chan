@@ -194,10 +194,6 @@ impl Cast {
 pub struct SimpleCast;
 
 impl SimpleCast {
-    pub fn address_zero() -> String {
-        format!("{:#x}", FieldElement::ZERO)
-    }
-
     pub fn to_hex(dec: &FieldElement) -> String {
         format!("{:#x}", dec)
     }

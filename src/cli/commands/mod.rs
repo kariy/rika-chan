@@ -18,10 +18,6 @@ pub struct App {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    #[clap(name = "--address-zero")]
-    #[clap(about = "Get StarkNet zero address.")]
-    AddressZero,
-
     #[clap(name = "--to-hex")]
     #[clap(about = "Convert decimal felt to hexadecimal.")]
     DecToHex {
@@ -233,6 +229,7 @@ pub enum Commands {
     #[clap(about = "Perform a raw JSON-RPC request.")]
     Rpc(RpcArgs),
 
+    #[clap(about = "Call a StarkNet function without creating a transaction.")]
     Call {
         #[clap(value_name = "FUNCTION_NAME")]
         function_name: String,

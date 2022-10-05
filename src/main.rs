@@ -18,10 +18,6 @@ async fn main() -> Result<()> {
     // println!("{:?}", cli.command);
 
     match &cli.command {
-        Commands::AddressZero => {
-            println!("{}", SimpleCast::address_zero());
-        }
-
         Commands::DecToHex { dec } => {
             println!("{}", SimpleCast::to_hex(dec));
         }

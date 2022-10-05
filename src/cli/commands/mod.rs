@@ -96,6 +96,7 @@ pub enum Commands {
         field: Option<String>,
 
         #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions
     },
 
@@ -107,6 +108,7 @@ pub enum Commands {
         hash: FieldElement,
 
         #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions
     },
 
@@ -121,12 +123,14 @@ pub enum Commands {
         field: Option<String>,
 
         #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions
     },
 
     #[clap(about = "Get the StarkNet chain ID.")]
     ChainId {
         #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions
     },
 
@@ -147,12 +151,14 @@ pub enum Commands {
         field: Option<String>,
 
         #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions
     },
 
     #[clap(about = "Get the latest block number.")]
     BlockNumber {
         #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions
     },
 
@@ -162,9 +168,10 @@ pub enum Commands {
         #[clap(default_value = "latest")]
         #[clap(value_parser(BlockIdParser))]
         #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending).")]
-        id: BlockId,
+        block_id: BlockId,
 
         #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions
     },
 
@@ -174,6 +181,7 @@ pub enum Commands {
         contract_address: FieldElement,
 
         #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions
     },
 
@@ -181,6 +189,7 @@ pub enum Commands {
     #[clap(about = "Get the transactions in the transaction pool, recognized by the sequencer.")]
     PendingTransactions {
         #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions
     },
 
@@ -191,9 +200,10 @@ pub enum Commands {
         #[clap(default_value = "latest")]
         #[clap(value_parser(BlockIdParser))]
         #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending).")]
-        id: BlockId,
+        block_id: BlockId,
 
         #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions
     },
 
@@ -216,6 +226,7 @@ pub enum Commands {
         number: Option<u64>,
 
         #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions
     },
 
@@ -237,7 +248,7 @@ pub enum Commands {
         #[clap(short, long)]
         contract_address: FieldElement,
 
-        #[clap(short, long)]
+        #[clap(short, long = "block")]
         #[clap(value_name = "BLOCK_ID")]
         #[clap(default_value = "latest")]
         #[clap(value_parser(BlockIdParser))]
@@ -251,7 +262,7 @@ pub enum Commands {
     
     #[clap(about = "Get the information about the result of executing the requested block")]
     StateUpdate {
-        #[clap(short, long)]
+        #[clap(short, long = "block")]
         #[clap(value_name = "BLOCK_ID")]
         #[clap(default_value = "latest")]
         #[clap(value_parser(BlockIdParser))]

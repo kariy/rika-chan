@@ -134,17 +134,17 @@ async fn main() -> Result<()> {
             println!("{}", block)
         }
 
-        Commands::Age { id, starknet } => {
+        Commands::Age { block_id, starknet } => {
             let timestamp = Cast::new(Url::parse(starknet.rpc_url.as_str())?)
-                .block(id.to_owned(), false, Some("timestamp".to_string()))
+                .block(block_id.to_owned(), false, Some("timestamp".to_string()))
                 .await?;
 
             println!("{}", timestamp);
         }
 
-        Commands::CountTransactions { id, starknet } => {
+        Commands::CountTransactions { block_id, starknet } => {
             let total = Cast::new(Url::parse(&starknet.rpc_url)?)
-                .get_block_transaction_count(id.to_owned())
+                .get_block_transaction_count(block_id.to_owned())
                 .await?;
 
             println!("{}", total);

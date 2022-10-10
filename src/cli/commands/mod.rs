@@ -46,11 +46,11 @@ pub enum Commands {
     #[clap(about = "Get the maximum felt value.")]
     MaxUnsignedFelt,
 
-    #[clap(name = "--max-signed-felt")]
+    #[clap(name = "--max-sfelt")]
     #[clap(about = "Get the maximum signed felt value.")]
     MaxSignedFelt,
 
-    #[clap(name = "--min-signed-felt")]
+    #[clap(name = "--min-sfelt")]
     #[clap(about = "Get the minimum signed felt value.")]
     MinSignedFelt,
 

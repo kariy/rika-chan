@@ -9,8 +9,8 @@ A command-line tool for performing RPC calls to the StarkNet network.
 -   [x] `--from-utf8`
 -   [x] `--str-to-felt`
 -   [x] `--max-felt`
--   [x] `--max-signed-felt`
--   [x] `--min-signed-felt`
+-   [x] `--max-sfelt`
+-   [x] `--min-sfelt`
 -   [x] `age`
 -   [ ] `balance`
 -   [x] `block`

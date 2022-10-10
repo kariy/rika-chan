@@ -1,5 +1,7 @@
 pub mod utils;
 
+use std::fs;
+use std::path::Path;
 use std::str::FromStr;
 
 use eyre::{eyre, Report, Result};
@@ -11,8 +13,8 @@ use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 use starknet::{
     core::{
         crypto::{ecdsa_sign, ecdsa_verify, pedersen_hash, Signature},
-        types::FieldElement,
-        utils::{cairo_short_string_to_felt, parse_cairo_short_string, starknet_keccak},
+        types::{FieldElement, ContractArtifact},
+        utils::{cairo_short_string_to_felt, parse_cairo_short_string, starknet_keccak, get_storage_var_address}
     },
     accounts::Call,
     providers::jsonrpc::models::MaybePendingBlockWithTxs,
@@ -264,5 +266,15 @@ impl SimpleCast {
             },
         )
         .map_err(|e| Report::new(e))
+    }
+
+    pub fn get_storage_index(var_name: &str, keys: &[FieldElement]) -> Result<FieldElement> {
+        get_storage_var_address(var_name, keys).map_err(|e| Report::new(e))
+    } 
+    
+    pub fn get_contract_hash(contract_file: &str) -> Result<FieldElement> {
+        let res = fs::read_to_string(Path::new(contract_file))?;
+        let contract: ContractArtifact = serde_json::from_str(&res)?;
+        contract.class_hash().map_err(|e| Report::new(e))
     }
 }

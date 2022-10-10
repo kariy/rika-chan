@@ -221,6 +221,16 @@ async fn main() -> Result<()> {
             println!("{}", res);
         }
 
+        Commands::Index { variable_name, keys } => {
+            let res = SimpleCast::get_storage_index(variable_name, keys)?;
+            println!("{:#x}", res);
+        }
+
+        Commands::ContractHash { contract } => {
+            let res = SimpleCast::get_contract_hash(contract)?;
+            println!("{:#x}", res);
+        }
+
         _ => {
             println!("{:?}", cli.command);
         }

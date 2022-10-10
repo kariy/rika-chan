@@ -269,6 +269,19 @@ pub enum Commands {
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions
+    },
+
+    #[clap(about = "Compute the address of a storage variable.")]
+    Index {
+        #[clap(value_name = "VAR_NAME")]
+        variable_name: String,
+        keys: Vec<FieldElement>
+    },
+
+    #[clap(about = "Get the hash of the StarkNet contract.")]
+    ContractHash {
+        #[clap(help = "The compiled contract file")]
+        contract: String
     }
 }
 

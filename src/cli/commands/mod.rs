@@ -33,7 +33,7 @@ pub enum Commands {
         #[clap(value_parser(FieldElementParser))]
         felt: FieldElement,
     },
-     
+
     #[clap(name = "--to-dec")]
     #[clap(about = "Convert hexadecimal felt to decimal.")]
     HexToDec {
@@ -93,7 +93,7 @@ pub enum Commands {
 
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions
+        starknet: StarkNetOptions,
     },
 
     #[clap(name = "tx-status")]
@@ -105,7 +105,7 @@ pub enum Commands {
 
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions
+        starknet: StarkNetOptions,
     },
 
     #[clap(name = "receipt")]
@@ -120,14 +120,14 @@ pub enum Commands {
 
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions
+        starknet: StarkNetOptions,
     },
 
     #[clap(about = "Get the StarkNet chain ID.")]
     ChainId {
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions
+        starknet: StarkNetOptions,
     },
 
     #[clap(about = "Get information about a block.")]
@@ -148,14 +148,14 @@ pub enum Commands {
 
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions
+        starknet: StarkNetOptions,
     },
 
     #[clap(about = "Get the latest block number.")]
     BlockNumber {
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions
+        starknet: StarkNetOptions,
     },
 
     #[clap(about = "Get the timestamp of a block.")]
@@ -168,7 +168,7 @@ pub enum Commands {
 
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions
+        starknet: StarkNetOptions,
     },
 
     #[clap(about = "Get the latest nonce associated with the address.")]
@@ -178,7 +178,7 @@ pub enum Commands {
 
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions
+        starknet: StarkNetOptions,
     },
 
     #[clap(name = "tx-pending")]
@@ -186,7 +186,7 @@ pub enum Commands {
     PendingTransactions {
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions
+        starknet: StarkNetOptions,
     },
 
     #[clap(name = "tx-count")]
@@ -200,7 +200,7 @@ pub enum Commands {
 
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions
+        starknet: StarkNetOptions,
     },
 
     #[clap(about = "Get the value of the storage at the given address and key")]
@@ -211,19 +211,16 @@ pub enum Commands {
         #[clap(value_parser(FieldElementParser))]
         key: FieldElement,
 
-        #[clap(long)]
-        #[clap(value_name = "BLOCK_HASH")]
-        #[clap(conflicts_with = "number")]
-        #[clap(value_parser(FieldElementParser))]
-        hash: Option<FieldElement>,
-
-        #[clap(long)]
-        #[clap(value_name = "BLOCK_NUMBER")]
-        number: Option<u64>,
+        #[clap(short, long = "block")]
+        #[clap(value_name = "BLOCK_ID")]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending)")]
+        block_id: BlockId,
 
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions
+        starknet: StarkNetOptions,
     },
 
     #[clap(about = "Perform a raw JSON-RPC request.")]
@@ -254,9 +251,9 @@ pub enum Commands {
 
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions
+        starknet: StarkNetOptions,
     },
-    
+
     #[clap(about = "Get the information about the result of executing the requested block")]
     StateUpdate {
         #[clap(short, long = "block")]
@@ -268,21 +265,21 @@ pub enum Commands {
 
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions
+        starknet: StarkNetOptions,
     },
 
     #[clap(about = "Compute the address of a storage variable.")]
     Index {
         #[clap(value_name = "VAR_NAME")]
         variable_name: String,
-        keys: Vec<FieldElement>
+        keys: Vec<FieldElement>,
     },
 
     #[clap(about = "Get the hash of the StarkNet contract.")]
     ContractHash {
         #[clap(help = "The compiled contract file")]
-        contract: String
-    }
+        contract: String,
+    },
 }
 
 #[derive(Subcommand, Debug)]
@@ -318,4 +315,3 @@ pub enum EcdsaCommand {
         verifying_key: FieldElement,
     },
 }
-

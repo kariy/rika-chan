@@ -6,7 +6,8 @@ mod cli;
 use crate::cast::{Cast, SimpleCast};
 use crate::cli::commands::{App, Commands, EcdsaCommand, RpcArgs};
 
-use cast::utils; use clap::Parser;
+use cast::utils;
+use clap::Parser;
 use eyre::Result;
 use reqwest::Url;
 use starknet::providers::jsonrpc::models::BlockId;
@@ -84,7 +85,9 @@ async fn main() -> Result<()> {
         }
 
         Commands::ChainId { starknet } => {
-            let chain_id = Cast::new(Url::parse(starknet.rpc_url.as_str())?).chain_id().await?;
+            let chain_id = Cast::new(Url::parse(starknet.rpc_url.as_str())?)
+                .chain_id()
+                .await?;
             println!("{}", chain_id);
         }
 
@@ -166,16 +169,9 @@ async fn main() -> Result<()> {
         Commands::Storage {
             contract_address,
             key,
-            hash,
-            number,
+            block_id,
             starknet,
         } => {
-            let block_id = if let Some(hash) = hash {
-                BlockId::Hash(hash.to_owned())
-            } else {
-                BlockId::Number(number.unwrap())
-            };
-
             let res = Cast::new(Url::parse(&starknet.rpc_url)?)
                 .get_storage_at(contract_address.to_owned(), key.to_owned(), block_id)
                 .await?;
@@ -194,7 +190,7 @@ async fn main() -> Result<()> {
             inputs,
             contract_address,
             block_id,
-            starknet
+            starknet,
         } => {
             let expected_params_count = utils::count_function_inputs_from_abi(abi, function_name)?;
             let inputs = inputs.to_owned();
@@ -221,7 +217,10 @@ async fn main() -> Result<()> {
             println!("{}", res);
         }
 
-        Commands::Index { variable_name, keys } => {
+        Commands::Index {
+            variable_name,
+            keys,
+        } => {
             let res = SimpleCast::get_storage_index(variable_name, keys)?;
             println!("{:#x}", res);
         }

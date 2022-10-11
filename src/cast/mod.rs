@@ -11,12 +11,15 @@ use serde_json::{json, Value};
 use starknet::providers::jsonrpc::models::{BlockId, BlockTag, FunctionCall};
 use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 use starknet::{
+    accounts::Call,
     core::{
         crypto::{ecdsa_sign, ecdsa_verify, pedersen_hash, Signature},
-        types::{FieldElement, ContractArtifact},
-        utils::{cairo_short_string_to_felt, parse_cairo_short_string, starknet_keccak, get_storage_var_address}
+        types::{ContractArtifact, FieldElement},
+        utils::{
+            cairo_short_string_to_felt, get_storage_var_address, parse_cairo_short_string,
+            starknet_keccak,
+        },
     },
-    accounts::Call,
     providers::jsonrpc::models::MaybePendingBlockWithTxs,
 };
 
@@ -135,11 +138,11 @@ impl Cast {
         &self,
         contract_address: FieldElement,
         key: FieldElement,
-        block_id: BlockId,
+        block_id: &BlockId,
     ) -> Result<String> {
         let res = self
             .client
-            .get_storage_at(contract_address, key, &block_id)
+            .get_storage_at(contract_address, key, block_id)
             .await?;
 
         Ok(format!("{:#x}", res))
@@ -173,10 +176,7 @@ impl Cast {
         Ok(res.join(" "))
     }
 
-    pub async fn invoke(&self, 
-        contract_address: &FieldElement,
-        calls: &[Call]
-    ) {
+    pub async fn invoke(&self, contract_address: &FieldElement, calls: &[Call]) {
         // create a signer
         // create function call object, call
         // hash function call object, t_h = hash(call)
@@ -184,9 +184,7 @@ impl Cast {
         // send transaction
     }
 
-    pub async fn get_state_update(
-        &self, block_id: &BlockId
-    ) -> Result<String> {
+    pub async fn get_state_update(&self, block_id: &BlockId) -> Result<String> {
         let res = self.client.get_state_update(block_id).await?;
         let res = serde_json::to_value(res)?;
         Ok(serde_json::to_string_pretty(&res)?)
@@ -270,8 +268,8 @@ impl SimpleCast {
 
     pub fn get_storage_index(var_name: &str, keys: &[FieldElement]) -> Result<FieldElement> {
         get_storage_var_address(var_name, keys).map_err(|e| Report::new(e))
-    } 
-    
+    }
+
     pub fn get_contract_hash(contract_file: &str) -> Result<FieldElement> {
         let res = fs::read_to_string(Path::new(contract_file))?;
         let contract: ContractArtifact = serde_json::from_str(&res)?;

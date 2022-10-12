@@ -203,13 +203,13 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
-    #[clap(about = "Get the value of the storage at the given address and key")]
+    #[clap(about = "Get the value of a contract's storage at the given index")]
     Storage {
         #[clap(value_parser(FieldElementParser))]
         contract_address: FieldElement,
 
         #[clap(value_parser(FieldElementParser))]
-        key: FieldElement,
+        index: FieldElement,
 
         #[clap(short, long = "block")]
         #[clap(value_name = "BLOCK_ID")]
@@ -228,6 +228,7 @@ pub enum Commands {
 
     #[clap(about = "Call a StarkNet function without creating a transaction.")]
     Call {
+        #[clap(short, long)]
         #[clap(value_name = "FUNCTION_NAME")]
         function_name: String,
 
@@ -272,6 +273,7 @@ pub enum Commands {
     Index {
         #[clap(value_name = "VAR_NAME")]
         variable_name: String,
+
         keys: Vec<FieldElement>,
     },
 
@@ -286,6 +288,7 @@ pub enum Commands {
 pub enum EcdsaCommand {
     #[clap(about = "Sign a message.")]
     Sign {
+        #[clap(short, long)]
         #[clap(value_name = "MESSAGE_HASH")]
         #[clap(value_parser(FieldElementParser))]
         #[clap(help = "Message hash to be signed.")]
@@ -300,11 +303,16 @@ pub enum EcdsaCommand {
 
     #[clap(about = "Verify the signature of a message.")]
     Verify {
+        #[clap(short, long)]
         #[clap(value_name = "MESSAGE_HASH")]
         #[clap(value_parser(FieldElementParser))]
         #[clap(help = "Message hash used in the signature.")]
         message: FieldElement,
 
+        #[clap(short, long)]
+        #[clap(required = true)]
+        #[clap(number_of_values = 2)]
+        #[clap(value_names = &["SIGNATURE_R", "SIGNATURE_S"])]
         #[clap(value_parser(FieldElementParser))]
         signature: Vec<FieldElement>,
 

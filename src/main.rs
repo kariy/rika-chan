@@ -16,8 +16,6 @@ use starknet::providers::jsonrpc::models::BlockId;
 async fn main() -> Result<()> {
     let cli = App::parse();
 
-    // println!("{:?}", cli.command);
-
     match &cli.command {
         Commands::DecToHex { dec } => {
             println!("{}", SimpleCast::to_hex(dec));
@@ -168,12 +166,12 @@ async fn main() -> Result<()> {
 
         Commands::Storage {
             contract_address,
-            key,
+            index,
             block_id,
             starknet,
         } => {
             let res = Cast::new(Url::parse(&starknet.rpc_url)?)
-                .get_storage_at(contract_address.to_owned(), key.to_owned(), block_id)
+                .get_storage_at(contract_address.to_owned(), index.to_owned(), block_id)
                 .await?;
 
             println!("{}", res);

@@ -6,8 +6,8 @@ A command-line tool for performing RPC calls to the StarkNet network.
 
 -   [x] `--to-dec`
 -   [x] `--to-hex`
--   [x] `--from-utf8`
--   [x] `--str-to-felt`
+-   [x] `--from-ascii`
+-   [x] `--to-ascii`
 -   [x] `--max-felt`
 -   [x] `--max-sfelt`
 -   [x] `--min-sfelt`

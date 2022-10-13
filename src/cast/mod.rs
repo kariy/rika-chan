@@ -2,13 +2,10 @@ pub mod utils;
 
 use std::fs;
 use std::path::Path;
-use std::str::FromStr;
 
 use eyre::{eyre, Report, Result};
 use reqwest::Url;
-use serde::Serialize;
-use serde_json::{json, Value};
-use starknet::providers::jsonrpc::models::{BlockId, BlockTag, FunctionCall};
+use starknet::providers::jsonrpc::models::{BlockId, FunctionCall};
 use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 use starknet::{
     accounts::Call,
@@ -176,12 +173,14 @@ impl Cast {
         Ok(res.join(" "))
     }
 
+    #[allow(unused)]
     pub async fn invoke(&self, contract_address: &FieldElement, calls: &[Call]) {
         // create a signer
         // create function call object, call
         // hash function call object, t_h = hash(call)
         // sign transaction hash s = sign(t_h)
         // send transaction
+        todo!()
     }
 
     pub async fn get_state_update(&self, block_id: &BlockId) -> Result<String> {

@@ -1,16 +1,13 @@
-#![allow(warnings)]
-
 mod cast;
 mod cli;
 
 use crate::cast::{Cast, SimpleCast};
-use crate::cli::commands::{App, Commands, EcdsaCommand, RpcArgs};
+use crate::cli::commands::{App, Commands, EcdsaCommand};
 
 use cast::utils;
 use clap::Parser;
 use eyre::Result;
 use reqwest::Url;
-use starknet::providers::jsonrpc::models::BlockId;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -226,10 +223,6 @@ async fn main() -> Result<()> {
         Commands::ContractHash { contract } => {
             let res = SimpleCast::get_contract_hash(contract)?;
             println!("{:#x}", res);
-        }
-
-        _ => {
-            println!("{:?}", cli.command);
         }
     }
 

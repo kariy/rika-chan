@@ -2,7 +2,10 @@ use std::str::FromStr;
 
 use clap::{builder::TypedValueParser, PossibleValue};
 use starknet::{
-    core::{types::FieldElement, utils::cairo_short_string_to_felt, chain_id::{MAINNET, TESTNET}},
+    core::{
+        chain_id::{MAINNET, TESTNET},
+        types::FieldElement,
+    },
     providers::jsonrpc::models::{BlockId, BlockTag},
 };
 
@@ -130,6 +133,7 @@ pub struct ChainParser;
 impl TypedValueParser for ChainParser {
     type Value = FieldElement;
 
+    #[allow(unused_variables)]
     fn parse_ref(
         &self,
         cmd: &clap::Command,
@@ -142,13 +146,16 @@ impl TypedValueParser for ChainParser {
         ))?;
 
         if value.parse::<u128>().is_ok() {
-            FieldElement::from_str(value).map_err(|e|
-                clap::Error::raw(clap::ErrorKind::InvalidValue, e.to_string()))
+            FieldElement::from_str(value)
+                .map_err(|e| clap::Error::raw(clap::ErrorKind::InvalidValue, e.to_string()))
         } else {
             match value {
                 "SN_MAIN" => Ok(MAINNET),
                 "SN_GOERLI" => Ok(TESTNET),
-                _ => Err(clap::Error::raw(clap::ErrorKind::InvalidValue, "Invalid chain id"))
+                _ => Err(clap::Error::raw(
+                    clap::ErrorKind::InvalidValue,
+                    "Invalid chain id",
+                )),
             }
         }
     }
@@ -156,9 +163,10 @@ impl TypedValueParser for ChainParser {
     fn possible_values(
         &self,
     ) -> Option<Box<dyn Iterator<Item = clap::PossibleValue<'static>> + '_>> {
-        let possible_values: Vec<PossibleValue<'static>> =
-            vec![PossibleValue::new("SN_MAIN"), PossibleValue::new("SN_GOERLI")];
+        let possible_values: Vec<PossibleValue<'static>> = vec![
+            PossibleValue::new("SN_MAIN"),
+            PossibleValue::new("SN_GOERLI"),
+        ];
         Some(Box::new(possible_values.into_iter()))
     }
 }
-

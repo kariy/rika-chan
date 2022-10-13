@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fs;
+use std::path::Path;
 use std::str::FromStr;
-use std::{io::Error, path::Path};
 
 use eyre::Result;
 use starknet::core::{types::FieldElement, utils::cairo_short_string_to_felt};

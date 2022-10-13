@@ -3,10 +3,10 @@ mod rpc;
 
 pub use rpc::RpcArgs;
 
-use self::opts::{StarkNetOptions, WalletOptions};
+use self::opts::StarkNetOptions;
 use crate::cli::parser::{BlockIdParser, FieldElementParser};
 
-use clap::{ArgGroup, Parser, Subcommand};
+use clap::{Parser, Subcommand};
 use starknet::{core::types::FieldElement, providers::jsonrpc::models::BlockId};
 
 #[derive(Parser, Debug)]

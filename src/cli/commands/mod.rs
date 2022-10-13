@@ -26,12 +26,12 @@ pub enum Commands {
         dec: FieldElement,
     },
 
-    #[clap(name = "--from-utf8")]
-    #[clap(about = "Convert felt to utf-8 short string.")]
-    FromUtf8 {
-        #[clap(value_name = "FELT")]
+    #[clap(name = "--from-ascii")]
+    #[clap(about = "Convert from ASCII to Cairo short string.")]
+    FromAscii {
+        #[clap(value_name = "ASCII")]
         #[clap(value_parser(FieldElementParser))]
-        felt: FieldElement,
+        ascii: FieldElement,
     },
 
     #[clap(name = "--to-dec")]
@@ -54,14 +54,14 @@ pub enum Commands {
     #[clap(about = "Get the minimum signed felt value.")]
     MinSignedFelt,
 
-    #[clap(name = "--str-to-felt")]
-    #[clap(about = "Convert short string to felt decimal. (String whose length is < 31)")]
-    StrToFelt {
-        #[clap(value_name = "SHORTSTRING")]
-        str: String,
+    #[clap(name = "--to-ascii")]
+    #[clap(about = "Convert Cairo short string to its ASCII format.")]
+    ToAscii {
+        #[clap(value_name = "SHORT_STRING")]
+        short_str: String,
     },
 
-    #[clap(about = "Perform ECDSA related operations.")]
+    #[clap(about = "Perform ECDSA operations over the STARK-friendly elliptic curve.")]
     Ecdsa {
         #[clap(subcommand)]
         commands: EcdsaCommand,
@@ -73,7 +73,7 @@ pub enum Commands {
         data: String,
     },
 
-    #[clap(about = "Calculate the Pedersen hash on two field elements, (x,y)")]
+    #[clap(about = "Calculate the Pedersen hash on two field elements.")]
     Pedersen {
         #[clap(value_name = "X")]
         x: String,
@@ -277,7 +277,7 @@ pub enum Commands {
         keys: Vec<FieldElement>,
     },
 
-    #[clap(about = "Get the hash of the StarkNet contract.")]
+    #[clap(about = "Compute the hash of a StarkNet contract.")]
     ContractHash {
         #[clap(help = "The compiled contract file")]
         contract: String,

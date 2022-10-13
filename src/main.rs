@@ -43,8 +43,8 @@ async fn main() -> Result<()> {
             }
         },
 
-        Commands::FromUtf8 { felt } => {
-            println!("{}", SimpleCast::from_utf8(felt)?);
+        Commands::FromAscii { ascii } => {
+            println!("{}", SimpleCast::from_utf8(ascii)?);
         }
 
         Commands::HexToDec { hex } => {
@@ -63,8 +63,8 @@ async fn main() -> Result<()> {
             println!("{}", SimpleCast::min_signed_felt())
         }
 
-        Commands::StrToFelt { str } => {
-            println!("{}", SimpleCast::str_to_felt(str)?);
+        Commands::ToAscii { short_str } => {
+            println!("{}", SimpleCast::str_to_felt(short_str)?);
         }
 
         Commands::MaxUnsignedFelt => {

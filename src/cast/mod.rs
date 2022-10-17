@@ -184,16 +184,6 @@ impl Cast {
         Ok(res.join(" "))
     }
 
-    #[allow(unused)]
-    pub async fn invoke(&self, contract_address: &FieldElement, calls: &[Call]) {
-        // create a signer
-        // create function call object, call
-        // hash function call object, t_h = hash(call)
-        // sign transaction hash s = sign(t_h)
-        // send transaction
-        todo!()
-    }
-
     pub async fn get_state_update(&self, block_id: &BlockId) -> Result<String> {
         let res = self.client.get_state_update(block_id).await?;
         let res = serde_json::to_value(res)?;

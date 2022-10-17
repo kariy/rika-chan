@@ -4,7 +4,6 @@ mod cli;
 use crate::cast::{Cast, SimpleCast};
 use crate::cli::commands::{App, Commands, EcdsaCommand};
 
-use cast::utils;
 use clap::Parser;
 use eyre::Result;
 use reqwest::Url;
@@ -187,23 +186,11 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let expected_params_count = utils::count_function_inputs_from_abi(abi, function_name)?;
-            let inputs = inputs.to_owned();
-            let len = inputs.len();
+            let res = Cast::new(Url::parse(&starknet.rpc_url)?)
+                .call(abi, contract_address, function_name, inputs, block_id)
+                .await?;
 
-            if expected_params_count == len as u8 {
-                let res = Cast::new(Url::parse(&starknet.rpc_url)?)
-                    .call(contract_address, function_name, inputs, block_id)
-                    .await?;
-
-                println!("{}", res);
-            } else {
-                return Err(eyre::eyre!(
-                    "expected {} inputs but got {}.",
-                    expected_params_count,
-                    len,
-                ));
-            }
+            println!("{}", res);
         }
 
         Commands::StateUpdate { block_id, starknet } => {

@@ -1,3 +1,4 @@
+mod call;
 pub mod opts;
 mod rpc;
 

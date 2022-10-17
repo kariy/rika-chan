@@ -147,19 +147,30 @@ impl Cast {
 
     pub async fn call(
         &self,
+        abi: &str,
         contract_address: &FieldElement,
         selector: &str,
-        calldata: Vec<FieldElement>,
+        calldata: &Vec<FieldElement>,
         block_id: &BlockId,
     ) -> Result<String> {
+        let expected_input_count = utils::count_function_inputs(abi, selector)?;
+
+        if expected_input_count != calldata.len() as u64 {
+            return Err(eyre!(
+                "expected {} input(s) but got {}",
+                expected_input_count,
+                calldata.len()
+            ));
+        }
+
         let entry_point_selector = FieldElement::from_hex_be(&SimpleCast::keccak(selector)?)?;
         let res = self
             .client
             .call(
                 FunctionCall {
-                    contract_address: contract_address.to_owned(),
                     entry_point_selector,
-                    calldata,
+                    calldata: calldata.to_owned(),
+                    contract_address: contract_address.to_owned(),
                 },
                 block_id,
             )

@@ -1,6 +1,7 @@
 use crate::cli::parser::ChainParser;
 
 use clap::Parser;
+use reqwest::Url;
 use starknet::core::types::FieldElement;
 
 #[derive(Debug, Clone, Parser)]
@@ -10,7 +11,7 @@ pub struct StarkNetOptions {
     #[clap(help = "The RPC endpoint")]
     #[clap(env = "STARKNET_RPC_URL")]
     #[clap(default_value = "http://localhost:5050/rpc")]
-    pub rpc_url: String,
+    pub rpc_url: Url,
 
     #[clap(long)]
     #[clap(env = "STARKNET_CHAIN")]

@@ -5,7 +5,6 @@ use std::path::Path;
 
 use clap::{ArgGroup, Parser};
 use eyre::Result;
-use reqwest::Url;
 use serde_json::json;
 
 #[derive(Debug, Clone, Parser)]
@@ -36,7 +35,6 @@ impl RpcArgs {
             file,
             starknet,
         } = self;
-        let url = Url::parse(&starknet.rpc_url)?;
 
         let params = if let Some(path) = file {
             let content = fs::read_to_string(Path::new(&path))?;
@@ -55,7 +53,7 @@ impl RpcArgs {
         };
 
         let res = reqwest::Client::new()
-            .post(url)
+            .post(starknet.rpc_url)
             .json(&json!({
                 "id": 1,
                 "jsonrpc": "2.0",

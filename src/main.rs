@@ -6,7 +6,6 @@ use crate::cli::commands::{App, Commands, EcdsaCommand};
 
 use clap::Parser;
 use eyre::Result;
-use reqwest::Url;
 use starknet::core::utils::get_selector_from_name;
 use starknet::providers::jsonrpc::models::FunctionCall;
 
@@ -74,16 +73,14 @@ async fn main() -> Result<()> {
         }
 
         Commands::BlockNumber { starknet } => {
-            let res = Cast::new(Url::parse(starknet.rpc_url.as_str())?)
+            let res = Cast::new(starknet.rpc_url.to_owned())
                 .block_number()
                 .await?;
             println!("{:?}", res);
         }
 
         Commands::ChainId { starknet } => {
-            let chain_id = Cast::new(Url::parse(starknet.rpc_url.as_str())?)
-                .chain_id()
-                .await?;
+            let chain_id = Cast::new(starknet.rpc_url.to_owned()).chain_id().await?;
             println!("{}", chain_id);
         }
 
@@ -92,14 +89,14 @@ async fn main() -> Result<()> {
             field,
             starknet,
         } => {
-            let res = Cast::new(Url::parse(starknet.rpc_url.as_str())?)
+            let res = Cast::new(starknet.rpc_url.to_owned())
                 .get_transaction_by_hash(hash.to_owned(), field.to_owned())
                 .await?;
             println!("{}", res);
         }
 
         Commands::TransactionStatus { hash, starknet } => {
-            let res = Cast::new(Url::parse(&starknet.rpc_url)?)
+            let res = Cast::new(starknet.rpc_url.to_owned())
                 .get_transaction_by_hash(hash.to_owned(), Some("status".to_string()))
                 .await?;
             println!("{}", res);
@@ -110,7 +107,7 @@ async fn main() -> Result<()> {
             field,
             starknet,
         } => {
-            let res = Cast::new(Url::parse(&starknet.rpc_url)?)
+            let res = Cast::new(starknet.rpc_url.to_owned())
                 .get_transaction_receipt(hash.to_owned(), field.to_owned())
                 .await?;
             println!("{}", res);
@@ -122,7 +119,7 @@ async fn main() -> Result<()> {
             field,
             starknet,
         } => {
-            let block = Cast::new(Url::parse(starknet.rpc_url.as_str())?)
+            let block = Cast::new(starknet.rpc_url.to_owned())
                 .block(id.to_owned(), full.clone(), field.to_owned())
                 .await?;
 
@@ -130,7 +127,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::Age { block_id, starknet } => {
-            let timestamp = Cast::new(Url::parse(starknet.rpc_url.as_str())?)
+            let timestamp = Cast::new(starknet.rpc_url.to_owned())
                 .block(block_id.to_owned(), false, Some("timestamp".to_string()))
                 .await?;
 
@@ -138,7 +135,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::CountTransactions { block_id, starknet } => {
-            let total = Cast::new(Url::parse(&starknet.rpc_url)?)
+            let total = Cast::new(starknet.rpc_url.to_owned())
                 .get_block_transaction_count(block_id.to_owned())
                 .await?;
 
@@ -149,14 +146,14 @@ async fn main() -> Result<()> {
             contract_address,
             starknet,
         } => {
-            let nonce = Cast::new(Url::parse(&starknet.rpc_url)?)
+            let nonce = Cast::new(starknet.rpc_url.to_owned())
                 .get_nonce(contract_address.to_owned())
                 .await?;
             println!("{}", nonce);
         }
 
         Commands::PendingTransactions { starknet } => {
-            let transactions = Cast::new(Url::parse(&starknet.rpc_url)?)
+            let transactions = Cast::new(starknet.rpc_url.to_owned())
                 .pending_transactions()
                 .await?;
             println!("{}", transactions);
@@ -168,7 +165,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Cast::new(Url::parse(&starknet.rpc_url)?)
+            let res = Cast::new(starknet.rpc_url.to_owned())
                 .get_storage_at(contract_address.to_owned(), index.to_owned(), block_id)
                 .await?;
 
@@ -188,7 +185,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Cast::new(Url::parse(&starknet.rpc_url)?)
+            let res = Cast::new(starknet.rpc_url.to_owned())
                 .call(abi, contract_address, function_name, inputs, block_id)
                 .await?;
 
@@ -196,8 +193,9 @@ async fn main() -> Result<()> {
         }
 
         Commands::StateUpdate { block_id, starknet } => {
-            let url = Url::parse(&starknet.rpc_url)?;
-            let res = Cast::new(url).get_state_update(block_id).await?;
+            let res = Cast::new(starknet.rpc_url.to_owned())
+                .get_state_update(block_id)
+                .await?;
             println!("{}", res);
         }
 
@@ -221,8 +219,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let url = Url::parse(&starknet.rpc_url)?;
-            let res = Cast::new(url)
+            let res = Cast::new(starknet.rpc_url.to_owned())
                 .estimate_fee(
                     FunctionCall {
                         contract_address: contract_address.to_owned(),

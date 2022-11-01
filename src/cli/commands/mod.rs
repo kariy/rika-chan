@@ -282,6 +282,36 @@ pub enum Commands {
         #[clap(help = "The compiled contract file")]
         contract: String,
     },
+
+    #[clap(about = "Estimate the fee for a given StarkNet transaction.")]
+    #[clap(
+        long_about = "Estimates the resources required by a transaction relative to a given state."
+    )]
+    EstimateFee {
+        #[clap(short = 'C', long)]
+        #[clap(display_order = 1)]
+        contract_address: FieldElement,
+
+        #[clap(short, long)]
+        #[clap(display_order = 2)]
+        function_name: String,
+
+        #[clap(short, long)]
+        #[clap(display_order = 3)]
+        #[clap(multiple_values = true)]
+        calldata: Vec<FieldElement>,
+
+        #[clap(short, long = "block")]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending)")]
+        #[clap(display_order = 4)]
+        block_id: BlockId,
+
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions,
+    },
 }
 
 #[derive(Subcommand, Debug)]

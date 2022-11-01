@@ -7,6 +7,8 @@ use crate::cli::commands::{App, Commands, EcdsaCommand};
 use clap::Parser;
 use eyre::Result;
 use reqwest::Url;
+use starknet::core::utils::get_selector_from_name;
+use starknet::providers::jsonrpc::models::FunctionCall;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -210,6 +212,27 @@ async fn main() -> Result<()> {
         Commands::ContractHash { contract } => {
             let res = SimpleCast::get_contract_hash(contract)?;
             println!("{:#x}", res);
+        }
+
+        Commands::EstimateFee {
+            contract_address,
+            function_name,
+            calldata,
+            block_id,
+            starknet,
+        } => {
+            let url = Url::parse(&starknet.rpc_url)?;
+            let res = Cast::new(url)
+                .estimate_fee(
+                    FunctionCall {
+                        contract_address: contract_address.to_owned(),
+                        calldata: calldata.to_owned(),
+                        entry_point_selector: get_selector_from_name(function_name)?,
+                    },
+                    block_id,
+                )
+                .await?;
+            println!("{}", res);
         }
     }
 

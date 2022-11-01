@@ -15,10 +15,10 @@ pub struct StarkNetOptions {
 
     #[clap(long)]
     #[clap(env = "STARKNET_CHAIN")]
-    #[clap(value_name ="CHAIN_ID")]
+    #[clap(value_name = "CHAIN_ID")]
     #[clap(value_parser(ChainParser))]
     pub chain: Option<FieldElement>,
-    
+
     #[clap(flatten)]
     #[clap(next_help_heading = "WALLET OPTIONS")]
     pub wallet: WalletOptions,
@@ -28,9 +28,9 @@ pub struct StarkNetOptions {
 pub struct TransactionOptions {
     #[clap(long)]
     pub nonce: Option<FieldElement>,
-    
+
     #[clap(long)]
-    pub max_fee: Option<FieldElement>
+    pub max_fee: Option<FieldElement>,
 }
 
 #[derive(Debug, Clone, Parser)]
@@ -45,5 +45,5 @@ pub struct WalletOptions {
     #[clap(value_name = "ACCOUNT_ADDRESS")]
     #[clap(help_heading = "WALLET OPTIONS - RAW")]
     #[clap(help = "Account contract to initiate the transaction from.")]
-    pub account_address: Option<String>
+    pub account_address: Option<String>,
 }

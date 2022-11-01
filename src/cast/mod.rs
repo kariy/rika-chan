@@ -5,6 +5,7 @@ use std::path::Path;
 
 use eyre::{eyre, Report, Result};
 use reqwest::Url;
+use starknet::core::utils::get_selector_from_name;
 use starknet::providers::jsonrpc::models::{BlockId, FunctionCall};
 use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 use starknet::{
@@ -148,11 +149,11 @@ impl Cast {
         &self,
         abi: &str,
         contract_address: &FieldElement,
-        selector: &str,
+        function_name: &str,
         calldata: &Vec<FieldElement>,
         block_id: &BlockId,
     ) -> Result<String> {
-        let expected_input_count = utils::count_function_inputs(abi, selector)?;
+        let expected_input_count = utils::count_function_inputs(abi, function_name)?;
 
         if expected_input_count != calldata.len() as u64 {
             return Err(eyre!(
@@ -162,12 +163,11 @@ impl Cast {
             ));
         }
 
-        let entry_point_selector = FieldElement::from_hex_be(&SimpleCast::keccak(selector)?)?;
         let res = self
             .client
             .call(
                 FunctionCall {
-                    entry_point_selector,
+                    entry_point_selector: get_selector_from_name(function_name)?,
                     calldata: calldata.to_owned(),
                     contract_address: contract_address.to_owned(),
                 },

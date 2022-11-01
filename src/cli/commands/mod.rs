@@ -240,7 +240,7 @@ pub enum Commands {
         #[clap(multiple_values = true)]
         inputs: Vec<FieldElement>,
 
-        #[clap(short, long)]
+        #[clap(short = 'C', long)]
         contract_address: FieldElement,
 
         #[clap(short, long = "block")]

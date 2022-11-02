@@ -13,8 +13,8 @@ use starknet::{
         crypto::{ecdsa_sign, ecdsa_verify, pedersen_hash, Signature},
         types::{ContractArtifact, FieldElement},
         utils::{
-            cairo_short_string_to_felt, get_storage_var_address, parse_cairo_short_string,
-            starknet_keccak,
+            cairo_short_string_to_felt, get_contract_address, get_storage_var_address,
+            parse_cairo_short_string, starknet_keccak,
         },
     },
     providers::jsonrpc::models::MaybePendingBlockWithTxs,
@@ -311,5 +311,15 @@ impl SimpleCast {
         let res = fs::read_to_string(Path::new(contract_file))?;
         let contract: ContractArtifact = serde_json::from_str(&res)?;
         contract.class_hash().map_err(|e| Report::new(e))
+    }
+
+    pub fn compute_contract_address(
+        caller_address: FieldElement,
+        salt: FieldElement,
+        class_hash: FieldElement,
+        calldata: &[FieldElement],
+    ) -> String {
+        let address = get_contract_address(salt, class_hash, calldata, caller_address);
+        format!("{:#x}", address)
     }
 }

@@ -260,6 +260,17 @@ async fn main() -> Result<()> {
                 .await?;
             println!("{}", res);
         }
+
+        Commands::ComputeAddress {
+            caller_address,
+            salt,
+            class_hash,
+            calldata,
+        } => {
+            let res =
+                SimpleCast::compute_contract_address(*caller_address, *salt, *class_hash, calldata);
+            println!("{}", res);
+        }
     }
 
     Ok(())

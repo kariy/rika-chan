@@ -387,6 +387,19 @@ pub enum Commands {
         #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions,
     },
+
+    #[clap(about = "Compute the contract address from the given information")]
+    ComputeAddress {
+        #[clap(help = "The address of the deploying account contract")]
+        caller_address: FieldElement,
+
+        salt: FieldElement,
+
+        class_hash: FieldElement,
+
+        #[clap(help = "The inputs passed to the constructor")]
+        calldata: Vec<FieldElement>,
+    },
 }
 
 #[derive(Subcommand, Debug)]

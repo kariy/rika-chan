@@ -178,15 +178,15 @@ async fn main() -> Result<()> {
         }
 
         Commands::Call {
-            function_name,
-            abi,
-            inputs,
             contract_address,
+            function,
+            inputs,
+            abi,
             block_id,
             starknet,
         } => {
             let res = Cast::new(starknet.rpc_url.to_owned())
-                .call(abi, contract_address, function_name, inputs, block_id)
+                .call(contract_address, function, inputs, block_id, abi)
                 .await?;
 
             println!("{}", res);

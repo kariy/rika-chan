@@ -228,21 +228,27 @@ pub enum Commands {
 
     #[clap(about = "Call a StarkNet function without creating a transaction.")]
     Call {
-        #[clap(short, long)]
-        #[clap(value_name = "FUNCTION_NAME")]
-        function_name: String,
+        #[clap(short = 'C', long)]
+        #[clap(display_order = 1)]
+        contract_address: FieldElement,
 
         #[clap(short, long)]
-        #[clap(help = "Path to the contract's abi file")]
-        abi: String,
+        #[clap(display_order = 2)]
+        #[clap(help = "The name of the function to be called")]
+        #[clap(value_name = "FUNCTION_NAME")]
+        function: String,
 
         #[clap(short, long)]
         #[clap(multiple_values = true)]
+        #[clap(display_order = 3)]
         inputs: Vec<FieldElement>,
 
-        #[clap(short = 'C', long)]
-        contract_address: FieldElement,
+        #[clap(short, long)]
+        #[clap(display_order = 4)]
+        #[clap(help = "Path to the contract's abi file to validate the call inputs")]
+        abi: Option<String>,
 
+        #[clap(display_order = 5)]
         #[clap(short, long = "block")]
         #[clap(value_name = "BLOCK_ID")]
         #[clap(default_value = "latest")]

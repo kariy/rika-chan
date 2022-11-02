@@ -147,29 +147,30 @@ impl Cast {
 
     pub async fn call(
         &self,
-        abi: &str,
         contract_address: &FieldElement,
         function_name: &str,
         calldata: &Vec<FieldElement>,
         block_id: &BlockId,
+        abi: &Option<String>,
     ) -> Result<String> {
-        let expected_input_count = utils::count_function_inputs(abi, function_name)?;
-
-        if expected_input_count != calldata.len() as u64 {
-            return Err(eyre!(
-                "expected {} input(s) but got {}",
-                expected_input_count,
-                calldata.len()
-            ));
+        if let Some(abi) = abi {
+            let expected_input_count = utils::count_function_inputs(abi, function_name)?;
+            if expected_input_count != calldata.len() as u64 {
+                return Err(eyre!(
+                    "expected {} input(s) but got {}",
+                    expected_input_count,
+                    calldata.len()
+                ));
+            }
         }
 
         let res = self
             .client
             .call(
                 FunctionCall {
-                    entry_point_selector: get_selector_from_name(function_name)?,
                     calldata: calldata.to_owned(),
                     contract_address: contract_address.to_owned(),
+                    entry_point_selector: get_selector_from_name(function_name)?,
                 },
                 block_id,
             )

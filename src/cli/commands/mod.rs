@@ -348,6 +348,25 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(about = "Get the contract class definition in the given block at the given address")]
+    Code {
+        #[clap(help = "The address of the contract whose class definition will be returned")]
+        contract_address: FieldElement,
+
+        #[clap(next_line_help = true)]
+        #[clap(short, long = "block")]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
+        block_id: BlockId,
+
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions,
+    },
+
     #[clap(
         about = "Get the contract class hash in the given block for the contract deployed at the given address"
     )]

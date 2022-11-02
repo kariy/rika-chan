@@ -234,7 +234,18 @@ async fn main() -> Result<()> {
 
         Commands::Class { hash, starknet } => {
             let res = Cast::new(starknet.rpc_url.to_owned())
-                .get_class(hash.to_owned())
+                .get_class_code(hash.to_owned())
+                .await?;
+            println!("{}", res);
+        }
+
+        Commands::Code {
+            contract_address,
+            block_id,
+            starknet,
+        } => {
+            let res = Cast::new(starknet.rpc_url.to_owned())
+                .get_contract_code(contract_address.to_owned(), block_id)
                 .await?;
             println!("{}", res);
         }

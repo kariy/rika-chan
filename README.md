@@ -18,7 +18,8 @@ A command-line tool for performing RPC calls to the StarkNet network.
 -   [x] `call`
 -   [x] `chain-id`
 -   [x] `class`
--   [x] `contract-class`
+-   [x] `code`
+-   [ ] `contract-class`
 -   [x] `contract-hash`
 -   [ ] `declare`
 -   [ ] `deploy`

@@ -199,8 +199,18 @@ impl Cast {
         Ok(serde_json::to_string_pretty(&value)?)
     }
 
-    pub async fn get_class(&self, class_hash: FieldElement) -> Result<String> {
+    pub async fn get_class_code(&self, class_hash: FieldElement) -> Result<String> {
         let res = self.client.get_class(class_hash).await?;
+        let res = serde_json::to_value(res)?;
+        Ok(serde_json::to_string_pretty(&res)?)
+    }
+
+    pub async fn get_contract_code(
+        &self,
+        contract_address: FieldElement,
+        block_id: &BlockId,
+    ) -> Result<String> {
+        let res = self.client.get_class_at(block_id, contract_address).await?;
         let res = serde_json::to_value(res)?;
         Ok(serde_json::to_string_pretty(&res)?)
     }
@@ -210,9 +220,11 @@ impl Cast {
         contract_address: FieldElement,
         block_id: &BlockId,
     ) -> Result<String> {
-        let res = self.client.get_class_at(block_id, contract_address).await?;
-        let res = serde_json::to_value(res)?;
-        Ok(serde_json::to_string_pretty(&res)?)
+        let res = self
+            .client
+            .get_class_hash_at(block_id, contract_address)
+            .await?;
+        Ok(format!("{:#x}", res))
     }
 }
 

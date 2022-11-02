@@ -212,7 +212,7 @@ async fn main() -> Result<()> {
             println!("{:#x}", res);
         }
 
-        Commands::EstimateFee {
+        Commands::Estimate {
             contract_address,
             function_name,
             calldata,

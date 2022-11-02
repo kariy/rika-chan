@@ -293,7 +293,7 @@ pub enum Commands {
     #[clap(
         long_about = "Estimates the resources required by a transaction relative to a given state."
     )]
-    EstimateFee {
+    Estimate {
         #[clap(short = 'C', long)]
         #[clap(display_order = 1)]
         contract_address: FieldElement,

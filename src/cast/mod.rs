@@ -127,7 +127,7 @@ impl Cast {
 
     pub async fn get_nonce(&self, contract_address: FieldElement) -> Result<String> {
         let nonce = self.client.get_nonce(contract_address).await?;
-        let nonce = format!("{:x}", nonce.to_string().parse::<u128>()?);
+        let nonce = format!("{:#x}", nonce.to_string().parse::<u128>()?);
         Ok(nonce)
     }
 

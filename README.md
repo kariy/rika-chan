@@ -17,11 +17,13 @@ A command-line tool for performing RPC calls to the StarkNet network.
 -   [x] `block-number`
 -   [x] `call`
 -   [x] `chain-id`
+-   [x] `class`
+-   [x] `contract-class`
 -   [x] `contract-hash`
 -   [ ] `declare`
 -   [ ] `deploy`
 -   [x] `ecdsa`
--   [ ] `estimate`
+-   [x] `estimate`
 -   [ ] `events`
 -   [x] `index`
 -   [ ] `invoke`

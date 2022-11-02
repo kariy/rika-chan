@@ -2,6 +2,12 @@
 
 A command-line tool for performing RPC calls to the StarkNet network.
 
+## Installation
+
+```
+$ cargo install --git https://github.com/kariy/starknet-cast
+```
+
 ## Features
 
 -   [x] `--to-dec`

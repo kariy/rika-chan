@@ -132,10 +132,13 @@ pub enum Commands {
 
     #[clap(about = "Get information about a block.")]
     Block {
+        #[clap(next_line_help = true)]
         #[clap(value_name = "BLOCK_ID")]
         #[clap(default_value = "latest")]
         #[clap(value_parser(BlockIdParser))]
-        #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending).")]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
         id: BlockId,
 
         #[clap(long)]
@@ -160,10 +163,12 @@ pub enum Commands {
 
     #[clap(about = "Get the timestamp of a block.")]
     Age {
-        #[clap(value_name = "BLOCK_ID")]
+        #[clap(next_line_help = true)]
         #[clap(default_value = "latest")]
         #[clap(value_parser(BlockIdParser))]
-        #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending).")]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
         block_id: BlockId,
 
         #[clap(flatten)]
@@ -192,10 +197,12 @@ pub enum Commands {
     #[clap(name = "tx-count")]
     #[clap(about = "Get the number of transactions in a block.")]
     CountTransactions {
-        #[clap(value_name = "BLOCK_ID")]
+        #[clap(next_line_help = true)]
         #[clap(default_value = "latest")]
         #[clap(value_parser(BlockIdParser))]
-        #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending).")]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
         block_id: BlockId,
 
         #[clap(flatten)]
@@ -211,11 +218,13 @@ pub enum Commands {
         #[clap(value_parser(FieldElementParser))]
         index: FieldElement,
 
+        #[clap(next_line_help = true)]
         #[clap(short, long = "block")]
-        #[clap(value_name = "BLOCK_ID")]
         #[clap(default_value = "latest")]
         #[clap(value_parser(BlockIdParser))]
-        #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending)")]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
         block_id: BlockId,
 
         #[clap(flatten)]
@@ -248,12 +257,14 @@ pub enum Commands {
         #[clap(help = "Path to the contract's abi file to validate the call inputs")]
         abi: Option<String>,
 
+        #[clap(next_line_help = true)]
         #[clap(display_order = 5)]
         #[clap(short, long = "block")]
-        #[clap(value_name = "BLOCK_ID")]
         #[clap(default_value = "latest")]
         #[clap(value_parser(BlockIdParser))]
-        #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending)")]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
         block_id: BlockId,
 
         #[clap(flatten)]
@@ -263,11 +274,13 @@ pub enum Commands {
 
     #[clap(about = "Get the information about the result of executing the requested block")]
     StateUpdate {
+        #[clap(next_line_help = true)]
         #[clap(short, long = "block")]
-        #[clap(value_name = "BLOCK_ID")]
         #[clap(default_value = "latest")]
         #[clap(value_parser(BlockIdParser))]
-        #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending)")]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
         block_id: BlockId,
 
         #[clap(flatten)]
@@ -307,10 +320,13 @@ pub enum Commands {
         #[clap(multiple_values = true)]
         calldata: Vec<FieldElement>,
 
+        #[clap(next_line_help = true)]
         #[clap(short, long = "block")]
         #[clap(default_value = "latest")]
         #[clap(value_parser(BlockIdParser))]
-        #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending)")]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
         #[clap(display_order = 4)]
         block_id: BlockId,
 
@@ -339,10 +355,13 @@ pub enum Commands {
         #[clap(help = "The address of the contract whose class hash will be returned")]
         contract_address: FieldElement,
 
+        #[clap(next_line_help = true)]
         #[clap(short, long = "block")]
         #[clap(default_value = "latest")]
         #[clap(value_parser(BlockIdParser))]
-        #[clap(help = "Can be a hash (0x...), number (1, 2), or tags (latest, pending)")]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
         block_id: BlockId,
 
         #[clap(flatten)]

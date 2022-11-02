@@ -204,6 +204,16 @@ impl Cast {
         let res = serde_json::to_value(res)?;
         Ok(serde_json::to_string_pretty(&res)?)
     }
+
+    pub async fn get_contract_class(
+        &self,
+        contract_address: FieldElement,
+        block_id: &BlockId,
+    ) -> Result<String> {
+        let res = self.client.get_class_at(block_id, contract_address).await?;
+        let res = serde_json::to_value(res)?;
+        Ok(serde_json::to_string_pretty(&res)?)
+    }
 }
 
 pub struct SimpleCast;

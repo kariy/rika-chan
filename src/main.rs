@@ -238,6 +238,17 @@ async fn main() -> Result<()> {
                 .await?;
             println!("{}", res);
         }
+
+        Commands::ContractClass {
+            contract_address,
+            block_id,
+            starknet,
+        } => {
+            let res = Cast::new(starknet.rpc_url.to_owned())
+                .get_contract_class(contract_address.to_owned(), block_id)
+                .await?;
+            println!("{}", res);
+        }
     }
 
     Ok(())

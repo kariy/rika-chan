@@ -318,6 +318,19 @@ pub enum Commands {
         #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions,
     },
+
+    #[clap(
+        about = "Get the contract class definition in the given block associated with the given hash"
+    )]
+    Class {
+        #[clap(value_name = "CLASS_HASH")]
+        #[clap(help = "The hash of the requested contract class")]
+        hash: FieldElement,
+
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions,
+    },
 }
 
 #[derive(Subcommand, Debug)]

@@ -198,6 +198,12 @@ impl Cast {
         let value = serde_json::to_value(res)?;
         Ok(serde_json::to_string_pretty(&value)?)
     }
+
+    pub async fn get_class(&self, class_hash: FieldElement) -> Result<String> {
+        let res = self.client.get_class(class_hash).await?;
+        let res = serde_json::to_value(res)?;
+        Ok(serde_json::to_string_pretty(&res)?)
+    }
 }
 
 pub struct SimpleCast;

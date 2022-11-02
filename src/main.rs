@@ -231,6 +231,13 @@ async fn main() -> Result<()> {
                 .await?;
             println!("{}", res);
         }
+
+        Commands::Class { hash, starknet } => {
+            let res = Cast::new(starknet.rpc_url.to_owned())
+                .get_class(hash.to_owned())
+                .await?;
+            println!("{}", res);
+        }
     }
 
     Ok(())

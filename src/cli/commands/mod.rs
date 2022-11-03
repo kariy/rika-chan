@@ -400,6 +400,40 @@ pub enum Commands {
         #[clap(help = "The inputs passed to the constructor")]
         calldata: Vec<FieldElement>,
     },
+
+    #[clap(about = "Returns all events matching the given filter")]
+    #[clap(
+        long_about = "Returns all event objects matching the conditions in the provided filter"
+    )]
+    Events {
+        #[clap(required = true)]
+        #[clap(short = 'p', long)]
+        #[clap(number_of_values = 2)]
+        #[clap(value_names(&["PAGE_SIZE", "PAGE_NUMBER"]))]
+        #[clap(help = "A request for a specific page of results")]
+        paging: Vec<u64>,
+
+        #[clap(short = 'C', long)]
+        #[clap(value_name = "CONTRACT_ADDRESS")]
+        #[clap(help = "Address of the contract emitting the events")]
+        from: Option<FieldElement>,
+
+        #[clap(short, long)]
+        #[clap(help = "The values used to filter the events")]
+        keys: Option<Vec<FieldElement>>,
+
+        #[clap(short, long)]
+        #[clap(value_parser(BlockIdParser))]
+        from_block: Option<BlockId>,
+
+        #[clap(short, long)]
+        #[clap(value_parser(BlockIdParser))]
+        to_block: Option<BlockId>,
+
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions,
+    },
 }
 
 #[derive(Subcommand, Debug)]

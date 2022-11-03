@@ -6,7 +6,7 @@ use std::path::Path;
 use eyre::{eyre, Report, Result};
 use reqwest::Url;
 use starknet::core::utils::get_selector_from_name;
-use starknet::providers::jsonrpc::models::{BlockId, FunctionCall};
+use starknet::providers::jsonrpc::models::{BlockId, EventFilter, FunctionCall};
 use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 use starknet::{
     core::{
@@ -225,6 +225,20 @@ impl Cast {
             .get_class_hash_at(block_id, contract_address)
             .await?;
         Ok(format!("{:#x}", res))
+    }
+
+    pub async fn get_events(
+        &self,
+        filter: EventFilter,
+        page_size: u64,
+        page_number: u64,
+    ) -> Result<String> {
+        let res = self
+            .client
+            .get_events(filter, page_size, page_number)
+            .await?;
+        let value = serde_json::to_value(res)?;
+        Ok(serde_json::to_string_pretty(&value)?)
     }
 }
 

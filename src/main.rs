@@ -7,7 +7,7 @@ use crate::cli::commands::{App, Commands, EcdsaCommand};
 use clap::Parser;
 use eyre::Result;
 use starknet::core::utils::get_selector_from_name;
-use starknet::providers::jsonrpc::models::FunctionCall;
+use starknet::providers::jsonrpc::models::{EventFilter, FunctionCall};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -269,6 +269,29 @@ async fn main() -> Result<()> {
         } => {
             let res =
                 SimpleCast::compute_contract_address(*caller_address, *salt, *class_hash, calldata);
+            println!("{}", res);
+        }
+
+        Commands::Events {
+            paging,
+            from,
+            keys,
+            from_block,
+            to_block,
+            starknet,
+        } => {
+            let res = Cast::new(starknet.rpc_url.to_owned())
+                .get_events(
+                    EventFilter {
+                        address: *from,
+                        from_block: from_block.to_owned(),
+                        to_block: to_block.to_owned(),
+                        keys: keys.to_owned(),
+                    },
+                    paging[0],
+                    paging[1],
+                )
+                .await?;
             println!("{}", res);
         }
     }

@@ -2,6 +2,8 @@
 
 A command-line tool for performing RPC calls to the StarkNet network.
 
+_Currently only supports StarkNet JSON-RPC [`v0.1.0`](https://github.com/starkware-libs/starknet-specs/tree/v0.1.0/api)_
+
 ## Installation
 
 ```
@@ -32,7 +34,7 @@ $ cargo install --git https://github.com/kariy/starknet-cast
 -   [ ] `deploy`
 -   [x] `ecdsa`
 -   [x] `estimate`
--   [ ] `events`
+-   [x] `events`
 -   [x] `index`
 -   [ ] `invoke`
 -   [x] `keccak`

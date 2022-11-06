@@ -3,6 +3,7 @@ pub mod utils;
 use std::fs;
 use std::path::Path;
 
+use crypto_bigint::U256;
 use eyre::{eyre, Report, Result};
 use reqwest::Url;
 use starknet::core::utils::get_selector_from_name;
@@ -11,7 +12,7 @@ use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 use starknet::{
     core::{
         crypto::{ecdsa_sign, ecdsa_verify, pedersen_hash, Signature},
-        types::{ContractArtifact, FieldElement},
+        types::{ContractArtifact, FieldElement, FromStrError},
         utils::{
             cairo_short_string_to_felt, get_contract_address, get_storage_var_address,
             parse_cairo_short_string, starknet_keccak,
@@ -336,4 +337,23 @@ impl SimpleCast {
         let address = get_contract_address(salt, class_hash, calldata, caller_address);
         format!("{:#x}", address)
     }
-}
+
+    pub fn split_u256(hex: &str) -> Result<(String, String)> {
+        let hex = hex.trim_start_matches("0x");
+        let hex_chars_len = hex.len();
+
+        let padded_hex = if hex_chars_len == 64 {
+            hex::decode(hex)?
+        } else if hex_chars_len < 64 {
+            let mut padded_hex = str::repeat("0", 64 - hex_chars_len);
+            padded_hex.push_str(hex);
+            hex::decode(padded_hex)?
+        } else {
+            return Err(eyre!(FromStrError::OutOfRange));
+        };
+
+        let value = U256::from_be_slice(&padded_hex);
+        let (high, low) = value.split();
+
+        Ok((format!("0x{:x}", high), format!("0x{:x}", low)))
+    }

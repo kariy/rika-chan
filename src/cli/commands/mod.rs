@@ -434,6 +434,10 @@ pub enum Commands {
         #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions,
     },
+
+    #[clap(name = "--split-u256")]
+    #[clap(about = "Split a uint256 into its low and high components.")]
+    SplitU256 { value: String },
 }
 
 #[derive(Subcommand, Debug)]

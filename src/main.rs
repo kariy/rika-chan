@@ -294,6 +294,11 @@ async fn main() -> Result<()> {
                 .await?;
             println!("{}", res);
         }
+
+        Commands::SplitU256 { value } => {
+            let res = SimpleCast::split_u256(value)?;
+            println!("{} {}", res.0, res.1);
+        }
     }
 
     Ok(())

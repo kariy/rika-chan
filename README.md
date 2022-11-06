@@ -19,6 +19,7 @@ $ cargo install --git https://github.com/kariy/starknet-cast
 -   [x] `--max-felt`
 -   [x] `--max-sfelt`
 -   [x] `--min-sfelt`
+-   [x] `--split-u256`
 -   [x] `age`
 -   [ ] `balance`
 -   [x] `block`

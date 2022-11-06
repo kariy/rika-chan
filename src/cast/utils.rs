@@ -29,9 +29,13 @@ pub fn parse_hex_or_str_as_felt(data: &str) -> Result<FieldElement> {
     Ok(felt)
 }
 
-pub fn count_function_inputs(abi: &str, function_name: &str) -> Result<u64> {
-    let abi_str = fs::read_to_string(Path::new(abi))?;
-    let abi = parse_abi_into_map(&abi_str)?;
+/// `file` path to the abi file
+pub fn count_function_inputs<P>(abi_file: P, function_name: &str) -> Result<u64>
+where
+    P: AsRef<Path>,
+{
+    let abi = fs::read_to_string(abi_file)?;
+    let abi = parse_abi_into_map(&abi)?;
 
     if let Some(AbiEntry::Function(function)) = abi.get(function_name) {
         let mut count = 0;

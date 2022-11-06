@@ -1,13 +1,15 @@
 pub mod opts;
 mod rpc;
 
+use crate::cli::{
+    commands::opts::StarkNetOptions,
+    parser::{BlockIdParser, FieldElementParser},
+};
 pub use rpc::RpcArgs;
-
-use self::opts::StarkNetOptions;
-use crate::cli::parser::{BlockIdParser, FieldElementParser};
 
 use clap::{Parser, Subcommand};
 use starknet::{core::types::FieldElement, providers::jsonrpc::models::BlockId};
+use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
@@ -255,7 +257,7 @@ pub enum Commands {
         #[clap(short, long)]
         #[clap(display_order = 4)]
         #[clap(help = "Path to the contract's abi file to validate the call inputs")]
-        abi: Option<String>,
+        abi: Option<PathBuf>,
 
         #[clap(next_line_help = true)]
         #[clap(display_order = 5)]
@@ -299,7 +301,7 @@ pub enum Commands {
     #[clap(about = "Compute the hash of a StarkNet contract.")]
     ContractHash {
         #[clap(help = "The compiled contract file")]
-        contract: String,
+        contract: PathBuf,
     },
 
     #[clap(about = "Estimate the fee for a given StarkNet transaction.")]

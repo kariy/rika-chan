@@ -208,7 +208,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::ContractHash { contract } => {
-            let res = SimpleCast::get_contract_hash(contract)?;
+            let res = SimpleCast::compute_contract_hash(contract)?;
             println!("{:#x}", res);
         }
 

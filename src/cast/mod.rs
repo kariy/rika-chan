@@ -1,7 +1,7 @@
 pub mod utils;
 
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crypto_bigint::U256;
 use eyre::{eyre, Report, Result};
@@ -152,7 +152,7 @@ impl Cast {
         function_name: &str,
         calldata: &Vec<FieldElement>,
         block_id: &BlockId,
-        abi: &Option<String>,
+        abi: &Option<PathBuf>,
     ) -> Result<String> {
         if let Some(abi) = abi {
             let expected_input_count = utils::count_function_inputs(abi, function_name)?;
@@ -322,8 +322,11 @@ impl SimpleCast {
         get_storage_var_address(var_name, keys).map_err(|e| Report::new(e))
     }
 
-    pub fn get_contract_hash(contract_file: &str) -> Result<FieldElement> {
-        let res = fs::read_to_string(Path::new(contract_file))?;
+    pub fn compute_contract_hash<P>(compiled_contract: P) -> Result<FieldElement>
+    where
+        P: AsRef<Path>,
+    {
+        let res = fs::read_to_string(compiled_contract)?;
         let contract: ContractArtifact = serde_json::from_str(&res)?;
         contract.class_hash().map_err(|e| Report::new(e))
     }

@@ -390,11 +390,13 @@ pub enum Commands {
 
     #[clap(about = "Compute the contract address from the given information")]
     ComputeAddress {
-        #[clap(help = "The address of the deploying account contract")]
+        #[clap(help = "The address of the deploying account contract (currently always zero)")]
         caller_address: FieldElement,
 
+        #[clap(help = "The salt used in the deploy transaction")]
         salt: FieldElement,
 
+        #[clap(help = "The hash of the class to instantiate a new contract from")]
         class_hash: FieldElement,
 
         #[clap(help = "The inputs passed to the constructor")]

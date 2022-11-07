@@ -360,3 +360,4 @@ impl SimpleCast {
 
         Ok((format!("0x{:x}", high), format!("0x{:x}", low)))
     }
+}

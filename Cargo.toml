@@ -13,6 +13,7 @@ path = "./src/main.rs"
 
 [dependencies]
 clap = { version = "3.2.21", features = ["derive", "env"] }
+crypto-bigint = "0.4.9"
 eyre = "0.6.8"
 hex = "0.4.3"
 reqwest = "0.11.12"

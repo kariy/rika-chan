@@ -97,7 +97,7 @@ async fn main() -> Result<()> {
 
         Commands::TransactionStatus { hash, starknet } => {
             let res = Cast::new(starknet.rpc_url.to_owned())
-                .get_transaction_by_hash(hash.to_owned(), Some("status".to_string()))
+                .get_transaction_receipt(hash.to_owned(), Some("status".to_string()))
                 .await?;
             println!("{}", res);
         }

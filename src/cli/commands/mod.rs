@@ -20,6 +20,7 @@ pub struct App {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
+    #[clap(visible_alias = "th")]
     #[clap(name = "--to-hex")]
     #[clap(about = "Convert decimal felt to hexadecimal.")]
     DecToHex {
@@ -28,6 +29,7 @@ pub enum Commands {
         dec: FieldElement,
     },
 
+    #[clap(visible_alias = "fa")]
     #[clap(name = "--from-ascii")]
     #[clap(about = "Convert from ASCII to Cairo short string.")]
     FromAscii {
@@ -36,6 +38,7 @@ pub enum Commands {
         ascii: FieldElement,
     },
 
+    #[clap(visible_alias = "td")]
     #[clap(name = "--to-dec")]
     #[clap(about = "Convert hexadecimal felt to decimal.")]
     HexToDec {
@@ -44,18 +47,22 @@ pub enum Commands {
         hex: FieldElement,
     },
 
+    #[clap(visible_alias = "mxf")]
     #[clap(name = "--max-felt")]
     #[clap(about = "Get the maximum felt value.")]
     MaxUnsignedFelt,
 
+    #[clap(visible_alias = "mxsf")]
     #[clap(name = "--max-sfelt")]
     #[clap(about = "Get the maximum signed felt value.")]
     MaxSignedFelt,
 
+    #[clap(visible_alias = "mnsf")]
     #[clap(name = "--min-sfelt")]
     #[clap(about = "Get the minimum signed felt value.")]
     MinSignedFelt,
 
+    #[clap(visible_alias = "ta")]
     #[clap(name = "--to-ascii")]
     #[clap(about = "Convert Cairo short string to its ASCII format.")]
     ToAscii {
@@ -63,18 +70,21 @@ pub enum Commands {
         short_str: String,
     },
 
+    #[clap(visible_alias = "ec")]
     #[clap(about = "Perform ECDSA operations over the STARK-friendly elliptic curve.")]
     Ecdsa {
         #[clap(subcommand)]
         commands: EcdsaCommand,
     },
 
+    #[clap(visible_alias = "kck")]
     #[clap(about = "Hash abritrary data using StarkNet keccak.")]
     Keccak {
         #[clap(value_name = "DATA")]
         data: String,
     },
 
+    #[clap(visible_alias = "ped")]
     #[clap(about = "Calculate the Pedersen hash on two field elements.")]
     Pedersen {
         #[clap(value_name = "X")]
@@ -110,6 +120,7 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "rct")]
     #[clap(name = "receipt")]
     #[clap(about = "Get the receipt of a transaction.")]
     TransactionReceipt {
@@ -125,6 +136,7 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "ci")]
     #[clap(about = "Get the StarkNet chain ID.")]
     ChainId {
         #[clap(flatten)]
@@ -132,6 +144,7 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "b")]
     #[clap(about = "Get information about a block.")]
     Block {
         #[clap(next_line_help = true)]
@@ -156,6 +169,7 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "bn")]
     #[clap(about = "Get the latest block number.")]
     BlockNumber {
         #[clap(flatten)]
@@ -178,6 +192,7 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "n1")]
     #[clap(about = "Get the latest nonce associated with the address.")]
     Nonce {
         #[clap(value_parser(FieldElementParser))]
@@ -196,6 +211,7 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "ctx")]
     #[clap(name = "tx-count")]
     #[clap(about = "Get the number of transactions in a block.")]
     CountTransactions {
@@ -212,6 +228,7 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "str")]
     #[clap(about = "Get the value of a contract's storage at the given index")]
     Storage {
         #[clap(value_parser(FieldElementParser))]
@@ -290,6 +307,7 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "idx")]
     #[clap(about = "Compute the address of a storage variable.")]
     Index {
         #[clap(value_name = "VAR_NAME")]
@@ -298,12 +316,14 @@ pub enum Commands {
         keys: Vec<FieldElement>,
     },
 
+    #[clap(visible_alias = "ch")]
     #[clap(about = "Compute the hash of a StarkNet contract.")]
     ContractHash {
         #[clap(help = "The compiled contract file")]
         contract: PathBuf,
     },
 
+    #[clap(visible_alias = "est")]
     #[clap(about = "Estimate the fee for a given StarkNet transaction.")]
     #[clap(
         long_about = "Estimates the resources required by a transaction relative to a given state."
@@ -337,6 +357,7 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "cl")]
     #[clap(
         about = "Get the contract class definition in the given block associated with the given hash"
     )]
@@ -350,6 +371,7 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "cd")]
     #[clap(about = "Get the contract class definition in the given block at the given address")]
     Code {
         #[clap(help = "The address of the contract whose class definition will be returned")]
@@ -369,6 +391,7 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "cc")]
     #[clap(
         about = "Get the contract class hash in the given block for the contract deployed at the given address"
     )]
@@ -390,6 +413,7 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "ca")]
     #[clap(about = "Compute the contract address from the given information")]
     ComputeAddress {
         #[clap(help = "The address of the deploying account contract (currently always zero)")]
@@ -405,6 +429,7 @@ pub enum Commands {
         calldata: Vec<FieldElement>,
     },
 
+    #[clap(visible_alias = "ev")]
     #[clap(about = "Returns all events matching the given filter")]
     #[clap(
         long_about = "Returns all event objects matching the conditions in the provided filter"
@@ -439,6 +464,7 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "su")]
     #[clap(name = "--split-u256")]
     #[clap(about = "Split a uint256 into its low and high components.")]
     SplitU256 { value: String },

@@ -1,7 +1,7 @@
 mod cast;
 mod cli;
 
-use crate::cast::{Cast, SimpleCast};
+use crate::cast::{Probe, SimpleProbe};
 use crate::cli::commands::{App, Commands, EcdsaCommand};
 
 use clap::Parser;
@@ -15,7 +15,7 @@ async fn main() -> Result<()> {
 
     match &cli.command {
         Commands::DecToHex { dec } => {
-            println!("{}", SimpleCast::to_hex(dec));
+            println!("{}", SimpleProbe::to_hex(dec));
         }
 
         Commands::Ecdsa { commands } => match commands {
@@ -24,7 +24,7 @@ async fn main() -> Result<()> {
                 private_key,
             } => {
                 let key = private_key.to_owned();
-                let signature = SimpleCast::ecdsa_sign(&key, &message)?;
+                let signature = SimpleProbe::ecdsa_sign(&key, &message)?;
                 println!("{:#x} {:#x}", signature.r, signature.s);
             }
 
@@ -35,52 +35,52 @@ async fn main() -> Result<()> {
             } => {
                 let key = verifying_key.to_owned();
                 let is_valid =
-                    SimpleCast::ecdsa_verify(&key, &message, &signature[0], &signature[1])?;
+                    SimpleProbe::ecdsa_verify(&key, &message, &signature[0], &signature[1])?;
                 println!("{}", is_valid);
             }
         },
 
         Commands::FromAscii { ascii } => {
-            println!("{}", SimpleCast::from_utf8(ascii)?);
+            println!("{}", SimpleProbe::from_utf8(ascii)?);
         }
 
         Commands::HexToDec { hex } => {
-            println!("{}", SimpleCast::to_dec(hex));
+            println!("{}", SimpleProbe::to_dec(hex));
         }
 
         Commands::Keccak { data } => {
-            println!("{}", SimpleCast::keccak(data)?);
+            println!("{}", SimpleProbe::keccak(data)?);
         }
 
         Commands::MaxSignedFelt => {
-            println!("{}", SimpleCast::max_signed_felt());
+            println!("{}", SimpleProbe::max_signed_felt());
         }
 
         Commands::MinSignedFelt => {
-            println!("{}", SimpleCast::min_signed_felt())
+            println!("{}", SimpleProbe::min_signed_felt())
         }
 
         Commands::ToAscii { short_str } => {
-            println!("{}", SimpleCast::str_to_felt(short_str)?);
+            println!("{}", SimpleProbe::str_to_felt(short_str)?);
         }
 
         Commands::MaxUnsignedFelt => {
-            println!("{}", SimpleCast::max_felt());
+            println!("{}", SimpleProbe::max_felt());
         }
 
         Commands::Pedersen { x, y } => {
-            println!("{}", SimpleCast::pedersen(x, y)?);
+            println!("{}", SimpleProbe::pedersen(x, y)?);
         }
 
         Commands::BlockNumber { starknet } => {
-            let res = Cast::new(starknet.rpc_url.to_owned())
+            let res = Probe::new(starknet.rpc_url.to_owned())
                 .block_number()
                 .await?;
             println!("{:?}", res);
         }
 
         Commands::ChainId { starknet } => {
-            let chain_id = Cast::new(starknet.rpc_url.to_owned()).chain_id().await?;
+            let chain_id = Probe::new(starknet.rpc_url.to_owned()).chain_id().await?;
             println!("{}", chain_id);
         }
 
@@ -89,14 +89,14 @@ async fn main() -> Result<()> {
             field,
             starknet,
         } => {
-            let res = Cast::new(starknet.rpc_url.to_owned())
+            let res = Probe::new(starknet.rpc_url.to_owned())
                 .get_transaction_by_hash(hash.to_owned(), field.to_owned())
                 .await?;
             println!("{}", res);
         }
 
         Commands::TransactionStatus { hash, starknet } => {
-            let res = Cast::new(starknet.rpc_url.to_owned())
+            let res = Probe::new(starknet.rpc_url.to_owned())
                 .get_transaction_receipt(hash.to_owned(), Some("status".to_string()))
                 .await?;
             println!("{}", res);
@@ -107,7 +107,7 @@ async fn main() -> Result<()> {
             field,
             starknet,
         } => {
-            let res = Cast::new(starknet.rpc_url.to_owned())
+            let res = Probe::new(starknet.rpc_url.to_owned())
                 .get_transaction_receipt(hash.to_owned(), field.to_owned())
                 .await?;
             println!("{}", res);
@@ -119,7 +119,7 @@ async fn main() -> Result<()> {
             field,
             starknet,
         } => {
-            let block = Cast::new(starknet.rpc_url.to_owned())
+            let block = Probe::new(starknet.rpc_url.to_owned())
                 .block(id.to_owned(), full.clone(), field.to_owned())
                 .await?;
 
@@ -127,7 +127,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::Age { block_id, starknet } => {
-            let timestamp = Cast::new(starknet.rpc_url.to_owned())
+            let timestamp = Probe::new(starknet.rpc_url.to_owned())
                 .block(block_id.to_owned(), false, Some("timestamp".to_string()))
                 .await?;
 
@@ -135,7 +135,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::CountTransactions { block_id, starknet } => {
-            let total = Cast::new(starknet.rpc_url.to_owned())
+            let total = Probe::new(starknet.rpc_url.to_owned())
                 .get_block_transaction_count(block_id.to_owned())
                 .await?;
 
@@ -146,14 +146,14 @@ async fn main() -> Result<()> {
             contract_address,
             starknet,
         } => {
-            let nonce = Cast::new(starknet.rpc_url.to_owned())
+            let nonce = Probe::new(starknet.rpc_url.to_owned())
                 .get_nonce(contract_address.to_owned())
                 .await?;
             println!("{}", nonce);
         }
 
         Commands::PendingTransactions { starknet } => {
-            let transactions = Cast::new(starknet.rpc_url.to_owned())
+            let transactions = Probe::new(starknet.rpc_url.to_owned())
                 .pending_transactions()
                 .await?;
             println!("{}", transactions);
@@ -165,7 +165,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Cast::new(starknet.rpc_url.to_owned())
+            let res = Probe::new(starknet.rpc_url.to_owned())
                 .get_storage_at(contract_address.to_owned(), index.to_owned(), block_id)
                 .await?;
 
@@ -185,7 +185,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Cast::new(starknet.rpc_url.to_owned())
+            let res = Probe::new(starknet.rpc_url.to_owned())
                 .call(contract_address, function, inputs, block_id, abi)
                 .await?;
 
@@ -193,7 +193,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::StateUpdate { block_id, starknet } => {
-            let res = Cast::new(starknet.rpc_url.to_owned())
+            let res = Probe::new(starknet.rpc_url.to_owned())
                 .get_state_update(block_id)
                 .await?;
             println!("{}", res);
@@ -203,12 +203,12 @@ async fn main() -> Result<()> {
             variable_name,
             keys,
         } => {
-            let res = SimpleCast::get_storage_index(variable_name, keys)?;
+            let res = SimpleProbe::get_storage_index(variable_name, keys)?;
             println!("{:#x}", res);
         }
 
         Commands::ContractHash { contract } => {
-            let res = SimpleCast::compute_contract_hash(contract)?;
+            let res = SimpleProbe::compute_contract_hash(contract)?;
             println!("{:#x}", res);
         }
 
@@ -219,7 +219,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Cast::new(starknet.rpc_url.to_owned())
+            let res = Probe::new(starknet.rpc_url.to_owned())
                 .estimate_fee(
                     FunctionCall {
                         contract_address: contract_address.to_owned(),
@@ -233,7 +233,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::Class { hash, starknet } => {
-            let res = Cast::new(starknet.rpc_url.to_owned())
+            let res = Probe::new(starknet.rpc_url.to_owned())
                 .get_class_code(hash.to_owned())
                 .await?;
             println!("{}", res);
@@ -244,7 +244,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Cast::new(starknet.rpc_url.to_owned())
+            let res = Probe::new(starknet.rpc_url.to_owned())
                 .get_contract_code(contract_address.to_owned(), block_id)
                 .await?;
             println!("{}", res);
@@ -255,7 +255,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Cast::new(starknet.rpc_url.to_owned())
+            let res = Probe::new(starknet.rpc_url.to_owned())
                 .get_contract_class(contract_address.to_owned(), block_id)
                 .await?;
             println!("{}", res);
@@ -267,8 +267,12 @@ async fn main() -> Result<()> {
             class_hash,
             calldata,
         } => {
-            let res =
-                SimpleCast::compute_contract_address(*caller_address, *salt, *class_hash, calldata);
+            let res = SimpleProbe::compute_contract_address(
+                *caller_address,
+                *salt,
+                *class_hash,
+                calldata,
+            );
             println!("{}", res);
         }
 
@@ -280,7 +284,7 @@ async fn main() -> Result<()> {
             to_block,
             starknet,
         } => {
-            let res = Cast::new(starknet.rpc_url.to_owned())
+            let res = Probe::new(starknet.rpc_url.to_owned())
                 .get_events(
                     EventFilter {
                         address: *from,
@@ -296,7 +300,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::SplitU256 { value } => {
-            let res = SimpleCast::split_u256(value)?;
+            let res = SimpleProbe::split_u256(value)?;
             println!("{} {}", res.0, res.1);
         }
     }

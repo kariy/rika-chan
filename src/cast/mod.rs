@@ -21,11 +21,11 @@ use starknet::{
     providers::jsonrpc::models::MaybePendingBlockWithTxs,
 };
 
-pub struct Cast {
+pub struct Probe {
     client: JsonRpcClient<HttpTransport>,
 }
 
-impl Cast {
+impl Probe {
     pub fn new(url: Url) -> Self {
         Self {
             client: JsonRpcClient::new(HttpTransport::new(url)),
@@ -243,9 +243,9 @@ impl Cast {
     }
 }
 
-pub struct SimpleCast;
+pub struct SimpleProbe;
 
-impl SimpleCast {
+impl SimpleProbe {
     pub fn to_hex(dec: &FieldElement) -> String {
         format!("{:#x}", dec)
     }

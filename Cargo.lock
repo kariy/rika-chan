@@ -1551,21 +1551,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "starknet-cast"
-version = "0.1.1"
-dependencies = [
- "clap",
- "crypto-bigint 0.4.9",
- "eyre",
- "hex",
- "reqwest",
- "serde",
- "serde_json",
- "starknet",
- "tokio",
-]
-
-[[package]]
 name = "starknet-contract"
 version = "0.1.0"
 source = "git+https://github.com/xJonathanLEI/starknet-rs/?branch=master#3ca50aec54c13117e6beede776c26a3b85d9afe6"
@@ -1637,6 +1622,21 @@ source = "git+https://github.com/xJonathanLEI/starknet-rs/?branch=master#3ca50ae
 dependencies = [
  "starknet-core",
  "syn",
+]
+
+[[package]]
+name = "starknet-probe"
+version = "0.1.1"
+dependencies = [
+ "clap",
+ "crypto-bigint 0.4.9",
+ "eyre",
+ "hex",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "starknet",
+ "tokio",
 ]
 
 [[package]]

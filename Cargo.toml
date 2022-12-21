@@ -1,12 +1,12 @@
 [package]
-name = "starknet-cast"
+name = "starknet-probe"
 description = "Perform RPC calls to the StarkNet network."
 version = "0.1.1"
 edition = "2021"
-repository = "https://github.com/kariy/starknet-cast"
+repository = "https://github.com/kariy/starknet-probe"
 
 [[bin]]
-name = "starknet-cast"
+name = "probe"
 path = "./src/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -19,5 +19,5 @@ hex = "0.4.3"
 reqwest = "0.11.12"
 serde = "1.0.145"
 serde_json = "1.0.85"
-starknet = { git = "https://github.com/xJonathanLEI/starknet-rs/" , branch = "master"}
+starknet = { git = "https://github.com/xJonathanLEI/starknet-rs/" , branch = "master" }
 tokio = { version = "1.21.1", features = ["full"] }

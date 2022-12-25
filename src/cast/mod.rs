@@ -7,7 +7,9 @@ use crypto_bigint::U256;
 use eyre::{eyre, Report, Result};
 use reqwest::Url;
 use starknet::core::utils::get_selector_from_name;
-use starknet::providers::jsonrpc::models::{BlockId, EventFilter, FunctionCall};
+use starknet::providers::jsonrpc::models::{
+    BlockId, BroadcastedTransaction, EventFilter, FunctionCall,
+};
 use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 use starknet::{
     core::{
@@ -197,7 +199,7 @@ impl Probe {
 
     pub async fn estimate_fee<R>(&self, call: R, block_id: &BlockId) -> Result<String>
     where
-        R: AsRef<FunctionCall>,
+        R: AsRef<BroadcastedTransaction>,
     {
         let res = self.client.estimate_fee(call, block_id).await?;
         let value = serde_json::to_value(res)?;

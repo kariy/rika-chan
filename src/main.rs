@@ -6,8 +6,7 @@ use crate::cli::commands::{App, Commands, EcdsaCommand};
 
 use clap::Parser;
 use eyre::Result;
-use starknet::core::utils::get_selector_from_name;
-use starknet::providers::jsonrpc::models::{EventFilter, FunctionCall};
+use starknet::providers::jsonrpc::models::EventFilter;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -210,21 +209,13 @@ async fn main() -> Result<()> {
         }
 
         Commands::Estimate {
-            contract_address,
-            function_name,
-            calldata,
+            commands,
             block_id,
             starknet,
         } => {
-            let res = Probe::new(starknet.rpc_url.to_owned())
-                .estimate_fee(
-                    FunctionCall {
-                        contract_address: contract_address.to_owned(),
-                        calldata: calldata.to_owned(),
-                        entry_point_selector: get_selector_from_name(function_name)?,
-                    },
-                    block_id,
-                )
+            let tx = commands.prepare_transaction()?;
+            let res = Probe::new(starknet.rpc_url)
+                .estimate_fee(tx, &block_id)
                 .await?;
             println!("{}", res);
         }

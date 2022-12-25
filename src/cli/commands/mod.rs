@@ -1,5 +1,7 @@
+mod estimate_fee;
 pub mod opts;
 mod rpc;
+mod transaction;
 
 use crate::cli::{
     commands::opts::StarkNetOptions,
@@ -10,6 +12,8 @@ pub use rpc::RpcArgs;
 use clap::{Parser, Subcommand};
 use starknet::{core::types::FieldElement, providers::jsonrpc::models::BlockId};
 use std::path::PathBuf;
+
+use self::estimate_fee::EstimateFeeCommands;
 
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
@@ -337,27 +341,15 @@ pub enum Commands {
         long_about = "Estimates the resources required by a transaction relative to a given state."
     )]
     Estimate {
-        #[clap(short = 'C', long)]
-        #[clap(display_order = 1)]
-        contract_address: FieldElement,
-
-        #[clap(short, long)]
-        #[clap(display_order = 2)]
-        function_name: String,
-
-        #[clap(short, long)]
-        #[clap(display_order = 3)]
-        #[clap(multiple_values = true)]
-        calldata: Vec<FieldElement>,
+        #[clap(subcommand)]
+        commands: EstimateFeeCommands,
 
         #[clap(next_line_help = true)]
-        #[clap(short, long = "block")]
         #[clap(default_value = "latest")]
         #[clap(value_parser(BlockIdParser))]
         #[clap(
             help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
         )]
-        #[clap(display_order = 4)]
         block_id: BlockId,
 
         #[clap(flatten)]

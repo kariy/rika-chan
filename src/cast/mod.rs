@@ -126,8 +126,12 @@ impl Probe {
         Ok(serde_json::to_string_pretty(&res)?)
     }
 
-    pub async fn get_nonce(&self, contract_address: FieldElement) -> Result<String> {
-        let nonce = self.client.get_nonce(contract_address).await?;
+    pub async fn get_nonce(
+        &self,
+        contract_address: FieldElement,
+        block_id: &BlockId,
+    ) -> Result<String> {
+        let nonce = self.client.get_nonce(block_id, contract_address).await?;
         let nonce = format!("{:#x}", nonce.to_string().parse::<u128>()?);
         Ok(nonce)
     }
@@ -200,8 +204,12 @@ impl Probe {
         Ok(serde_json::to_string_pretty(&value)?)
     }
 
-    pub async fn get_class_code(&self, class_hash: FieldElement) -> Result<String> {
-        let res = self.client.get_class(class_hash).await?;
+    pub async fn get_class_code(
+        &self,
+        class_hash: FieldElement,
+        block_id: &BlockId,
+    ) -> Result<String> {
+        let res = self.client.get_class(block_id, class_hash).await?;
         let res = serde_json::to_value(res)?;
         Ok(serde_json::to_string_pretty(&res)?)
     }

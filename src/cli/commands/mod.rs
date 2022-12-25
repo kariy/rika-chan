@@ -198,6 +198,14 @@ pub enum Commands {
         #[clap(value_parser(FieldElementParser))]
         contract_address: FieldElement,
 
+        #[clap(next_line_help = true)]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
+        block_id: BlockId,
+
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions,
@@ -365,6 +373,14 @@ pub enum Commands {
         #[clap(value_name = "CLASS_HASH")]
         #[clap(help = "The hash of the requested contract class")]
         hash: FieldElement,
+
+        #[clap(next_line_help = true)]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
+        block_id: BlockId,
 
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]

@@ -144,10 +144,11 @@ async fn main() -> Result<()> {
 
         Commands::Nonce {
             contract_address,
+            block_id,
             starknet,
         } => {
             let nonce = Probe::new(starknet.rpc_url.to_owned())
-                .get_nonce(contract_address.to_owned())
+                .get_nonce(contract_address.to_owned(), block_id)
                 .await?;
             println!("{}", nonce);
         }
@@ -232,9 +233,13 @@ async fn main() -> Result<()> {
             println!("{}", res);
         }
 
-        Commands::Class { hash, starknet } => {
+        Commands::Class {
+            hash,
+            block_id,
+            starknet,
+        } => {
             let res = Probe::new(starknet.rpc_url.to_owned())
-                .get_class_code(hash.to_owned())
+                .get_class_code(hash.to_owned(), block_id)
                 .await?;
             println!("{}", res);
         }

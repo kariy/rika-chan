@@ -282,7 +282,8 @@ async fn main() -> Result<()> {
         }
 
         Commands::Events {
-            paging,
+            chunk_size,
+            continuation_token,
             from,
             keys,
             from_block,
@@ -297,8 +298,8 @@ async fn main() -> Result<()> {
                         to_block: to_block.to_owned(),
                         keys: keys.to_owned(),
                     },
-                    paging[0],
-                    paging[1],
+                    *chunk_size,
+                    continuation_token.to_owned(),
                 )
                 .await?;
             println!("{}", res);

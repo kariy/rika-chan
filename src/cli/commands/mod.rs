@@ -451,13 +451,6 @@ pub enum Commands {
         long_about = "Returns all event objects matching the conditions in the provided filter"
     )]
     Events {
-        #[clap(required = true)]
-        #[clap(short = 'p', long)]
-        #[clap(number_of_values = 2)]
-        #[clap(value_names(&["PAGE_SIZE", "PAGE_NUMBER"]))]
-        #[clap(help = "A request for a specific page of results")]
-        paging: Vec<u64>,
-
         #[clap(short = 'C', long)]
         #[clap(value_name = "CONTRACT_ADDRESS")]
         #[clap(help = "Address of the contract emitting the events")]
@@ -474,6 +467,16 @@ pub enum Commands {
         #[clap(short, long)]
         #[clap(value_parser(BlockIdParser))]
         to_block: Option<BlockId>,
+
+        #[clap(required = true)]
+        #[clap(short = 's', long)]
+        chunk_size: u64,
+
+        #[clap(short = 'c', long)]
+        #[clap(
+            help = "A pointer to the last element of the delivered page, use this token in a subsequent query to obtain the next page"
+        )]
+        continuation_token: Option<String>,
 
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]

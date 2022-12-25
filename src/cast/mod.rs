@@ -239,12 +239,12 @@ impl Probe {
     pub async fn get_events(
         &self,
         filter: EventFilter,
-        page_size: u64,
-        page_number: u64,
+        chunk_size: u64,
+        continuation_token: Option<String>,
     ) -> Result<String> {
         let res = self
             .client
-            .get_events(filter, page_size, page_number)
+            .get_events(filter, continuation_token, chunk_size)
             .await?;
         let value = serde_json::to_value(res)?;
         Ok(serde_json::to_string_pretty(&value)?)

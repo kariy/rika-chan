@@ -1,5 +1,6 @@
 pub mod utils;
 
+use std::cmp::Ordering;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -42,8 +43,8 @@ impl Probe {
     ) -> Result<String> {
         let block = self.client.get_block_with_txs(&block_id).await?;
         let mut block_json = match block {
-            MaybePendingBlockWithTxs::Block(block) => serde_json::to_value(&block)?,
-            MaybePendingBlockWithTxs::PendingBlock(block) => serde_json::to_value(&block)?,
+            MaybePendingBlockWithTxs::Block(block) => serde_json::to_value(block)?,
+            MaybePendingBlockWithTxs::PendingBlock(block) => serde_json::to_value(block)?,
         };
 
         if !full {
@@ -56,7 +57,7 @@ impl Probe {
         if let Some(field) = field {
             block_json = block_json
                 .get(&field)
-                .ok_or(eyre!("`{}` is not a valid block field.", field))?
+                .ok_or_else(|| eyre!("`{}` is not a valid block field.", field))?
                 .to_owned();
         }
 
@@ -91,7 +92,7 @@ impl Probe {
         if let Some(field) = field {
             tx_json = tx_json
                 .get(&field)
-                .ok_or(eyre!("`{}` is not a valid transaction field.", field))?
+                .ok_or_else(|| eyre!("`{}` is not a valid transaction field.", field))?
                 .to_owned();
         }
 
@@ -113,10 +114,7 @@ impl Probe {
         if let Some(field) = field {
             tx_json = tx_json
                 .get(&field)
-                .ok_or(eyre!(
-                    "`{}` is not a valid transaction receipt field.",
-                    field
-                ))?
+                .ok_or_else(|| eyre!("`{}` is not a valid transaction receipt field.", field))?
                 .to_owned();
         }
 
@@ -301,14 +299,14 @@ impl SimpleProbe {
     }
 
     pub fn from_utf8(felt: &FieldElement) -> Result<String> {
-        parse_cairo_short_string(&felt).map_err(|e| Report::new(e))
+        parse_cairo_short_string(felt).map_err(Report::new)
     }
 
     pub fn ecdsa_sign(
         private_key: &FieldElement,
         message_hash: &FieldElement,
     ) -> Result<Signature> {
-        ecdsa_sign(private_key, message_hash).map_err(|e| Report::new(e))
+        ecdsa_sign(private_key, message_hash).map_err(Report::new)
     }
 
     pub fn ecdsa_verify(
@@ -319,17 +317,17 @@ impl SimpleProbe {
     ) -> Result<bool> {
         ecdsa_verify(
             public_key,
-            &message_hash,
+            message_hash,
             &Signature {
                 r: signature_r.to_owned(),
                 s: signature_s.to_owned(),
             },
         )
-        .map_err(|e| Report::new(e))
+        .map_err(Report::new)
     }
 
     pub fn get_storage_index(var_name: &str, keys: &[FieldElement]) -> Result<FieldElement> {
-        get_storage_var_address(var_name, keys).map_err(|e| Report::new(e))
+        get_storage_var_address(var_name, keys).map_err(Report::new)
     }
 
     pub fn compute_contract_hash<P>(compiled_contract: P) -> Result<FieldElement>
@@ -338,7 +336,7 @@ impl SimpleProbe {
     {
         let res = fs::read_to_string(compiled_contract)?;
         let contract: ContractArtifact = serde_json::from_str(&res)?;
-        contract.class_hash().map_err(|e| Report::new(e))
+        contract.class_hash().map_err(Report::new)
     }
 
     pub fn compute_contract_address(
@@ -355,14 +353,16 @@ impl SimpleProbe {
         let hex = hex.trim_start_matches("0x");
         let hex_chars_len = hex.len();
 
-        let padded_hex = if hex_chars_len == 64 {
-            hex::decode(hex)?
-        } else if hex_chars_len < 64 {
-            let mut padded_hex = str::repeat("0", 64 - hex_chars_len);
-            padded_hex.push_str(hex);
-            hex::decode(padded_hex)?
-        } else {
-            return Err(eyre!(FromStrError::OutOfRange));
+        let padded_hex = match hex_chars_len.cmp(&64) {
+            Ordering::Equal => hex::decode(hex)?,
+
+            Ordering::Less => {
+                let mut padded_hex = str::repeat("0", 64 - hex_chars_len);
+                padded_hex.push_str(hex);
+                hex::decode(padded_hex)?
+            }
+
+            Ordering::Greater => return Err(eyre!(FromStrError::OutOfRange)),
         };
 
         let value = U256::from_be_slice(&padded_hex);

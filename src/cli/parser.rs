@@ -22,10 +22,9 @@ impl TypedValueParser for FieldElementParser {
         arg: Option<&clap::Arg>,
         value: &std::ffi::OsStr,
     ) -> Result<Self::Value, clap::Error> {
-        let value = value.to_str().ok_or(clap::Error::raw(
-            clap::ErrorKind::InvalidUtf8,
-            "Invalid utf-8",
-        ))?;
+        let value = value
+            .to_str()
+            .ok_or_else(|| clap::Error::raw(clap::ErrorKind::InvalidUtf8, "Invalid utf-8"))?;
 
         if value.starts_with("0x") {
             FieldElement::from_hex_be(value)
@@ -57,10 +56,9 @@ impl TypedValueParser for TokenValueParser {
         arg: Option<&clap::Arg>,
         value: &std::ffi::OsStr,
     ) -> Result<Self::Value, clap::Error> {
-        let value = value.to_str().ok_or(clap::Error::raw(
-            clap::ErrorKind::InvalidUtf8,
-            "Invalid utf-8",
-        ))?;
+        let value = value
+            .to_str()
+            .ok_or_else(|| clap::Error::raw(clap::ErrorKind::InvalidUtf8, "Invalid utf-8"))?;
 
         let value = value.to_lowercase();
         match value.as_str() {
@@ -97,10 +95,9 @@ impl TypedValueParser for BlockIdParser {
         arg: Option<&clap::Arg>,
         value: &std::ffi::OsStr,
     ) -> Result<Self::Value, clap::Error> {
-        let value = value.to_str().ok_or(clap::Error::raw(
-            clap::ErrorKind::InvalidUtf8,
-            "Invalid utf-8",
-        ))?;
+        let value = value
+            .to_str()
+            .ok_or_else(|| clap::Error::raw(clap::ErrorKind::InvalidUtf8, "Invalid utf-8"))?;
 
         // There must be a more idiomatic way of doing this.
         if value.starts_with("0x") {
@@ -108,20 +105,18 @@ impl TypedValueParser for BlockIdParser {
                 .map_err(|e| clap::Error::raw(clap::ErrorKind::InvalidValue, e))?;
 
             Ok(BlockId::Hash(hash))
+        } else if let Ok(number) = value.parse::<u64>() {
+            Ok(BlockId::Number(number))
         } else {
-            if let Ok(number) = value.parse::<u64>() {
-                Ok(BlockId::Number(number))
-            } else {
-                match value.to_lowercase().as_str() {
-                    "latest" => Ok(BlockId::Tag(BlockTag::Latest)),
+            match value.to_lowercase().as_str() {
+                "latest" => Ok(BlockId::Tag(BlockTag::Latest)),
 
-                    "pending" => Ok(BlockId::Tag(BlockTag::Pending)),
+                "pending" => Ok(BlockId::Tag(BlockTag::Pending)),
 
-                    _ => Err(clap::Error::raw(
-                        clap::ErrorKind::InvalidValue,
-                        "Invalid value",
-                    )),
-                }
+                _ => Err(clap::Error::raw(
+                    clap::ErrorKind::InvalidValue,
+                    "Invalid value",
+                )),
             }
         }
     }
@@ -140,10 +135,9 @@ impl TypedValueParser for ChainParser {
         arg: Option<&clap::Arg>,
         value: &std::ffi::OsStr,
     ) -> Result<Self::Value, clap::Error> {
-        let value = value.to_str().ok_or(clap::Error::raw(
-            clap::ErrorKind::InvalidUtf8,
-            "Invalid utf-8",
-        ))?;
+        let value = value
+            .to_str()
+            .ok_or_else(|| clap::Error::raw(clap::ErrorKind::InvalidUtf8, "Invalid utf-8"))?;
 
         if value.parse::<u128>().is_ok() {
             FieldElement::from_str(value)

@@ -45,8 +45,7 @@ impl RpcArgs {
                 params
                     .into_iter()
                     .map(|value| {
-                        serde_json::from_str(&value)
-                            .unwrap_or(serde_json::Value::String(value.to_owned()))
+                        serde_json::from_str(&value).unwrap_or(serde_json::Value::String(value))
                     })
                     .collect(),
             )

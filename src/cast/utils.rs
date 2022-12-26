@@ -9,10 +9,10 @@ use starknet::core::{
 };
 
 // const STARKNET_ACCOUNT_FILEPATH: &'static str = "~/.starknet_accounts";
-pub const SIGNED_FELT_MIN: &'static str =
+pub const SIGNED_FELT_MIN: &str =
     "-1809251394333065606848661391547535052811553607665798349986546028067936010240";
 
-pub const SIGNED_FELT_MAX: &'static str =
+pub const SIGNED_FELT_MAX: &str =
     "1809251394333065606848661391547535052811553607665798349986546028067936010240";
 
 pub fn parse_hex_or_str_as_felt(data: &str) -> Result<FieldElement> {

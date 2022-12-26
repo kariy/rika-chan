@@ -2,7 +2,7 @@
 name = "starknet-probe"
 description = "A cli tool for performing RPC calls to the StarkNet network."
 authors = ["Kari <evergreenkary@gmail.com>"]
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 repository = "https://github.com/kariy/starknet-probe"
 

@@ -1,20 +1,11 @@
-mod account;
-mod estimate_fee;
-mod rpc;
-mod starknet;
-mod transaction;
-
-use crate::cli::{
-    commands::starknet::StarkNetOptions,
-    parser::{BlockIdParser, FieldElementParser},
-};
-pub use rpc::RpcArgs;
+use super::estimate_fee::EstimateFeeCommands;
+use super::parser::{BlockIdParser, FieldElementParser};
+use super::rpc::RpcArgs;
+use super::starknet::StarkNetOptions;
 
 use clap::{Parser, Subcommand};
 use starknet::{core::types::FieldElement, providers::jsonrpc::models::BlockId};
 use std::path::PathBuf;
-
-use self::estimate_fee::EstimateFeeCommands;
 
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]

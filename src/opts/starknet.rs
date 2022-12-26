@@ -1,4 +1,4 @@
-use crate::cli::parser::ChainParser;
+use super::parser::ChainParser;
 
 use clap::Parser;
 use reqwest::Url;

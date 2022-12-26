@@ -1,6 +1,7 @@
 [package]
 name = "starknet-probe"
-description = "Perform RPC calls to the StarkNet network."
+description = "A cli tool for performing RPC calls to the StarkNet network."
+authors = ["Kari <evergreenkary@gmail.com>"]
 version = "0.1.1"
 edition = "2021"
 repository = "https://github.com/kariy/starknet-probe"

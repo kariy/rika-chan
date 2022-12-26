@@ -3,7 +3,23 @@ use std::path::PathBuf;
 use clap::Parser;
 use starknet::core::types::FieldElement;
 
-use super::opts::TransactionOptions;
+#[derive(Debug, Clone, Parser)]
+pub struct TransactionOptions {
+    #[clap(long)]
+    pub nonce: Option<FieldElement>,
+
+    #[clap(long)]
+    #[clap(help = "The maximal fee that can be charged for including the transaction")]
+    pub max_fee: Option<FieldElement>,
+
+    #[clap(long)]
+    #[clap(help = "A transaction signature")]
+    pub signature: Option<Vec<FieldElement>>,
+
+    #[clap(long)]
+    #[clap(help = "Version of the transaction scheme")]
+    pub version: Option<u64>,
+}
 
 #[derive(Debug, Parser)]
 pub struct InvokeTxArgs {

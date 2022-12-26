@@ -1,10 +1,11 @@
+mod account;
 mod estimate_fee;
-pub mod opts;
 mod rpc;
+mod starknet;
 mod transaction;
 
 use crate::cli::{
-    commands::opts::StarkNetOptions,
+    commands::starknet::StarkNetOptions,
     parser::{BlockIdParser, FieldElementParser},
 };
 pub use rpc::RpcArgs;

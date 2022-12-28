@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{path::PathBuf, str::FromStr};
 
 use clap::{builder::TypedValueParser, PossibleValue};
 use starknet::{
@@ -8,6 +8,8 @@ use starknet::{
     },
     providers::jsonrpc::models::{BlockId, BlockTag},
 };
+
+use crate::cast::utils::canonicalize_path;
 
 #[derive(Debug, Clone, Copy)]
 pub struct FieldElementParser;
@@ -162,5 +164,27 @@ impl TypedValueParser for ChainParser {
             PossibleValue::new("SN_GOERLI"),
         ];
         Some(Box::new(possible_values.into_iter()))
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct PathParser;
+
+// write the clap parser impl for pathbuf
+impl TypedValueParser for PathParser {
+    type Value = PathBuf;
+
+    #[allow(unused_variables)]
+    fn parse_ref(
+        &self,
+        cmd: &clap::Command,
+        arg: Option<&clap::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, clap::Error> {
+        let value = value
+            .to_str()
+            .ok_or_else(|| clap::Error::raw(clap::ErrorKind::InvalidUtf8, "Invalid utf-8"))?;
+
+        canonicalize_path(value).map_err(|e| clap::Error::raw(clap::ErrorKind::ValueValidation, e))
     }
 }

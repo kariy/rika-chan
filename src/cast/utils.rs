@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+use std::{collections::HashMap, path::PathBuf};
 
 use eyre::{eyre, Result};
 use starknet::core::{
@@ -73,4 +73,9 @@ pub fn parse_abi_into_map(abi_str: &str) -> Result<HashMap<String, AbiEntry>> {
     }
 
     Ok(map)
+}
+
+pub fn canonicalize_path(path: impl AsRef<str>) -> Result<PathBuf> {
+    let path = shellexpand::tilde(path.as_ref());
+    Ok(dunce::canonicalize(path.to_string().as_str())?)
 }

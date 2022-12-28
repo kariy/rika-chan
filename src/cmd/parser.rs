@@ -1,3 +1,5 @@
+use crate::cast::utils::canonicalize_path;
+
 use std::{path::PathBuf, str::FromStr};
 
 use clap::{builder::TypedValueParser, PossibleValue};
@@ -8,8 +10,6 @@ use starknet::{
     },
     providers::jsonrpc::models::{BlockId, BlockTag},
 };
-
-use crate::cast::utils::canonicalize_path;
 
 #[derive(Debug, Clone, Copy)]
 pub struct FieldElementParser;

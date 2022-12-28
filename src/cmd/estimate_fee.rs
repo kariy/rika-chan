@@ -1,4 +1,6 @@
-use super::transaction::{DeclareTxArgs, DeployAccountTxArgs, DeployTxArgs, InvokeTxArgs};
+use crate::opts::transaction::{DeclareTxArgs, DeployAccountTxArgs, DeployTxArgs, InvokeTxArgs};
+
+use std::fs;
 
 use clap::Subcommand;
 use eyre::Result;
@@ -7,8 +9,6 @@ use starknet::providers::jsonrpc::models::{
     BroadcastedDeployTransaction, BroadcastedInvokeTransaction, BroadcastedInvokeTransactionV1,
     BroadcastedTransaction, ContractClass,
 };
-
-use std::fs;
 
 #[derive(Debug, Subcommand)]
 pub enum EstimateFeeCommands {

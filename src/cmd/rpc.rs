@@ -1,4 +1,4 @@
-use super::starknet::StarkNetOptions;
+use crate::opts::starknet::StarkNetOptions;
 
 use std::fs;
 use std::path::Path;

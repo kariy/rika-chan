@@ -1,5 +1,4 @@
-use super::utils::read_json_file;
-use crate::opts::starknet::StarknetChain;
+use crate::opts::{account::utils::read_json_file, starknet::StarknetChain};
 
 use std::fs::DirBuilder;
 use std::str::FromStr;
@@ -15,13 +14,13 @@ use starknet::{
 use starknet_keystore::Keystore;
 
 #[derive(Debug, Clone)]
-pub struct Account {
+pub struct SimpleAccount {
     signing_key: SigningKey,
     pub account: FieldElement,
     pub chain: Option<StarknetChain>,
 }
 
-impl Account {
+impl SimpleAccount {
     pub fn new(
         account: FieldElement,
         signing_key: FieldElement,
@@ -100,7 +99,7 @@ impl Account {
             None
         };
 
-        Ok(Account::new(
+        Ok(SimpleAccount::new(
             FieldElement::from_str(&keystore.address.unwrap())?,
             priv_key,
             chain,
@@ -110,7 +109,7 @@ impl Account {
 
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
-impl Signer for Account {
+impl Signer for SimpleAccount {
     type GetPublicKeyError = Infallible;
     type SignError = SignError;
 
@@ -145,7 +144,7 @@ mod tests {
             FieldElement::from_mont(arr)
         };
 
-        let wallet = Account::new(account, priv_key, None);
+        let wallet = SimpleAccount::new(account, priv_key, None);
 
         assert!(wallet
             .encrypt_keystore(get_main_keystore_dir(), "yohallo", Some("kari".to_string()))

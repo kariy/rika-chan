@@ -1,4 +1,4 @@
-use super::Account;
+use crate::cmd::account::simple_account::SimpleAccount;
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -63,27 +63,27 @@ pub fn get_from_keystore(
     keystore_path: Option<&PathBuf>,
     keystore_password: Option<&String>,
     keystore_password_file: Option<&PathBuf>,
-) -> Result<Option<Account>> {
+) -> Result<Option<SimpleAccount>> {
     Ok(
         match (keystore_path, keystore_password, keystore_password_file) {
             (Some(path), Some(password), _) => {
                 let path = find_keystore_file(account, path)?;
                 Some(
-                    Account::decrypt_keystore(&path, password)
+                    SimpleAccount::decrypt_keystore(&path, password)
                         .wrap_err_with(|| format!("Failed to decrypt keystore {path:?}"))?,
                 )
             }
             (Some(path), _, Some(password_file)) => {
                 let path = find_keystore_file(account, path)?;
                 Some(
-                Account::decrypt_keystore(&path, password_from_file(password_file)?)
+                SimpleAccount::decrypt_keystore(&path, password_from_file(password_file)?)
                     .wrap_err_with(|| format!("Failed to decrypt keystore {path:?} with password file {password_file:?}"))?,
             )
             }
             (Some(path), None, None) => {
                 let path = find_keystore_file(account, path)?;
                 let password = Password::new("Enter keystore password:").prompt()?;
-                Some(Account::decrypt_keystore(path, password)?)
+                Some(SimpleAccount::decrypt_keystore(path, password)?)
             }
             (None, _, _) => None,
         },

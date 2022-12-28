@@ -2,7 +2,7 @@ use super::account::WalletCommands;
 use super::estimate_fee::EstimateFeeCommands;
 use super::parser::{BlockIdParser, FieldElementParser};
 use super::rpc::RpcArgs;
-use super::starknet::StarkNetOptions;
+use crate::opts::starknet::StarkNetOptions;
 
 use clap::{Parser, Subcommand};
 use starknet::{core::types::FieldElement, providers::jsonrpc::models::BlockId};

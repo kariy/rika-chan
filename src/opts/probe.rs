@@ -1,3 +1,4 @@
+use super::account::WalletCommands;
 use super::estimate_fee::EstimateFeeCommands;
 use super::parser::{BlockIdParser, FieldElementParser};
 use super::rpc::RpcArgs;
@@ -471,6 +472,13 @@ pub enum Commands {
     #[clap(name = "--split-u256")]
     #[clap(about = "Split a uint256 into its low and high components.")]
     SplitU256 { value: String },
+
+    #[clap(visible_alias = "acc")]
+    #[clap(about = "")]
+    Account {
+        #[clap(subcommand)]
+        commands: WalletCommands,
+    },
 }
 
 #[derive(Subcommand, Debug)]

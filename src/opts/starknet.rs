@@ -1,8 +1,13 @@
 use super::parser::ChainParser;
 
+use std::{fmt, str::FromStr};
+
 use clap::Parser;
 use reqwest::Url;
-use starknet::core::types::FieldElement;
+use starknet::core::{
+    chain_id::{MAINNET, TESTNET, TESTNET2},
+    types::FieldElement,
+};
 
 #[derive(Debug, Clone, Parser)]
 pub struct StarkNetOptions {
@@ -18,4 +23,50 @@ pub struct StarkNetOptions {
     #[clap(value_name = "CHAIN_ID")]
     #[clap(value_parser(ChainParser))]
     pub chain: Option<FieldElement>,
+}
+
+#[derive(Debug, Clone)]
+pub enum StarknetChain {
+    MAINNET,
+    TESTNET,
+    TESTNET2,
+}
+
+#[allow(unused)]
+impl StarknetChain {
+    pub fn get_id(&self) -> FieldElement {
+        match self {
+            Self::MAINNET => MAINNET,
+            Self::TESTNET => TESTNET,
+            Self::TESTNET2 => TESTNET2,
+        }
+    }
+}
+
+impl fmt::Display for StarknetChain {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::MAINNET => write!(f, "mainnet"),
+            Self::TESTNET => write!(f, "testnet"),
+            Self::TESTNET2 => write!(f, "testnet2"),
+        }
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error("invalid chain id")]
+pub struct InvalidStarknetChain;
+
+impl FromStr for StarknetChain {
+    type Err = InvalidStarknetChain;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let s = s.to_lowercase();
+        match s.as_str() {
+            "mainnet" => Ok(Self::MAINNET),
+            "testnet" => Ok(Self::TESTNET),
+            "testnet2" => Ok(Self::TESTNET2),
+            _ => Err(InvalidStarknetChain),
+        }
+    }
 }

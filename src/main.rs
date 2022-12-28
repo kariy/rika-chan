@@ -292,6 +292,10 @@ async fn main() -> Result<()> {
             let res = SimpleProbe::split_u256(&value)?;
             println!("{} {}", res.0, res.1);
         }
+
+        Commands::Account { commands } => {
+            commands.run()?;
+        }
     }
 
     Ok(())

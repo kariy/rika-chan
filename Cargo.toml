@@ -13,12 +13,21 @@ path = "./src/main.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+async-trait = "0.1.60"
 clap = { version = "3.2.21", features = ["derive", "env"] }
 crypto-bigint = "0.4.9"
 eyre = "0.6.8"
 hex = "0.4.3"
+inquire = "0.5.2"
 reqwest = "0.11.12"
 serde = "1.0.145"
 serde_json = "1.0.85"
 starknet = { git = "https://github.com/xJonathanLEI/starknet-rs/" }
 tokio = { version = "1.21.1", features = ["full"] }
+walkdir = "2.3.2"
+starknet-keystore = { git = "https://github.com/kariy/starknet-keystore-rs" }
+rand = "0.8.5"
+thiserror = "1.0.38"
+home = "0.5.4"
+shellexpand = "3.0.0"
+dunce = "1.0.3"

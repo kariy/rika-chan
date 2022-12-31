@@ -1,58 +1,59 @@
-use crate::opts::starknet::StarkNetOptions;
-
-use std::fs;
-use std::path::Path;
-
-use clap::{ArgGroup, Parser};
+use clap::Parser;
 use eyre::Result;
 use serde_json::json;
 
 #[derive(Debug, Clone, Parser)]
-#[clap(group(ArgGroup::new("params-src").required(true).args(&["params", "file"])))]
 pub struct RpcArgs {
     #[clap(help = "RPC method name")]
     method: String,
 
-    #[clap(long)]
-    #[clap(group = "params-src")]
+    #[clap(short, long)]
+    #[clap(help = r#"Pass the "params" as is"#)]
+    #[clap(long_help = r#"Pass the "params" as is
+If --raw is passed the first PARAM will be taken as the value of "params". If no params are given, stdin will be used. For example:
+rpc starknet_getStorageAt '["0x123", "0x69420", "latest"]' --raw
+    => {"method": "eth_getBlockByNumber", "params": ["0x123", false] ... }"#)]
+    raw: bool,
+
+    #[clap(value_name = "PARAMS")]
     #[clap(help = "RPC parameters")]
-    params: Option<Vec<String>>,
+    #[clap(long_help = r#"RPC parameters
+
+    Parameters are interpreted as JSON and then fall back to string. For example:
+
+    rpc starknet_getStorageAt 0x123 0x69420 latest
+    => {"method": "starknet_getStorageAt", "params": ["0x123", "0x69420", "latest"] ... }"#)]
+    params: Vec<String>,
 
     #[clap(long)]
-    #[clap(group = "params-src")]
-    #[clap(help = "Get RPC parameters from a file")]
-    file: Option<String>,
-
-    #[clap(flatten)]
-    starknet: StarkNetOptions,
+    #[clap(value_name = "URL")]
+    #[clap(env = "STARKNET_RPC_URL")]
+    rpc_url: Option<String>,
 }
 
 impl RpcArgs {
     pub async fn run(self) -> Result<String> {
         let Self {
             method,
+            raw,
             params,
-            file,
-            starknet,
+            rpc_url,
         } = self;
 
-        let params = if let Some(path) = file {
-            let content = fs::read_to_string(Path::new(&path))?;
-            serde_json::from_str(&content)?
+        let mut vec = Vec::new();
+        if raw {
+            if let Some(p) = params.get(0) {
+                vec.push(serde_json::from_str(p)?)
+            }
         } else {
-            let params = params.unwrap();
-            serde_json::Value::Array(
-                params
-                    .into_iter()
-                    .map(|value| {
-                        serde_json::from_str(&value).unwrap_or(serde_json::Value::String(value))
-                    })
-                    .collect(),
-            )
-        };
+            for value in params.into_iter() {
+                vec.push(serde_json::from_str(&value).unwrap_or(serde_json::Value::String(value)))
+            }
+        }
 
+        let params = serde_json::Value::Array(vec);
         let res = reqwest::Client::new()
-            .post(starknet.rpc_url)
+            .post(rpc_url.unwrap())
             .json(&json!({
                 "id": 1,
                 "jsonrpc": "2.0",
@@ -65,5 +66,38 @@ impl RpcArgs {
             .await?;
 
         Ok(serde_json::to_string_pretty(&res)?)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::cmd::probe::{App, Commands};
+
+    use clap::Parser;
+    use serde_json::json;
+
+    #[tokio::test]
+    async fn parse_rpc_params() {
+        let p = json!({
+            "contract_address": "0x050225ec8d27d8d34c2a5dfd97f01bcd8d55b521fe34ac1db5ba9f544b99af01",
+            "entry_point_selector": "0x025ec026985a3bf9d0cc1fe17326b245dfdc3ff89b8fde106542a3ea56c5a918",
+            "calldata": [
+                "0x12314",
+                "0x42069"
+            ]
+        })
+        .to_string();
+
+        let args: App = App::parse_from(["probe", "rpc", "starknet_call", &p, "latest"]);
+
+        match args.command {
+            Commands::Rpc(args) => {
+                let params = args.params;
+                assert_eq!(params, vec![p, "latest".to_string()])
+            }
+            _ => {
+                unreachable!()
+            }
+        };
     }
 }

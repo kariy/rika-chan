@@ -53,7 +53,7 @@ impl SimpleAccount {
         }
         DirBuilder::new().recursive(true).create(&path)?;
 
-        let mut filename = format!("{:X}", self.account);
+        let mut filename = format!("{:#x}", self.account);
         if let Some(tag) = tag {
             filename.push_str(format!("-{}", tag).as_str());
         }
@@ -78,7 +78,7 @@ impl SimpleAccount {
             self.signing_key.secret_scalar().to_bytes_be(),
             password.as_ref().as_bytes(),
             Some(&filename),
-            Some(format!("{:X}", self.account)),
+            Some(format!("{:#x}", self.account)),
             chain,
         )?;
 

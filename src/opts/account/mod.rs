@@ -97,6 +97,100 @@ impl WalletOptions {
             self.keystore_password.as_ref(),
             self.keystore_password_file.as_ref(),
         )
-        // todo!("walletopts: create account from keystore")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::Path;
+
+    use super::*;
+
+    #[test]
+    fn account_from_keystore() {
+        let account_addr = FieldElement::from_hex_be(
+            "0x148A764E88277F972B6E1517A60CD6EF5FC11FF3DBC686EA932451552D0641B",
+        )
+        .unwrap();
+
+        let file = Path::new("./tests/test-keys/test-key1.json");
+        let opts = WalletOptions {
+            from: Some(account_addr),
+            keystore_path: Some(file.to_path_buf()),
+            keystore_password: Some("12345".to_string()),
+            ..Default::default()
+        };
+
+        let wallet = opts.keystore().unwrap().unwrap();
+
+        assert_eq!(
+            wallet.account,
+            FieldElement::from_hex_be(
+                "0x148A764E88277F972B6E1517A60CD6EF5FC11FF3DBC686EA932451552D0641B"
+            )
+            .unwrap()
+        );
+        assert_eq!(
+            wallet.get_signing_key(),
+            FieldElement::from_hex_be(
+                "0x1a2e71241e4c65739c87717d99101e8ea9523126c6ad9e67f9cae703ba3dacf"
+            )
+            .unwrap()
+        );
+        assert_eq!(wallet.chain.unwrap().to_string(), "mainnet");
+    }
+
+    #[test]
+    fn account_from_keystore_and_password_file() {
+        let account_addr = FieldElement::from_hex_be(
+            "0x148A764E88277F972B6E1517A60CD6EF5FC11FF3DBC686EA932451552D0641B",
+        )
+        .unwrap();
+
+        let file = Path::new("./tests/test-keys/test-key1.json");
+        let password_file = Path::new("./tests/test-keys/password1");
+
+        let opts = WalletOptions {
+            from: Some(account_addr),
+            keystore_path: Some(file.to_path_buf()),
+            keystore_password_file: Some(password_file.to_path_buf()),
+            ..Default::default()
+        };
+
+        let wallet = opts.keystore().unwrap().unwrap();
+
+        assert_eq!(
+            wallet.account,
+            FieldElement::from_hex_be(
+                "0x148A764E88277F972B6E1517A60CD6EF5FC11FF3DBC686EA932451552D0641B"
+            )
+            .unwrap()
+        );
+        assert_eq!(
+            wallet.get_signing_key(),
+            FieldElement::from_hex_be(
+                "0x1a2e71241e4c65739c87717d99101e8ea9523126c6ad9e67f9cae703ba3dacf"
+            )
+            .unwrap()
+        );
+        assert_eq!(wallet.chain.unwrap().to_string(), "mainnet");
+    }
+
+    #[test]
+    fn account_from_raw() {
+        let from = FieldElement::from_hex_be("").unwrap();
+        let private_key = FieldElement::from_hex_be("").unwrap();
+
+        let opts = WalletOptions {
+            from: Some(from),
+            private_key: Some(private_key),
+            ..Default::default()
+        };
+
+        let wallet = opts.raw().unwrap();
+
+        assert!(wallet.chain.is_none());
+        assert_eq!(wallet.account, from);
+        assert_eq!(wallet.get_signing_key(), private_key);
     }
 }

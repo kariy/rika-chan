@@ -1,9 +1,9 @@
-mod cast;
 mod cmd;
 mod opts;
+mod probe;
 
-use crate::cast::{Probe, SimpleProbe};
 use crate::cmd::probe::{App, Commands, EcdsaCommand};
+use crate::probe::{Probe, SimpleProbe};
 
 use clap::Parser;
 use eyre::Result;

@@ -9,7 +9,7 @@ use starknet::{core::types::FieldElement, providers::jsonrpc::models::BlockId};
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
-#[clap(version, about, long_about = None)]
+#[clap(name = "probe", version, about, long_about = None)]
 pub struct App {
     #[clap(subcommand)]
     pub command: Commands,
@@ -550,4 +550,15 @@ pub enum EcdsaCommand {
         #[clap(help = "The key for verification.")]
         verifying_key: FieldElement,
     },
+}
+
+#[cfg(test)]
+mod tests {
+    use super::App;
+    use clap::CommandFactory;
+
+    #[test]
+    fn verify_cli() {
+        App::command().debug_assert()
+    }
 }

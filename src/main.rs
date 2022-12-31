@@ -297,6 +297,18 @@ async fn main() -> Result<()> {
         Commands::Account { commands } => {
             commands.run()?;
         }
+
+        Commands::Balance {
+            token,
+            address,
+            block_id,
+            starknet,
+        } => {
+            let res = Probe::new(starknet.rpc_url)
+                .get_balance(address, token, block_id)
+                .await?;
+            println!("{}", res);
+        }
     }
 
     Ok(())

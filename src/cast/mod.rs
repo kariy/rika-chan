@@ -24,6 +24,8 @@ use starknet::{
     providers::jsonrpc::models::MaybePendingBlockWithTxs,
 };
 
+use crate::cmd::parser::TokenKind;
+
 pub struct Probe {
     client: JsonRpcClient<HttpTransport>,
 }
@@ -248,6 +250,34 @@ impl Probe {
             .await?;
         let value = serde_json::to_value(res)?;
         Ok(serde_json::to_string_pretty(&value)?)
+    }
+
+    pub async fn get_balance(
+        &self,
+        account: FieldElement,
+        token: TokenKind,
+        block_id: BlockId,
+    ) -> Result<String> {
+        // value is a Uint256(low,high)
+        let res = self
+            .client
+            .call(
+                &FunctionCall {
+                    calldata: vec![account],
+                    contract_address: token.get_token_address(),
+                    // keccak hash of the string 'balanceOf'
+                    entry_point_selector: FieldElement::from_mont([
+                        8914400797191611589u64,
+                        3817639149632004388u64,
+                        9799122768618501063u64,
+                        186492163330788704u64,
+                    ]),
+                },
+                &block_id,
+            )
+            .await?;
+
+        Ok(format!("{:#x}{:x}", &res[1], &res[0]))
     }
 }
 

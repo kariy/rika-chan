@@ -42,7 +42,45 @@ impl TypedValueParser for FieldElementParser {
 pub enum TokenKind {
     Ether,
     Dai,
+    USDC,
+    USDT,
     Other(FieldElement),
+}
+
+impl TokenKind {
+    pub fn get_token_address(self) -> FieldElement {
+        match self {
+            Self::Ether => FieldElement::from_mont([
+                4380532846569209554u64,
+                17839402928228694863u64,
+                17240401758547432026u64,
+                418961398025637529u64,
+            ]),
+
+            Self::Dai => FieldElement::from_mont([
+                9111736349608482743u64,
+                12835366815636321047u64,
+                4097671348364524325u64,
+                173241921963463696u64,
+            ]),
+
+            Self::USDC => FieldElement::from_mont([
+                5808361013446951402u64,
+                13558485962494585092u64,
+                9528015766451344574u64,
+                198270530439797869u64,
+            ]),
+
+            Self::USDT => FieldElement::from_mont([
+                12825534675109051809u64,
+                4047367891602102096u64,
+                7552378060304297298u64,
+                570026286552673382u64,
+            ]),
+
+            Self::Other(addr) => addr,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -65,9 +103,9 @@ impl TypedValueParser for TokenValueParser {
         let value = value.to_lowercase();
         match value.as_str() {
             "ether" => Ok(TokenKind::Ether),
-
             "dai" => Ok(TokenKind::Dai),
-
+            "usdc" => Ok(TokenKind::USDC),
+            "usdt" => Ok(TokenKind::USDT),
             _ => Ok(TokenKind::Other(
                 FieldElement::from_hex_be(&value)
                     .map_err(|e| clap::Error::raw(clap::ErrorKind::InvalidValue, e.to_string()))?,
@@ -78,8 +116,12 @@ impl TypedValueParser for TokenValueParser {
     fn possible_values(
         &self,
     ) -> Option<Box<dyn Iterator<Item = clap::PossibleValue<'static>> + '_>> {
-        let possible_values: Vec<PossibleValue<'static>> =
-            vec![PossibleValue::new("ether"), PossibleValue::new("dai")];
+        let possible_values: Vec<PossibleValue<'static>> = vec![
+            PossibleValue::new("ether"),
+            PossibleValue::new("dai"),
+            PossibleValue::new("usdc"),
+            PossibleValue::new("usdt"),
+        ];
         Some(Box::new(possible_values.into_iter()))
     }
 }

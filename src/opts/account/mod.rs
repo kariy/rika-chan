@@ -83,6 +83,7 @@ impl WalletOptions {
         })
     }
 
+    #[allow(unused)]
     pub fn raw(&self) -> Option<SimpleAccount> {
         match (self.from, self.private_key) {
             (Some(from), Some(pk)) => Some(SimpleAccount::new(from, pk, None)),
@@ -90,6 +91,7 @@ impl WalletOptions {
         }
     }
 
+    #[allow(unused)]
     pub fn keystore(&self) -> Result<Option<SimpleAccount>> {
         get_from_keystore(
             self.from.unwrap().to_string().as_ref(),

@@ -15,7 +15,7 @@ use walkdir::WalkDir;
 
 #[derive(Debug, Subcommand)]
 pub enum WalletCommands {
-    #[clap(about = "Create a new keystore.")]
+    #[clap(about = "Create a keystore for a StarkNet account.")]
     #[clap(group(ArgGroup::new("new-raw").args(&["path"]).requires_all(&["account", "privatekey", "password", "chain"])))]
     New {
         #[clap(long)]

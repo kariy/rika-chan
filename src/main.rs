@@ -295,7 +295,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::Account { commands } => {
-            commands.run()?;
+            commands.run().await?;
         }
 
         Commands::Balance {

@@ -1,16 +1,17 @@
 pub mod simple_account;
 
 use super::{account::simple_account::SimpleAccount, parser::PathParser};
-use crate::opts::account::utils::get_main_keystore_dir;
-use crate::opts::account::WalletOptions;
+use crate::opts::account::{utils::get_main_keystore_dir, WalletOptions};
 use crate::opts::starknet::StarknetChain;
+use crate::probe::utils::parse_hex_or_str_as_felt;
 
 use std::path::PathBuf;
 
 use clap::{ArgGroup, Subcommand};
 use eyre::Result;
-use inquire::{Password, Text};
-use starknet::core::types::FieldElement;
+use inquire::{Password, Select, Text};
+use starknet::{core::types::FieldElement, signers::Signer};
+use walkdir::WalkDir;
 
 #[derive(Debug, Subcommand)]
 pub enum WalletCommands {
@@ -54,20 +55,30 @@ pub enum WalletCommands {
         password: Option<String>,
     },
 
-    #[clap(about = "Edit an entry in the keystore.")]
-    Edit {
+    #[clap(about = "Sign a message using an account's signing key.")]
+    #[clap(group(ArgGroup::new("sign-raw").args(&["keystore"]).requires_all(&["password", "message"])))]
+    Sign {
+        #[clap(short, long)]
         #[clap(value_name = "PATH")]
         #[clap(value_parser(PathParser))]
-        #[clap(help = "The path to the JSON keystore to be edited.")]
-        path: Option<PathBuf>,
-    },
+        keystore: Option<PathBuf>,
 
-    #[clap(about = "Sign a message.")]
-    Sign {},
+        #[clap(short, long)]
+        #[clap(requires = "keystore")]
+        #[clap(value_name = "KEYSTORE_PASSWORD")]
+        #[clap(help = "Provide the password for the JSON keystore in cleartext.")]
+        password: Option<String>,
+
+        #[clap(short, long)]
+        #[clap(requires = "keystore")]
+        #[clap(value_name = "MESSAGE_HASH")]
+        #[clap(help = "The hash of the message you want to sign.")]
+        message: Option<String>,
+    },
 }
 
 impl WalletCommands {
-    pub fn run(self) -> Result<()> {
+    pub async fn run(self) -> Result<()> {
         match self {
             Self::New {
                 path,
@@ -118,19 +129,48 @@ impl WalletCommands {
                 Ok(())
             }
 
-            Self::Edit { path } => {
+            Self::Sign {
+                keystore: path,
+                password,
+                message,
+            } => {
+                // construct a SimpleAccount from the keystore
+                // `path` must be the encrypted keystore json file
                 if let Some(path) = path {
-                    // check that path must be a file
-                    todo!("wallet edit with path");
+                    let account = SimpleAccount::decrypt_keystore(path, password.unwrap())?;
+                    let hash = parse_hex_or_str_as_felt(message.as_ref().unwrap())?;
+                    let sig = account.sign_hash(&hash).await?;
+                    println!("{:#x} {:#x}", sig.r, sig.s);
                 } else {
-                    // show list of chains
-                    // show list of keystores inside of the selected chain dir
-                    // show list of editable entries
-                    todo!("wallet edit interactive");
-                };
-            }
+                    let chain = Select::new("Select chain", vec!["mainnet", "testnet", "testnet2"])
+                        .prompt()?;
 
-            Self::Sign {} => todo!("wallet sign"),
+                    let mut keystores_path: Vec<String> = Vec::new();
+
+                    let path = format!("~/.starknet/keystore/{chain}");
+                    let path = shellexpand::tilde(&path);
+
+                    for entry in WalkDir::new(path.as_ref()) {
+                        let file = entry?;
+                        if file.file_type().is_file() {
+                            keystores_path.push(file.into_path().to_str().unwrap().to_string());
+                        }
+                    }
+
+                    let keystore = Select::new("Select keystore", keystores_path).prompt()?;
+                    let password = Password::new("Enter keystore password :").prompt()?;
+                    let account = SimpleAccount::decrypt_keystore(keystore, password)?;
+
+                    let message = Text::new("Enter message to sign : ").with_help_message("Message with 0x prefix is treated as hex value otherwise literal string").prompt()?;
+
+                    let hash = parse_hex_or_str_as_felt(&message)?;
+                    let sig = account.sign_hash(&hash).await?;
+
+                    println!("\n{:#x} {:#x}", sig.r, sig.s);
+                }
+
+                Ok(())
+            }
         }
     }
 }

@@ -27,18 +27,18 @@ pub struct StarkNetOptions {
 
 #[derive(Debug, Clone)]
 pub enum StarknetChain {
-    MAINNET,
-    TESTNET,
-    TESTNET2,
+    Mainnet,
+    Testnet,
+    Testnet2,
 }
 
 #[allow(unused)]
 impl StarknetChain {
     pub fn get_id(&self) -> FieldElement {
         match self {
-            Self::MAINNET => MAINNET,
-            Self::TESTNET => TESTNET,
-            Self::TESTNET2 => TESTNET2,
+            Self::Mainnet => MAINNET,
+            Self::Testnet => TESTNET,
+            Self::Testnet2 => TESTNET2,
         }
     }
 }
@@ -46,9 +46,9 @@ impl StarknetChain {
 impl fmt::Display for StarknetChain {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::MAINNET => write!(f, "mainnet"),
-            Self::TESTNET => write!(f, "testnet"),
-            Self::TESTNET2 => write!(f, "testnet2"),
+            Self::Mainnet => write!(f, "mainnet"),
+            Self::Testnet => write!(f, "testnet"),
+            Self::Testnet2 => write!(f, "testnet2"),
         }
     }
 }
@@ -63,9 +63,9 @@ impl FromStr for StarknetChain {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let s = s.to_lowercase();
         match s.as_str() {
-            "mainnet" => Ok(Self::MAINNET),
-            "testnet" => Ok(Self::TESTNET),
-            "testnet2" => Ok(Self::TESTNET2),
+            "mainnet" => Ok(Self::Mainnet),
+            "testnet" => Ok(Self::Testnet),
+            "testnet2" => Ok(Self::Testnet2),
             _ => Err(InvalidStarknetChain),
         }
     }

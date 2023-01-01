@@ -65,11 +65,7 @@ impl SimpleAccount {
             std::process::exit(1)
         }
 
-        let chain: Option<String> = if let Some(chain) = &self.chain {
-            Some(chain.to_string())
-        } else {
-            None
-        };
+        let chain: Option<String> = self.chain.as_ref().map(|chain| chain.to_string());
 
         let mut rng = thread_rng();
         starknet_keystore::encrypt_key(

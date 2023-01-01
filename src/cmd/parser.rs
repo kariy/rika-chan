@@ -42,8 +42,8 @@ impl TypedValueParser for FieldElementParser {
 pub enum TokenKind {
     Ether,
     Dai,
-    USDC,
-    USDT,
+    Usdc,
+    Usdt,
     Other(FieldElement),
 }
 
@@ -64,14 +64,14 @@ impl TokenKind {
                 173241921963463696u64,
             ]),
 
-            Self::USDC => FieldElement::from_mont([
+            Self::Usdc => FieldElement::from_mont([
                 5808361013446951402u64,
                 13558485962494585092u64,
                 9528015766451344574u64,
                 198270530439797869u64,
             ]),
 
-            Self::USDT => FieldElement::from_mont([
+            Self::Usdt => FieldElement::from_mont([
                 12825534675109051809u64,
                 4047367891602102096u64,
                 7552378060304297298u64,
@@ -104,8 +104,8 @@ impl TypedValueParser for TokenValueParser {
         match value.as_str() {
             "ether" => Ok(TokenKind::Ether),
             "dai" => Ok(TokenKind::Dai),
-            "usdc" => Ok(TokenKind::USDC),
-            "usdt" => Ok(TokenKind::USDT),
+            "usdc" => Ok(TokenKind::Usdc),
+            "usdt" => Ok(TokenKind::Usdt),
             _ => Ok(TokenKind::Other(
                 FieldElement::from_hex_be(&value)
                     .map_err(|e| clap::Error::raw(clap::ErrorKind::InvalidValue, e.to_string()))?,

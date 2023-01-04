@@ -3,10 +3,12 @@ pub mod utils;
 use std::cmp::Ordering;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
 
 use crypto_bigint::U256;
 use eyre::{eyre, Report, Result};
 use reqwest::Url;
+use starknet::accounts::Call;
 use starknet::core::utils::get_selector_from_name;
 use starknet::providers::jsonrpc::models::{
     BlockId, BroadcastedTransaction, EventFilter, FunctionCall,
@@ -399,5 +401,97 @@ impl SimpleProbe {
         let (high, low) = value.split();
 
         Ok((format!("0x{:x}", high), format!("0x{:x}", low)))
+    }
+
+    pub fn generate_multicall_calldata(args: &str) -> Result<Vec<FieldElement>> {
+        let mut calls = Vec::new();
+
+        for (idx, call_str) in args.split('-').enumerate() {
+            let mut data = call_str.trim().split(' ');
+
+            let to = data
+                .next()
+                .ok_or_else(|| eyre!("missing contract address for call {}", idx + 1))?;
+
+            let selector = data
+                .next()
+                .ok_or_else(|| eyre!("missing function name for call {}", idx + 1))?;
+
+            let mut calldata: Vec<FieldElement> = Vec::new();
+            for i in data {
+                calldata.push(
+                    FieldElement::from_str(i)
+                        .map_err(|e| eyre!("{e} in calldata for call {}", idx + 1))?,
+                )
+            }
+
+            let call = Call {
+                to: FieldElement::from_str(to)
+                    .map_err(|e| eyre!("{e} for call {} contract address ", idx + 1))?,
+
+                selector: get_selector_from_name(selector)
+                    .map_err(|e| eyre!("{e} for call {} selector ", idx + 1))?,
+
+                calldata,
+            };
+
+            calls.push(call);
+        }
+
+        let calldata = Self::generate_calldata_for_multicall_account(&calls)?;
+
+        Ok(calldata)
+    }
+
+    pub fn generate_calldata_for_multicall_account(calls: &[Call]) -> Result<Vec<FieldElement>> {
+        let mut concated_calldata: Vec<FieldElement> = vec![];
+        let mut execute_calldata: Vec<FieldElement> = vec![calls.len().into()];
+        for call in calls.iter() {
+            execute_calldata.push(call.to); // to
+            execute_calldata.push(call.selector); // selector
+            execute_calldata.push(concated_calldata.len().into()); // data_offset
+            execute_calldata.push(call.calldata.len().into()); // data_len
+
+            for item in call.calldata.iter() {
+                concated_calldata.push(*item);
+            }
+        }
+        execute_calldata.push(concated_calldata.len().into()); // calldata_len
+        for item in concated_calldata.into_iter() {
+            execute_calldata.push(item); // calldata
+        }
+
+        Ok(execute_calldata)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_multicall_str() {
+        let arg = "0x123456789 balanceOf 0x987654321 - 0xabc298498723 get_the_owner_of_something 0x1abdf988 0x9872349 0x19831".to_string();
+        let calls = SimpleProbe::generate_multicall_calldata(&arg).unwrap();
+
+        assert_eq!(
+            calls,
+            vec![
+                FieldElement::from_dec_str("2").unwrap(),
+                FieldElement::from_str("0x123456789").unwrap(),
+                get_selector_from_name("balanceOf").unwrap(),
+                FieldElement::ZERO,
+                FieldElement::ONE,
+                FieldElement::from_str("0xabc298498723").unwrap(),
+                get_selector_from_name("get_the_owner_of_something").unwrap(),
+                FieldElement::ONE,
+                FieldElement::THREE,
+                FieldElement::from_dec_str("4").unwrap(),
+                FieldElement::from_str("0x987654321").unwrap(),
+                FieldElement::from_str("0x1abdf988").unwrap(),
+                FieldElement::from_str("0x9872349").unwrap(),
+                FieldElement::from_str("0x19831").unwrap(),
+            ]
+        );
     }
 }

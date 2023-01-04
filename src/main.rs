@@ -309,6 +309,16 @@ async fn main() -> Result<()> {
                 .await?;
             println!("{}", res);
         }
+
+        Commands::CallArray { calls } => {
+            let arg = calls.join(" ");
+            let vec = SimpleProbe::generate_multicall_calldata(&arg)?
+                .into_iter()
+                .map(|e| format!("{e:#x}"))
+                .collect::<Vec<String>>();
+
+            println!("{}", vec.join(" "))
+        }
     }
 
     Ok(())

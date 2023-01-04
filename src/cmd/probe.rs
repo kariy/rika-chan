@@ -510,6 +510,16 @@ pub enum Commands {
         #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions,
     },
+
+    #[clap(visible_alias = "gca")]
+    #[clap(about = "Generate call array calldata")]
+    CallArray {
+        #[clap(required = true)]
+        #[clap(value_delimiter = ' ')]
+        #[clap(help = r#"List of calls seperated with a hyphen, -
+        example : <contract address> <function name> [<calldata> ...] - ..."#)]
+        calls: Vec<String>,
+    },
 }
 
 #[derive(Subcommand, Debug)]

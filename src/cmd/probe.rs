@@ -1,7 +1,7 @@
 use super::account::WalletCommands;
-use super::estimate_fee::EstimateFeeCommands;
-use super::parser::{BlockIdParser, FieldElementParser, TokenKind, TokenValueParser};
+use super::parser::{BlockIdParser, FieldElementParser};
 use super::rpc::RpcArgs;
+use super::send::InvokeArgs;
 use crate::opts::starknet::StarkNetOptions;
 
 use clap::{Parser, Subcommand};
@@ -272,7 +272,6 @@ pub enum Commands {
         function: String,
 
         #[clap(short, long)]
-        #[clap(multiple_values = true)]
         #[clap(display_order = 3)]
         inputs: Vec<FieldElement>,
 
@@ -326,28 +325,6 @@ pub enum Commands {
     ContractHash {
         #[clap(help = "The compiled contract file")]
         contract: PathBuf,
-    },
-
-    #[clap(visible_alias = "est")]
-    #[clap(about = "Estimate the fee for a given StarkNet transaction.")]
-    #[clap(
-        long_about = "Estimates the resources required by a transaction relative to a given state."
-    )]
-    Estimate {
-        #[clap(subcommand)]
-        commands: EstimateFeeCommands,
-
-        #[clap(next_line_help = true)]
-        #[clap(default_value = "latest")]
-        #[clap(value_parser(BlockIdParser))]
-        #[clap(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[clap(flatten)]
-        #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
     },
 
     #[clap(visible_alias = "cl")]
@@ -471,7 +448,9 @@ pub enum Commands {
     #[clap(visible_alias = "su")]
     #[clap(name = "--split-u256")]
     #[clap(about = "Split a uint256 into its low and high components.")]
-    SplitU256 { value: String },
+    SplitU256 {
+        value: String,
+    },
 
     #[clap(visible_alias = "acc")]
     #[clap(about = "")]
@@ -483,16 +462,6 @@ pub enum Commands {
     #[clap(visible_alias = "bal")]
     #[clap(about = "Get the balance of an ERC20 token of an address.")]
     Balance {
-        #[clap(short, long)]
-        #[clap(display_order = 1)]
-        #[clap(value_parser(TokenValueParser))]
-        #[clap(help = "The type of the ERC20 token.")]
-        #[clap(
-            long_help = "The type of the ERC20 token. Can also be the raw contract address of the token."
-        )]
-        token: TokenKind,
-
-        #[clap(short, long)]
         #[clap(value_name = "ADDRESS")]
         #[clap(help = "The address whose balance you want to query.")]
         address: FieldElement,
@@ -510,6 +479,18 @@ pub enum Commands {
         #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions,
     },
+
+    #[clap(visible_alias = "gca")]
+    #[clap(about = "Generate call array calldata")]
+    CallArray {
+        #[clap(required = true)]
+        #[clap(value_delimiter = ' ')]
+        #[clap(help = r#"List of calls seperated with a hyphen, -
+        example : <contract address> <function name> [<calldata> ...] - ..."#)]
+        calls: Vec<String>,
+    },
+
+    Invoke(InvokeArgs),
 }
 
 #[derive(Subcommand, Debug)]

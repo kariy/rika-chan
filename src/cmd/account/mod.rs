@@ -6,6 +6,7 @@ use crate::opts::starknet::StarknetChain;
 use crate::probe::utils::parse_hex_or_str_as_felt;
 
 use std::path::PathBuf;
+use std::str::FromStr;
 
 use clap::{ArgGroup, Subcommand};
 use eyre::Result;
@@ -95,7 +96,8 @@ impl WalletCommands {
                         std::process::exit(1)
                     }
 
-                    let account = SimpleAccount::new(account.unwrap(), privatekey.unwrap(), chain);
+                    let account =
+                        SimpleAccount::new(None, account.unwrap(), privatekey.unwrap(), chain);
                     account.encrypt_keystore(&path, password.unwrap(), name)?;
 
                     println!(
@@ -111,7 +113,12 @@ impl WalletCommands {
                         ..Default::default()
                     };
 
-                    let account = wallet.interactive()?.unwrap();
+                    let mut account = wallet.interactive()?.unwrap();
+                    let options = vec!["mainnet", "testnet", "testnet2"];
+                    let chain = Select::new("Please select the chain for this account.", options)
+                        .prompt()?;
+
+                    account.chain = Some(StarknetChain::from_str(chain)?);
 
                     let name = Text::new("Enter account name : ").prompt()?;
                     let password = Password::new("Enter keystore password : ").prompt()?;

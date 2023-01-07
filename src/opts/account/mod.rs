@@ -1,35 +1,38 @@
 pub mod utils;
 
 use self::utils::get_from_keystore;
-use super::starknet::StarknetChain;
 use crate::cmd::account::simple_account::SimpleAccount;
 
 use std::{path::PathBuf, str::FromStr};
 
-use clap::Parser;
+use clap::{ArgGroup, Parser};
 use eyre::Result;
-use inquire::{CustomType, Select};
+use inquire::CustomType;
 use starknet::core::types::FieldElement;
 
 #[derive(Debug, Clone, Parser, Default)]
+#[clap(group(ArgGroup::new("wallet-method").args(["private_key", "keystore_path"])))]
+#[clap(group(ArgGroup::new("password-method").args(["keystore_password", "keystore_password_file"]).requires("keystore_path")))]
+#[clap(group(ArgGroup::new("wallet-interactive").args(["interactive"]).conflicts_with_all(["private_key", "account", "keystore_path", "keystore_password", "keystore_password_file"])))]
 pub struct WalletOptions {
     #[clap(short, long)]
-    #[clap(exclusive = true)]
     #[clap(help_heading = "WALLET OPTIONS - RAW")]
     #[clap(help = "Open an interactive prompt to enter your wallet details.")]
     pub interactive: bool,
 
     #[clap(long)]
+    #[clap(requires = "account")]
     #[clap(value_name = "PRIVATE_KEY")]
     #[clap(help_heading = "WALLET OPTIONS - RAW")]
     #[clap(help = "The raw private key associated with the account contract.")]
     pub private_key: Option<FieldElement>,
 
     #[clap(long)]
-    #[clap(value_name = "ACCOUNT_ADDRESS")]
+    #[clap(value_name = "FROM")]
+    #[clap(requires = "wallet-method")]
     #[clap(help_heading = "WALLET OPTIONS - RAW")]
     #[clap(help = "Account contract to initiate the transaction from.")]
-    pub from: Option<FieldElement>,
+    pub account: Option<FieldElement>,
 
     #[clap(long = "keystore")]
     #[clap(value_name = "PATH")]
@@ -40,21 +43,27 @@ pub struct WalletOptions {
 
     #[clap(long = "password")]
     #[clap(value_name = "PASSWORD")]
-    #[clap(requires = "keystore")]
     #[clap(help_heading = "WALLET OPTIONS - KEYSTORE")]
     #[clap(help = "The keystore password. Used with --keystore.")]
     pub keystore_password: Option<String>,
 
-    #[clap(env = "STARKNET_KEYSTORE_PASSWORD")]
     #[clap(long = "password-file")]
-    #[clap(requires = "keystore")]
     #[clap(value_name = "PASSWORD_FILE")]
+    #[clap(env = "STARKNET_KEYSTORE_PASSWORD")]
+    #[clap(conflicts_with = "keystore_password")]
     #[clap(help_heading = "WALLET OPTIONS - KEYSTORE")]
     #[clap(help = "The keystore password file path. Used with --keystore.")]
     pub keystore_password_file: Option<PathBuf>,
 }
 
 impl WalletOptions {
+    pub fn build_wallet(&self) -> Result<Option<SimpleAccount>> {
+        match self.keystore()?.or_else(|| self.raw()) {
+            Some(account) => Ok(Some(account)),
+            None => self.interactive(),
+        }
+    }
+
     pub fn interactive(&self) -> Result<Option<SimpleAccount>> {
         Ok(if self.interactive {
             let felt_prompter = |message: &'static str| {
@@ -69,32 +78,22 @@ impl WalletOptions {
             let account = felt_prompter("Enter account address : ").prompt()?;
             let private_key = felt_prompter("Enter private key : ").prompt()?;
 
-            let options = vec!["mainnet", "testnet", "testnet2"];
-            let chain =
-                Select::new("Please select the chain for this account.", options).prompt()?;
-
-            Some(SimpleAccount::new(
-                account,
-                private_key,
-                StarknetChain::from_str(chain).ok(),
-            ))
+            Some(SimpleAccount::new(None, account, private_key, None))
         } else {
             None
         })
     }
 
-    #[allow(unused)]
     pub fn raw(&self) -> Option<SimpleAccount> {
-        match (self.from, self.private_key) {
-            (Some(from), Some(pk)) => Some(SimpleAccount::new(from, pk, None)),
+        match (self.account, self.private_key) {
+            (Some(from), Some(pk)) => Some(SimpleAccount::new(None, from, pk, None)),
             _ => None,
         }
     }
 
-    #[allow(unused)]
     pub fn keystore(&self) -> Result<Option<SimpleAccount>> {
         get_from_keystore(
-            self.from.unwrap().to_string().as_ref(),
+            self.account,
             self.keystore_path.as_ref(),
             self.keystore_password.as_ref(),
             self.keystore_password_file.as_ref(),
@@ -117,7 +116,7 @@ mod tests {
 
         let file = Path::new("./tests/test-keys/test-key1.json");
         let opts = WalletOptions {
-            from: Some(account_addr),
+            account: Some(account_addr),
             keystore_path: Some(file.to_path_buf()),
             keystore_password: Some("12345".to_string()),
             ..Default::default()
@@ -153,7 +152,7 @@ mod tests {
         let password_file = Path::new("./tests/test-keys/password1");
 
         let opts = WalletOptions {
-            from: Some(account_addr),
+            account: Some(account_addr),
             keystore_path: Some(file.to_path_buf()),
             keystore_password_file: Some(password_file.to_path_buf()),
             ..Default::default()
@@ -184,7 +183,7 @@ mod tests {
         let private_key = FieldElement::from_hex_be("").unwrap();
 
         let opts = WalletOptions {
-            from: Some(from),
+            account: Some(from),
             private_key: Some(private_key),
             ..Default::default()
         };

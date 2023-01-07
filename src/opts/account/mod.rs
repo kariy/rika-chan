@@ -40,14 +40,14 @@ pub struct WalletOptions {
 
     #[clap(long = "password")]
     #[clap(value_name = "PASSWORD")]
-    #[clap(requires = "keystore")]
+    #[clap(requires = "keystore_path")]
     #[clap(help_heading = "WALLET OPTIONS - KEYSTORE")]
     #[clap(help = "The keystore password. Used with --keystore.")]
     pub keystore_password: Option<String>,
 
     #[clap(env = "STARKNET_KEYSTORE_PASSWORD")]
     #[clap(long = "password-file")]
-    #[clap(requires = "keystore")]
+    #[clap(requires = "keystore_path")]
     #[clap(value_name = "PASSWORD_FILE")]
     #[clap(help_heading = "WALLET OPTIONS - KEYSTORE")]
     #[clap(help = "The keystore password file path. Used with --keystore.")]

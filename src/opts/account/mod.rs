@@ -69,32 +69,22 @@ impl WalletOptions {
             let account = felt_prompter("Enter account address : ").prompt()?;
             let private_key = felt_prompter("Enter private key : ").prompt()?;
 
-            let options = vec!["mainnet", "testnet", "testnet2"];
-            let chain =
-                Select::new("Please select the chain for this account.", options).prompt()?;
-
-            Some(SimpleAccount::new(
-                account,
-                private_key,
-                StarknetChain::from_str(chain).ok(),
-            ))
+            Some(SimpleAccount::new(None, account, private_key, None))
         } else {
             None
         })
     }
 
-    #[allow(unused)]
     pub fn raw(&self) -> Option<SimpleAccount> {
-        match (self.from, self.private_key) {
-            (Some(from), Some(pk)) => Some(SimpleAccount::new(from, pk, None)),
+        match (self.account, self.private_key) {
+            (Some(from), Some(pk)) => Some(SimpleAccount::new(None, from, pk, None)),
             _ => None,
         }
     }
 
-    #[allow(unused)]
     pub fn keystore(&self) -> Result<Option<SimpleAccount>> {
         get_from_keystore(
-            self.from.unwrap().to_string().as_ref(),
+            self.account,
             self.keystore_path.as_ref(),
             self.keystore_password.as_ref(),
             self.keystore_password_file.as_ref(),
@@ -117,7 +107,7 @@ mod tests {
 
         let file = Path::new("./tests/test-keys/test-key1.json");
         let opts = WalletOptions {
-            from: Some(account_addr),
+            account: Some(account_addr),
             keystore_path: Some(file.to_path_buf()),
             keystore_password: Some("12345".to_string()),
             ..Default::default()
@@ -153,7 +143,7 @@ mod tests {
         let password_file = Path::new("./tests/test-keys/password1");
 
         let opts = WalletOptions {
-            from: Some(account_addr),
+            account: Some(account_addr),
             keystore_path: Some(file.to_path_buf()),
             keystore_password_file: Some(password_file.to_path_buf()),
             ..Default::default()
@@ -184,7 +174,7 @@ mod tests {
         let private_key = FieldElement::from_hex_be("").unwrap();
 
         let opts = WalletOptions {
-            from: Some(from),
+            account: Some(from),
             private_key: Some(private_key),
             ..Default::default()
         };

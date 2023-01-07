@@ -72,13 +72,13 @@ impl InvokeArgs {
             Some(ref fee) => fee.to_owned(),
             None => {
                 let request = account
-                    .prepare_invoke_transaction(&[call.clone()], nonce.clone(), FieldElement::ZERO)
+                    .prepare_invoke_transaction(&[call.clone()], nonce, FieldElement::ZERO)
                     .await?;
 
                 account
                     .get_max_fee(&BroadcastedTransaction::Invoke(request))
                     .await
-                    .map(|i| FieldElement::from(i))?
+                    .map(FieldElement::from)?
             }
         };
 

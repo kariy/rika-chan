@@ -169,7 +169,7 @@ impl Account for SimpleAccount {
         provider
             .get_nonce(&BlockId::Tag(BlockTag::Latest), self.account)
             .await
-            .map_err(|e| AccountError::ProviderError(e))
+            .map_err(AccountError::ProviderError)
     }
 
     async fn prepare_invoke_transaction(
@@ -182,7 +182,7 @@ impl Account for SimpleAccount {
         let chain = provider
             .chain_id()
             .await
-            .map_err(|e| AccountError::ProviderError(e))?;
+            .map_err(AccountError::ProviderError)?;
 
         let calldata = SimpleProbe::generate_calldata_for_multicall_account(calls);
 
@@ -200,7 +200,7 @@ impl Account for SimpleAccount {
         let signature = self
             .sign_hash(&tx_hash)
             .await
-            .map_err(|e| AccountError::SignError(e))?;
+            .map_err(AccountError::SignError)?;
 
         Ok(BroadcastedInvokeTransaction::V1(
             BroadcastedInvokeTransactionV1 {
@@ -219,7 +219,7 @@ impl Account for SimpleAccount {
         let res = provider
             .estimate_fee(request, &BlockId::Tag(BlockTag::Latest))
             .await
-            .map_err(|e| AccountError::ProviderError(e))?;
+            .map_err(AccountError::ProviderError)?;
 
         Ok(res.overall_fee)
     }
@@ -232,9 +232,9 @@ impl Account for SimpleAccount {
         let provider = self.get_provider()?;
 
         provider
-            .add_invoke_transaction(&request)
+            .add_invoke_transaction(request)
             .await
-            .map_err(|e| AccountError::ProviderError(e))
+            .map_err(AccountError::ProviderError)
     }
 }
 

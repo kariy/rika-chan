@@ -438,12 +438,12 @@ impl SimpleProbe {
             calls.push(call);
         }
 
-        let calldata = Self::generate_calldata_for_multicall_account(&calls)?;
+        let calldata = Self::generate_calldata_for_multicall_account(&calls);
 
         Ok(calldata)
     }
 
-    pub fn generate_calldata_for_multicall_account(calls: &[Call]) -> Result<Vec<FieldElement>> {
+    pub fn generate_calldata_for_multicall_account(calls: &[Call]) -> Vec<FieldElement> {
         let mut concated_calldata: Vec<FieldElement> = vec![];
         let mut execute_calldata: Vec<FieldElement> = vec![calls.len().into()];
         for call in calls.iter() {
@@ -461,7 +461,7 @@ impl SimpleProbe {
             execute_calldata.push(item); // calldata
         }
 
-        Ok(execute_calldata)
+        execute_calldata
     }
 }
 

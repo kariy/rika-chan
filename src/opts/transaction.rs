@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use clap::Parser;
 use starknet::core::types::FieldElement;
 
@@ -13,7 +11,8 @@ pub struct TransactionOptions {
     pub max_fee: Option<FieldElement>,
 
     #[clap(long)]
-    #[clap(help = "A transaction signature")]
+    #[clap(value_delimiter = ',')]
+    #[clap(help = "The transaction signature")]
     pub signature: Option<Vec<FieldElement>>,
 
     #[clap(long)]
@@ -21,62 +20,47 @@ pub struct TransactionOptions {
     pub version: Option<u64>,
 }
 
-#[derive(Debug, Parser)]
-pub struct InvokeTxArgs {
-    #[clap(short, long)]
-    pub sender_address: FieldElement,
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
 
-    #[clap(short = 'd', long)]
-    pub calldata: Vec<FieldElement>,
+    use clap::CommandFactory;
+    use starknet::core::types::FieldElement;
 
-    #[clap(flatten)]
-    #[clap(next_help_heading = "TRANSACTION OPTIONS")]
-    pub transaction: TransactionOptions,
-}
+    use super::TransactionOptions;
 
-#[derive(Debug, Parser)]
-pub struct DeclareTxArgs {
-    #[clap(short, long)]
-    #[clap(help = "The file of the contract to be declared")]
-    pub contract: PathBuf,
+    #[test]
+    fn parse_tx_options() {
+        let cli = TransactionOptions::command().get_matches_from(&[
+            "transaction_options",
+            "--signature",
+            "0x124142,0x3323234,0x12324131",
+            "--nonce",
+            "0x64",
+            "--max-fee",
+            "0x256",
+        ]);
 
-    #[clap(short, long)]
-    pub sender_address: FieldElement,
+        assert_eq!(
+            cli.get_many::<FieldElement>("signature")
+                .unwrap()
+                .map(|e| e.to_owned())
+                .collect::<Vec<_>>(),
+            vec![
+                FieldElement::from_str("0x124142").unwrap(),
+                FieldElement::from_str("0x3323234").unwrap(),
+                FieldElement::from_str("0x12324131").unwrap(),
+            ]
+        );
 
-    #[clap(flatten)]
-    #[clap(next_help_heading = "TRANSACTION OPTIONS")]
-    pub transaction: TransactionOptions,
-}
+        assert_eq!(
+            cli.get_one::<FieldElement>("nonce").unwrap().to_owned(),
+            FieldElement::from_str("0x64").unwrap(),
+        );
 
-#[derive(Debug, Parser)]
-pub struct DeployTxArgs {
-    #[clap(short, long)]
-    #[clap(help = "The file of the contract to be deployed")]
-    pub contract: PathBuf,
-
-    #[clap(short = 's', long = "salt")]
-    pub contract_address_salt: FieldElement,
-
-    #[clap(short = 'd', long)]
-    pub constructor_calldata: Vec<FieldElement>,
-
-    #[clap(flatten)]
-    #[clap(next_help_heading = "TRANSACTION OPTIONS")]
-    pub transaction: TransactionOptions,
-}
-
-#[derive(Debug, Parser)]
-pub struct DeployAccountTxArgs {
-    #[clap(short, long)]
-    pub class_hash: FieldElement,
-
-    #[clap(short = 's', long)]
-    pub contract_address_salt: FieldElement,
-
-    #[clap(short = 'd', long)]
-    pub constructor_calldata: Vec<FieldElement>,
-
-    #[clap(flatten)]
-    #[clap(next_help_heading = "TRANSACTION OPTIONS")]
-    pub transaction: TransactionOptions,
+        assert_eq!(
+            cli.get_one::<FieldElement>("max_fee").unwrap().to_owned(),
+            FieldElement::from_str("0x256").unwrap(),
+        );
+    }
 }

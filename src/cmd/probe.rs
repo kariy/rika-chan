@@ -1,7 +1,7 @@
 use super::account::WalletCommands;
-use super::estimate_fee::EstimateFeeCommands;
 use super::parser::{BlockIdParser, FieldElementParser, TokenKind, TokenValueParser};
 use super::rpc::RpcArgs;
+use super::send::InvokeArgs;
 use crate::opts::starknet::StarkNetOptions;
 
 use clap::{Parser, Subcommand};
@@ -327,28 +327,6 @@ pub enum Commands {
         contract: PathBuf,
     },
 
-    #[clap(visible_alias = "est")]
-    #[clap(about = "Estimate the fee for a given StarkNet transaction.")]
-    #[clap(
-        long_about = "Estimates the resources required by a transaction relative to a given state."
-    )]
-    Estimate {
-        #[clap(subcommand)]
-        commands: EstimateFeeCommands,
-
-        #[clap(next_line_help = true)]
-        #[clap(default_value = "latest")]
-        #[clap(value_parser(BlockIdParser))]
-        #[clap(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[clap(flatten)]
-        #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
-    },
-
     #[clap(visible_alias = "cl")]
     #[clap(
         about = "Get the contract class definition in the given block associated with the given hash"
@@ -519,6 +497,8 @@ pub enum Commands {
         example : <contract address> <function name> [<calldata> ...] - ..."#)]
         calls: Vec<String>,
     },
+
+    Invoke(InvokeArgs),
 }
 
 #[derive(Subcommand, Debug)]

@@ -209,18 +209,6 @@ async fn main() -> Result<()> {
             println!("{:#x}", res);
         }
 
-        Commands::Estimate {
-            commands,
-            block_id,
-            starknet,
-        } => {
-            let tx = commands.prepare_transaction()?;
-            let res = Probe::new(starknet.rpc_url)
-                .estimate_fee(tx, &block_id)
-                .await?;
-            println!("{}", res);
-        }
-
         Commands::Class {
             hash,
             block_id,
@@ -318,6 +306,11 @@ async fn main() -> Result<()> {
                 .collect::<Vec<String>>();
 
             println!("{}", vec.join(" "))
+        }
+
+        Commands::Invoke(args) => {
+            let res = args.run().await?;
+            println!("Transaction hash : {:#x}", res.transaction_hash);
         }
     }
 

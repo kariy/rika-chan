@@ -1,6 +1,6 @@
 pub mod account;
-pub mod estimate_fee;
 pub mod rpc;
+pub mod send;
 
 pub mod parser;
 

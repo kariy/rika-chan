@@ -448,7 +448,9 @@ pub enum Commands {
     #[clap(visible_alias = "su")]
     #[clap(name = "--split-u256")]
     #[clap(about = "Split a uint256 into its low and high components.")]
-    SplitU256 { value: String },
+    SplitU256 {
+        value: String,
+    },
 
     #[clap(visible_alias = "acc")]
     #[clap(about = "")]

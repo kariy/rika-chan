@@ -10,9 +10,7 @@ use eyre::{eyre, Report, Result};
 use reqwest::Url;
 use starknet::accounts::Call;
 use starknet::core::utils::get_selector_from_name;
-use starknet::providers::jsonrpc::models::{
-    BlockId, BroadcastedTransaction, EventFilter, FunctionCall,
-};
+use starknet::providers::jsonrpc::models::{BlockId, EventFilter, FunctionCall};
 use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 use starknet::{
     core::{
@@ -197,15 +195,6 @@ impl Probe {
         let res = self.client.get_state_update(block_id).await?;
         let res = serde_json::to_value(res)?;
         Ok(serde_json::to_string_pretty(&res)?)
-    }
-
-    pub async fn estimate_fee<R>(&self, call: R, block_id: &BlockId) -> Result<String>
-    where
-        R: AsRef<BroadcastedTransaction>,
-    {
-        let res = self.client.estimate_fee(call, block_id).await?;
-        let value = serde_json::to_value(res)?;
-        Ok(serde_json::to_string_pretty(&value)?)
     }
 
     pub async fn get_class_code(

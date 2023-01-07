@@ -28,14 +28,19 @@ pub fn get_main_keystore_dir() -> PathBuf {
 ///
 /// If the path is a directory then we try to find the first keystore file with the correct
 /// sender address
-pub fn find_keystore_file(account: &str, path: impl AsRef<Path>) -> Result<PathBuf> {
+pub fn find_keystore_file(
+    account: Option<FieldElement>,
+    path: impl AsRef<Path>,
+) -> Result<PathBuf> {
     let path = path.as_ref();
     if !path.exists() {
         bail!("keystore file `{path:?}` does not exist")
     }
 
     if path.is_dir() {
-        let account = FieldElement::from_str(account)?;
+        let Some(account) = account else {
+            return Err(eyre!("unable to find the keystore with unknown account address"))
+        };
 
         let (_, file) = walkdir::WalkDir::new(path)
             .max_depth(2)
@@ -59,7 +64,7 @@ pub fn find_keystore_file(account: &str, path: impl AsRef<Path>) -> Result<PathB
 }
 
 pub fn get_from_keystore(
-    account: &str,
+    account: Option<FieldElement>,
     keystore_path: Option<&PathBuf>,
     keystore_password: Option<&String>,
     keystore_password_file: Option<&PathBuf>,

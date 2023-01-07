@@ -11,7 +11,9 @@ use inquire::CustomType;
 use starknet::core::types::FieldElement;
 
 #[derive(Debug, Clone, Parser, Default)]
-#[clap(group(ArgGroup::new("wallet-interactive").args(["interactive"]).conflicts_with_all(["private_key", "from", "keystore_path", "keystore_password", "keystore_password_file"])))]
+#[clap(group(ArgGroup::new("wallet-method").args(["private_key", "keystore_path"])))]
+#[clap(group(ArgGroup::new("password-method").args(["keystore_password", "keystore_password_file"]).requires("keystore_path")))]
+#[clap(group(ArgGroup::new("wallet-interactive").args(["interactive"]).conflicts_with_all(["private_key", "account", "keystore_path", "keystore_password", "keystore_password_file"])))]
 pub struct WalletOptions {
     #[clap(short, long)]
     #[clap(help_heading = "WALLET OPTIONS - RAW")]
@@ -19,14 +21,15 @@ pub struct WalletOptions {
     pub interactive: bool,
 
     #[clap(long)]
+    #[clap(requires = "account")]
     #[clap(value_name = "PRIVATE_KEY")]
     #[clap(help_heading = "WALLET OPTIONS - RAW")]
     #[clap(help = "The raw private key associated with the account contract.")]
     pub private_key: Option<FieldElement>,
 
     #[clap(long)]
-    #[clap(requires = "keystore_path")]
     #[clap(value_name = "FROM")]
+    #[clap(requires = "wallet-method")]
     #[clap(help_heading = "WALLET OPTIONS - RAW")]
     #[clap(help = "Account contract to initiate the transaction from.")]
     pub account: Option<FieldElement>,
@@ -40,15 +43,14 @@ pub struct WalletOptions {
 
     #[clap(long = "password")]
     #[clap(value_name = "PASSWORD")]
-    #[clap(requires = "keystore_path")]
     #[clap(help_heading = "WALLET OPTIONS - KEYSTORE")]
     #[clap(help = "The keystore password. Used with --keystore.")]
     pub keystore_password: Option<String>,
 
-    #[clap(env = "STARKNET_KEYSTORE_PASSWORD")]
     #[clap(long = "password-file")]
-    #[clap(requires = "keystore_path")]
     #[clap(value_name = "PASSWORD_FILE")]
+    #[clap(env = "STARKNET_KEYSTORE_PASSWORD")]
+    #[clap(conflicts_with = "keystore_password")]
     #[clap(help_heading = "WALLET OPTIONS - KEYSTORE")]
     #[clap(help = "The keystore password file path. Used with --keystore.")]
     pub keystore_password_file: Option<PathBuf>,

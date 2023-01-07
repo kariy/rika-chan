@@ -460,7 +460,7 @@ pub enum Commands {
     },
 
     #[clap(visible_alias = "bal")]
-    #[clap(about = "Get the balance of an ERC20 token of an address.")]
+    #[clap(about = "Get the ETH balance of an address.")]
     Balance {
         #[clap(value_name = "ADDRESS")]
         #[clap(help = "The address whose balance you want to query.")]

@@ -2,8 +2,6 @@
 
 A command-line tool for performing RPC calls to the StarkNet network.
 
-_Currently only supports StarkNet JSON-RPC [`v0.1.0`](https://github.com/starkware-libs/starknet-specs/tree/v0.1.0/api)_
-
 ## Installation
 
 ```
@@ -21,7 +19,8 @@ $ cargo install --git https://github.com/kariy/starknet-probe
 -   [x] `--min-sfelt`
 -   [x] `--split-u256`
 -   [x] `age`
--   [ ] `balance`
+-   [x] `account`
+-   [x] `balance`
 -   [x] `block`
 -   [x] `block-number`
 -   [x] `call`
@@ -32,12 +31,10 @@ $ cargo install --git https://github.com/kariy/starknet-probe
 -   [x] `contract-class`
 -   [x] `contract-hash`
 -   [ ] `declare`
--   [ ] `deploy`
 -   [x] `ecdsa`
--   [x] `estimate`
 -   [x] `events`
 -   [x] `index`
--   [ ] `invoke`
+-   [x] `invoke`
 -   [x] `keccak`
 -   [x] `nonce`
 -   [x] `pedersen`

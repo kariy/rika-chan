@@ -1,20 +1,19 @@
 pub mod utils;
 
 use self::utils::get_from_keystore;
-use super::starknet::StarknetChain;
 use crate::cmd::account::simple_account::SimpleAccount;
 
 use std::{path::PathBuf, str::FromStr};
 
-use clap::Parser;
+use clap::{ArgGroup, Parser};
 use eyre::Result;
-use inquire::{CustomType, Select};
+use inquire::CustomType;
 use starknet::core::types::FieldElement;
 
 #[derive(Debug, Clone, Parser, Default)]
+#[clap(group(ArgGroup::new("wallet-interactive").args(["interactive"]).conflicts_with_all(["private_key", "from", "keystore_path", "keystore_password", "keystore_password_file"])))]
 pub struct WalletOptions {
     #[clap(short, long)]
-    #[clap(exclusive = true)]
     #[clap(help_heading = "WALLET OPTIONS - RAW")]
     #[clap(help = "Open an interactive prompt to enter your wallet details.")]
     pub interactive: bool,
@@ -26,10 +25,11 @@ pub struct WalletOptions {
     pub private_key: Option<FieldElement>,
 
     #[clap(long)]
-    #[clap(value_name = "ACCOUNT_ADDRESS")]
+    #[clap(requires = "keystore_path")]
+    #[clap(value_name = "FROM")]
     #[clap(help_heading = "WALLET OPTIONS - RAW")]
     #[clap(help = "Account contract to initiate the transaction from.")]
-    pub from: Option<FieldElement>,
+    pub account: Option<FieldElement>,
 
     #[clap(long = "keystore")]
     #[clap(value_name = "PATH")]

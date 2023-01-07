@@ -272,7 +272,6 @@ pub enum Commands {
         function: String,
 
         #[clap(short, long)]
-        #[clap(multiple_values = true)]
         #[clap(display_order = 3)]
         inputs: Vec<FieldElement>,
 

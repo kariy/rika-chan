@@ -1,5 +1,5 @@
 use super::account::WalletCommands;
-use super::parser::{BlockIdParser, FieldElementParser, TokenKind, TokenValueParser};
+use super::parser::{BlockIdParser, FieldElementParser};
 use super::rpc::RpcArgs;
 use super::send::InvokeArgs;
 use crate::opts::starknet::StarkNetOptions;
@@ -462,16 +462,6 @@ pub enum Commands {
     #[clap(visible_alias = "bal")]
     #[clap(about = "Get the balance of an ERC20 token of an address.")]
     Balance {
-        #[clap(short, long)]
-        #[clap(display_order = 1)]
-        #[clap(value_parser(TokenValueParser))]
-        #[clap(help = "The type of the ERC20 token.")]
-        #[clap(
-            long_help = "The type of the ERC20 token. Can also be the raw contract address of the token."
-        )]
-        token: TokenKind,
-
-        #[clap(short, long)]
         #[clap(value_name = "ADDRESS")]
         #[clap(help = "The address whose balance you want to query.")]
         address: FieldElement,

@@ -287,13 +287,12 @@ async fn main() -> Result<()> {
         }
 
         Commands::Balance {
-            token,
             address,
             block_id,
             starknet,
         } => {
             let res = Probe::new(starknet.rpc_url)
-                .get_balance(address, token, block_id)
+                .get_eth_balance(address, block_id)
                 .await?;
             println!("{}", res);
         }

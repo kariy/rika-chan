@@ -55,6 +55,13 @@ pub struct WalletOptions {
 }
 
 impl WalletOptions {
+    pub fn build_wallet(&self) -> Result<Option<SimpleAccount>> {
+        match self.keystore()?.or_else(|| self.raw()) {
+            Some(account) => Ok(Some(account)),
+            None => self.interactive(),
+        }
+    }
+
     pub fn interactive(&self) -> Result<Option<SimpleAccount>> {
         Ok(if self.interactive {
             let felt_prompter = |message: &'static str| {

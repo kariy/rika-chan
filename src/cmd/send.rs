@@ -49,14 +49,8 @@ impl InvokeArgs {
             transaction,
         } = self;
 
-        let mut account = match wallet.keystore()?.or_else(|| wallet.raw()) {
-            Some(account) => account,
-            None => {
-                let Some(account) =  wallet.interactive()? else {
-                    bail!("wallet missing")
-                };
-                account
-            }
+        let Some(mut account) = wallet.build_wallet()? else {
+            bail!("missing wallet")
         };
 
         account

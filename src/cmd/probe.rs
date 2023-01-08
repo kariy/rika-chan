@@ -280,22 +280,6 @@ pub enum Commands {
         #[clap(help = "The compiled contract file")]
         contract: PathBuf,
     },
-    #[clap(visible_alias = "ctx")]
-    #[clap(name = "tx-count")]
-    #[clap(about = "Get the number of transactions in a block.")]
-    CountTransactions {
-        #[clap(next_line_help = true)]
-        #[clap(default_value = "latest")]
-        #[clap(value_parser(BlockIdParser))]
-        #[clap(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[clap(flatten)]
-        #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
-    },
 
     #[clap(visible_alias = "ec")]
     #[clap(about = "Perform ECDSA operations over the STARK-friendly elliptic curve.")]
@@ -388,14 +372,6 @@ pub enum Commands {
         y: String,
     },
 
-    #[clap(name = "tx-pending")]
-    #[clap(about = "Get the transactions in the transaction pool, recognized by the sequencer.")]
-    PendingTransactions {
-        #[clap(flatten)]
-        #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
-    },
-
     #[clap(about = "Perform a raw JSON-RPC request.")]
     Rpc(RpcArgs),
 
@@ -453,6 +429,33 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "txc")]
+    #[clap(name = "tx-count")]
+    #[clap(about = "Get the number of transactions in a block.")]
+    TransactionCount {
+        #[clap(next_line_help = true)]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
+        block_id: BlockId,
+
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions,
+    },
+
+    #[clap(visible_alias = "txp")]
+    #[clap(name = "tx-pending")]
+    #[clap(about = "Get the transactions in the transaction pool, recognized by the sequencer.")]
+    TransactionPending {
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions,
+    },
+
+    #[clap(visible_alias = "txs")]
     #[clap(name = "tx-status")]
     #[clap(about = "Get the status of a transaction.")]
     TransactionStatus {

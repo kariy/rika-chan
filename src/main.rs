@@ -132,7 +132,7 @@ async fn main() -> Result<()> {
             println!("{}", timestamp);
         }
 
-        Commands::CountTransactions { block_id, starknet } => {
+        Commands::TransactionCount { block_id, starknet } => {
             let total = Probe::new(starknet.rpc_url)
                 .get_block_transaction_count(block_id)
                 .await?;
@@ -151,7 +151,7 @@ async fn main() -> Result<()> {
             println!("{}", nonce);
         }
 
-        Commands::PendingTransactions { starknet } => {
+        Commands::TransactionPending { starknet } => {
             let transactions = Probe::new(starknet.rpc_url).pending_transactions().await?;
             println!("{}", transactions);
         }

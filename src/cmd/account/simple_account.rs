@@ -83,13 +83,13 @@ impl SimpleAccount {
 
         let mut filename = format!("{:#x}", self.account);
         if let Some(tag) = tag {
-            filename.push_str(format!("-{}", tag).as_str());
+            filename.push_str(format!("-{tag}").as_str());
         }
         filename.push_str(".json");
 
         // check if a keystore with that filename already exists
         if path.join(&filename).exists() {
-            eprintln!("keystore already exists `{}` .", filename);
+            eprintln!("keystore already exists `{filename}`.");
             std::process::exit(1)
         }
 

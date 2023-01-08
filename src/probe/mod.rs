@@ -147,7 +147,7 @@ impl Probe {
             .get_storage_at(contract_address, key, block_id)
             .await?;
 
-        Ok(format!("{:#x}", res))
+        Ok(format!("{res:#x}"))
     }
 
     pub async fn call(
@@ -224,7 +224,7 @@ impl Probe {
             .client
             .get_class_hash_at(block_id, contract_address)
             .await?;
-        Ok(format!("{:#x}", res))
+        Ok(format!("{res:#x}"))
     }
 
     pub async fn get_events(
@@ -278,7 +278,7 @@ pub struct SimpleProbe;
 
 impl SimpleProbe {
     pub fn to_hex(dec: &FieldElement) -> String {
-        format!("{:#x}", dec)
+        format!("{dec:#x}")
     }
 
     pub fn to_dec(hex: &FieldElement) -> String {
@@ -293,7 +293,7 @@ impl SimpleProbe {
             _ => starknet_keccak(data.as_bytes()),
         };
 
-        Ok(format!("{:#x}", hash))
+        Ok(format!("{hash:#x}"))
     }
 
     pub fn pedersen(x: &str, y: &str) -> Result<String> {
@@ -301,7 +301,7 @@ impl SimpleProbe {
         let y = utils::parse_hex_or_str_as_felt(y)?;
         let hash = pedersen_hash(&x, &y);
 
-        Ok(format!("{:#x}", hash))
+        Ok(format!("{hash:#x}"))
     }
 
     pub fn max_felt() -> String {
@@ -318,7 +318,7 @@ impl SimpleProbe {
 
     pub fn str_to_felt(short_str: &str) -> Result<String> {
         let felt = cairo_short_string_to_felt(short_str)?;
-        Ok(format!("{:#x}", felt))
+        Ok(format!("{felt:#x}"))
     }
 
     pub fn from_utf8(felt: &FieldElement) -> Result<String> {
@@ -369,7 +369,7 @@ impl SimpleProbe {
         calldata: &[FieldElement],
     ) -> String {
         let address = get_contract_address(salt, class_hash, calldata, caller_address);
-        format!("{:#x}", address)
+        format!("{address:#x}")
     }
 
     pub fn split_u256(hex: &str) -> Result<(String, String)> {

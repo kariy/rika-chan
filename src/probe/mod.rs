@@ -183,7 +183,7 @@ impl Probe {
 
         let res = res
             .into_iter()
-            .map(|value| format!("{:#x}", value))
+            .map(|value| format!("{value:#x}"))
             .collect::<Vec<String>>();
 
         Ok(res.join(" "))
@@ -391,7 +391,7 @@ impl SimpleProbe {
         let value = U256::from_be_slice(&padded_hex);
         let (high, low) = value.split();
 
-        Ok((format!("0x{:x}", high), format!("0x{:x}", low)))
+        Ok((format!("{high:#x}"), format!("{low:#x}")))
     }
 
     pub fn generate_multicall_calldata(args: &str) -> Result<Vec<FieldElement>> {

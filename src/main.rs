@@ -38,7 +38,7 @@ async fn main() -> Result<()> {
                     &signature[0],
                     &signature[1],
                 )?;
-                println!("{}", is_valid);
+                println!("{is_valid}");
             }
         },
 
@@ -76,12 +76,12 @@ async fn main() -> Result<()> {
 
         Commands::BlockNumber { starknet } => {
             let res = Probe::new(starknet.rpc_url).block_number().await?;
-            println!("{:?}", res);
+            println!("{res}");
         }
 
         Commands::ChainId { starknet } => {
             let chain_id = Probe::new(starknet.rpc_url).chain_id().await?;
-            println!("{}", chain_id);
+            println!("{chain_id}");
         }
 
         Commands::Transaction {
@@ -92,14 +92,14 @@ async fn main() -> Result<()> {
             let res = Probe::new(starknet.rpc_url)
                 .get_transaction_by_hash(hash, field)
                 .await?;
-            println!("{}", res);
+            println!("{res}");
         }
 
         Commands::TransactionStatus { hash, starknet } => {
             let res = Probe::new(starknet.rpc_url)
                 .get_transaction_receipt(hash, Some("status".to_string()))
                 .await?;
-            println!("{}", res);
+            println!("{res}");
         }
 
         Commands::TransactionReceipt {
@@ -110,7 +110,7 @@ async fn main() -> Result<()> {
             let res = Probe::new(starknet.rpc_url)
                 .get_transaction_receipt(hash, field)
                 .await?;
-            println!("{}", res);
+            println!("{res}");
         }
 
         Commands::Block {
@@ -120,8 +120,7 @@ async fn main() -> Result<()> {
             starknet,
         } => {
             let block = Probe::new(starknet.rpc_url).block(id, full, field).await?;
-
-            println!("{}", block)
+            println!("{block}")
         }
 
         Commands::Age { block_id, starknet } => {
@@ -129,15 +128,15 @@ async fn main() -> Result<()> {
                 .block(block_id, false, Some("timestamp".to_string()))
                 .await?;
 
-            println!("{}", timestamp);
+            println!("{timestamp}");
         }
 
-        Commands::CountTransactions { block_id, starknet } => {
+        Commands::TransactionCount { block_id, starknet } => {
             let total = Probe::new(starknet.rpc_url)
                 .get_block_transaction_count(block_id)
                 .await?;
 
-            println!("{}", total);
+            println!("{total}");
         }
 
         Commands::Nonce {
@@ -148,12 +147,12 @@ async fn main() -> Result<()> {
             let nonce = Probe::new(starknet.rpc_url)
                 .get_nonce(contract_address, &block_id)
                 .await?;
-            println!("{}", nonce);
+            println!("{nonce}");
         }
 
-        Commands::PendingTransactions { starknet } => {
+        Commands::TransactionPending { starknet } => {
             let transactions = Probe::new(starknet.rpc_url).pending_transactions().await?;
-            println!("{}", transactions);
+            println!("{transactions}");
         }
 
         Commands::Storage {
@@ -166,12 +165,12 @@ async fn main() -> Result<()> {
                 .get_storage_at(contract_address, index, &block_id)
                 .await?;
 
-            println!("{}", res);
+            println!("{res}");
         }
 
         Commands::Rpc(rpc_args) => {
             let res = rpc_args.run().await?;
-            println!("{}", res);
+            println!("{res}");
         }
 
         Commands::Call {
@@ -186,14 +185,14 @@ async fn main() -> Result<()> {
                 .call(&contract_address, &function, &inputs, &block_id, &abi)
                 .await?;
 
-            println!("{}", res);
+            println!("{res}");
         }
 
         Commands::StateUpdate { block_id, starknet } => {
             let res = Probe::new(starknet.rpc_url)
                 .get_state_update(&block_id)
                 .await?;
-            println!("{}", res);
+            println!("{res}");
         }
 
         Commands::Index {
@@ -201,12 +200,12 @@ async fn main() -> Result<()> {
             keys,
         } => {
             let res = SimpleProbe::get_storage_index(&variable_name, &keys)?;
-            println!("{:#x}", res);
+            println!("{res:#x}");
         }
 
         Commands::ContractHash { contract } => {
             let res = SimpleProbe::compute_contract_hash(contract)?;
-            println!("{:#x}", res);
+            println!("{res:#x}");
         }
 
         Commands::Class {
@@ -217,7 +216,7 @@ async fn main() -> Result<()> {
             let res = Probe::new(starknet.rpc_url)
                 .get_class_code(hash, &block_id)
                 .await?;
-            println!("{}", res);
+            println!("{res}");
         }
 
         Commands::Code {
@@ -228,7 +227,7 @@ async fn main() -> Result<()> {
             let res = Probe::new(starknet.rpc_url)
                 .get_contract_code(contract_address, &block_id)
                 .await?;
-            println!("{}", res);
+            println!("{res}");
         }
 
         Commands::ContractClass {
@@ -239,7 +238,7 @@ async fn main() -> Result<()> {
             let res = Probe::new(starknet.rpc_url)
                 .get_contract_class(contract_address, &block_id)
                 .await?;
-            println!("{}", res);
+            println!("{res}");
         }
 
         Commands::ComputeAddress {
@@ -250,7 +249,7 @@ async fn main() -> Result<()> {
         } => {
             let res =
                 SimpleProbe::compute_contract_address(caller_address, salt, class_hash, &calldata);
-            println!("{}", res);
+            println!("{res}");
         }
 
         Commands::Events {
@@ -274,7 +273,7 @@ async fn main() -> Result<()> {
                     continuation_token,
                 )
                 .await?;
-            println!("{}", res);
+            println!("{res}");
         }
 
         Commands::SplitU256 { value } => {
@@ -294,7 +293,7 @@ async fn main() -> Result<()> {
             let res = Probe::new(starknet.rpc_url)
                 .get_eth_balance(address, block_id)
                 .await?;
-            println!("{}", res);
+            println!("{res}");
         }
 
         Commands::CallArray { calls } => {

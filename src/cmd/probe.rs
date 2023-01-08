@@ -26,15 +26,6 @@ pub enum Commands {
         dec: FieldElement,
     },
 
-    #[clap(visible_alias = "fa")]
-    #[clap(name = "--from-ascii")]
-    #[clap(about = "Convert from ASCII to Cairo short string.")]
-    FromAscii {
-        #[clap(value_name = "ASCII")]
-        #[clap(value_parser(FieldElementParser))]
-        ascii: FieldElement,
-    },
-
     #[clap(visible_alias = "td")]
     #[clap(name = "--to-dec")]
     #[clap(about = "Convert hexadecimal felt to decimal.")]
@@ -59,6 +50,15 @@ pub enum Commands {
     #[clap(about = "Get the minimum signed felt value.")]
     MinSignedFelt,
 
+    #[clap(visible_alias = "fa")]
+    #[clap(name = "--from-ascii")]
+    #[clap(about = "Convert from ASCII to Cairo short string.")]
+    FromAscii {
+        #[clap(value_name = "ASCII")]
+        #[clap(value_parser(FieldElementParser))]
+        ascii: FieldElement,
+    },
+
     #[clap(visible_alias = "ta")]
     #[clap(name = "--to-ascii")]
     #[clap(about = "Convert Cairo short string to its ASCII format.")]
@@ -67,75 +67,51 @@ pub enum Commands {
         short_str: String,
     },
 
-    #[clap(visible_alias = "ec")]
-    #[clap(about = "Perform ECDSA operations over the STARK-friendly elliptic curve.")]
-    Ecdsa {
+    #[clap(visible_alias = "su")]
+    #[clap(name = "--split-u256")]
+    #[clap(about = "Split a uint256 into its low and high components.")]
+    SplitU256 {
+        value: String,
+    },
+
+    #[clap(visible_alias = "acc")]
+    #[clap(about = "")]
+    Account {
         #[clap(subcommand)]
-        commands: EcdsaCommand,
+        commands: WalletCommands,
     },
 
-    #[clap(visible_alias = "kck")]
-    #[clap(about = "Hash abritrary data using StarkNet keccak.")]
-    Keccak {
-        #[clap(value_name = "DATA")]
-        data: String,
-    },
-
-    #[clap(visible_alias = "ped")]
-    #[clap(about = "Calculate the Pedersen hash on two field elements.")]
-    Pedersen {
-        #[clap(value_name = "X")]
-        x: String,
-        #[clap(value_name = "Y")]
-        y: String,
-    },
-
-    #[clap(name = "tx")]
-    #[clap(about = "Get information about a transaction.")]
-    Transaction {
-        #[clap(value_name = "TX_HASH")]
-        #[clap(value_parser(FieldElementParser))]
-        hash: FieldElement,
-
-        #[clap(long)]
-        field: Option<String>,
+    #[clap(about = "Get the timestamp of a block.")]
+    Age {
+        #[clap(next_line_help = true)]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
+        block_id: BlockId,
 
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions,
     },
 
-    #[clap(name = "tx-status")]
-    #[clap(about = "Get the status of a transaction.")]
-    TransactionStatus {
-        #[clap(value_name = "TX_HASH")]
-        #[clap(value_parser(FieldElementParser))]
-        hash: FieldElement,
+    #[clap(visible_alias = "bal")]
+    #[clap(about = "Get the ETH balance of an address.")]
+    Balance {
+        #[clap(value_name = "ADDRESS")]
+        #[clap(help = "The address whose balance you want to query.")]
+        address: FieldElement,
 
-        #[clap(flatten)]
-        #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
-    },
+        #[clap(next_line_help = true)]
+        #[clap(short, long = "block")]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
+        block_id: BlockId,
 
-    #[clap(visible_alias = "rct")]
-    #[clap(name = "receipt")]
-    #[clap(about = "Get the receipt of a transaction.")]
-    TransactionReceipt {
-        #[clap(value_name = "TX_HASH")]
-        #[clap(value_parser(FieldElementParser))]
-        hash: FieldElement,
-
-        #[clap(long)]
-        field: Option<String>,
-
-        #[clap(flatten)]
-        #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
-    },
-
-    #[clap(visible_alias = "ci")]
-    #[clap(about = "Get the StarkNet chain ID.")]
-    ChainId {
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions,
@@ -174,91 +150,6 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
-    #[clap(about = "Get the timestamp of a block.")]
-    Age {
-        #[clap(next_line_help = true)]
-        #[clap(default_value = "latest")]
-        #[clap(value_parser(BlockIdParser))]
-        #[clap(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[clap(flatten)]
-        #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
-    },
-
-    #[clap(visible_alias = "n1")]
-    #[clap(about = "Get the latest nonce associated with the address.")]
-    Nonce {
-        #[clap(value_parser(FieldElementParser))]
-        contract_address: FieldElement,
-
-        #[clap(next_line_help = true)]
-        #[clap(default_value = "latest")]
-        #[clap(value_parser(BlockIdParser))]
-        #[clap(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[clap(flatten)]
-        #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
-    },
-
-    #[clap(name = "tx-pending")]
-    #[clap(about = "Get the transactions in the transaction pool, recognized by the sequencer.")]
-    PendingTransactions {
-        #[clap(flatten)]
-        #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
-    },
-
-    #[clap(visible_alias = "ctx")]
-    #[clap(name = "tx-count")]
-    #[clap(about = "Get the number of transactions in a block.")]
-    CountTransactions {
-        #[clap(next_line_help = true)]
-        #[clap(default_value = "latest")]
-        #[clap(value_parser(BlockIdParser))]
-        #[clap(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[clap(flatten)]
-        #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
-    },
-
-    #[clap(visible_alias = "str")]
-    #[clap(about = "Get the value of a contract's storage at the given index")]
-    Storage {
-        #[clap(value_parser(FieldElementParser))]
-        contract_address: FieldElement,
-
-        #[clap(value_parser(FieldElementParser))]
-        index: FieldElement,
-
-        #[clap(next_line_help = true)]
-        #[clap(short, long = "block")]
-        #[clap(default_value = "latest")]
-        #[clap(value_parser(BlockIdParser))]
-        #[clap(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[clap(flatten)]
-        #[clap(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
-    },
-
-    #[clap(about = "Perform a raw JSON-RPC request.")]
-    Rpc(RpcArgs),
-
     #[clap(about = "Call a StarkNet function without creating a transaction.")]
     Call {
         #[clap(short = 'C', long)]
@@ -295,36 +186,12 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
-    #[clap(about = "Get the information about the result of executing the requested block")]
-    StateUpdate {
-        #[clap(next_line_help = true)]
-        #[clap(short, long = "block")]
-        #[clap(default_value = "latest")]
-        #[clap(value_parser(BlockIdParser))]
-        #[clap(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
+    #[clap(visible_alias = "ci")]
+    #[clap(about = "Get the StarkNet chain ID.")]
+    ChainId {
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions,
-    },
-
-    #[clap(visible_alias = "idx")]
-    #[clap(about = "Compute the address of a storage variable.")]
-    Index {
-        #[clap(value_name = "VAR_NAME")]
-        variable_name: String,
-
-        keys: Vec<FieldElement>,
-    },
-
-    #[clap(visible_alias = "ch")]
-    #[clap(about = "Compute the hash of a StarkNet contract.")]
-    ContractHash {
-        #[clap(help = "The compiled contract file")]
-        contract: PathBuf,
     },
 
     #[clap(visible_alias = "cl")]
@@ -369,6 +236,22 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "ca")]
+    #[clap(about = "Compute the contract address from the given information")]
+    ComputeAddress {
+        #[clap(help = "The address of the deploying account contract (currently always zero)")]
+        caller_address: FieldElement,
+
+        #[clap(help = "The salt used in the deploy transaction")]
+        salt: FieldElement,
+
+        #[clap(help = "The hash of the class to instantiate a new contract from")]
+        class_hash: FieldElement,
+
+        #[clap(help = "The inputs passed to the constructor")]
+        calldata: Vec<FieldElement>,
+    },
+
     #[clap(visible_alias = "cc")]
     #[clap(
         about = "Get the contract class hash in the given block for the contract deployed at the given address"
@@ -391,20 +274,18 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
-    #[clap(visible_alias = "ca")]
-    #[clap(about = "Compute the contract address from the given information")]
-    ComputeAddress {
-        #[clap(help = "The address of the deploying account contract (currently always zero)")]
-        caller_address: FieldElement,
+    #[clap(visible_alias = "ch")]
+    #[clap(about = "Compute the hash of a StarkNet contract.")]
+    ContractHash {
+        #[clap(help = "The compiled contract file")]
+        contract: PathBuf,
+    },
 
-        #[clap(help = "The salt used in the deploy transaction")]
-        salt: FieldElement,
-
-        #[clap(help = "The hash of the class to instantiate a new contract from")]
-        class_hash: FieldElement,
-
-        #[clap(help = "The inputs passed to the constructor")]
-        calldata: Vec<FieldElement>,
+    #[clap(visible_alias = "ec")]
+    #[clap(about = "Perform ECDSA operations over the STARK-friendly elliptic curve.")]
+    Ecdsa {
+        #[clap(subcommand)]
+        commands: EcdsaCommand,
     },
 
     #[clap(visible_alias = "ev")]
@@ -445,26 +326,79 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
-    #[clap(visible_alias = "su")]
-    #[clap(name = "--split-u256")]
-    #[clap(about = "Split a uint256 into its low and high components.")]
-    SplitU256 {
-        value: String,
+    #[clap(visible_alias = "idx")]
+    #[clap(about = "Compute the address of a storage variable.")]
+    Index {
+        #[clap(value_name = "VAR_NAME")]
+        variable_name: String,
+
+        keys: Vec<FieldElement>,
     },
 
-    #[clap(visible_alias = "acc")]
-    #[clap(about = "")]
-    Account {
-        #[clap(subcommand)]
-        commands: WalletCommands,
+    Invoke(InvokeArgs),
+
+    #[clap(visible_alias = "kck")]
+    #[clap(about = "Hash abritrary data using StarkNet keccak.")]
+    Keccak {
+        #[clap(value_name = "DATA")]
+        data: String,
     },
 
-    #[clap(visible_alias = "bal")]
-    #[clap(about = "Get the ETH balance of an address.")]
-    Balance {
-        #[clap(value_name = "ADDRESS")]
-        #[clap(help = "The address whose balance you want to query.")]
-        address: FieldElement,
+    #[clap(visible_alias = "n1")]
+    #[clap(about = "Get the latest nonce associated with the address.")]
+    Nonce {
+        #[clap(value_parser(FieldElementParser))]
+        contract_address: FieldElement,
+
+        #[clap(next_line_help = true)]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
+        block_id: BlockId,
+
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions,
+    },
+
+    #[clap(visible_alias = "ped")]
+    #[clap(about = "Calculate the Pedersen hash on two field elements.")]
+    Pedersen {
+        #[clap(value_name = "X")]
+        x: String,
+        #[clap(value_name = "Y")]
+        y: String,
+    },
+
+    #[clap(about = "Perform a raw JSON-RPC request.")]
+    Rpc(RpcArgs),
+
+    #[clap(about = "Get the information about the result of executing the requested block")]
+    StateUpdate {
+        #[clap(next_line_help = true)]
+        #[clap(short, long = "block")]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
+        block_id: BlockId,
+
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions,
+    },
+
+    #[clap(visible_alias = "str")]
+    #[clap(about = "Get the value of a contract's storage at the given index")]
+    Storage {
+        #[clap(value_parser(FieldElementParser))]
+        contract_address: FieldElement,
+
+        #[clap(value_parser(FieldElementParser))]
+        index: FieldElement,
 
         #[clap(next_line_help = true)]
         #[clap(short, long = "block")]
@@ -480,6 +414,76 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(name = "tx")]
+    #[clap(about = "Get information about a transaction.")]
+    Transaction {
+        #[clap(value_name = "TX_HASH")]
+        #[clap(value_parser(FieldElementParser))]
+        hash: FieldElement,
+
+        #[clap(long)]
+        field: Option<String>,
+
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions,
+    },
+
+    #[clap(visible_alias = "txc")]
+    #[clap(name = "tx-count")]
+    #[clap(about = "Get the number of transactions in a block.")]
+    TransactionCount {
+        #[clap(next_line_help = true)]
+        #[clap(default_value = "latest")]
+        #[clap(value_parser(BlockIdParser))]
+        #[clap(
+            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+        )]
+        block_id: BlockId,
+
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions,
+    },
+
+    #[clap(visible_alias = "txp")]
+    #[clap(name = "tx-pending")]
+    #[clap(about = "Get the transactions in the transaction pool, recognized by the sequencer.")]
+    TransactionPending {
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions,
+    },
+
+    #[clap(visible_alias = "txs")]
+    #[clap(name = "tx-status")]
+    #[clap(about = "Get the status of a transaction.")]
+    TransactionStatus {
+        #[clap(value_name = "TX_HASH")]
+        #[clap(value_parser(FieldElementParser))]
+        hash: FieldElement,
+
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions,
+    },
+
+    #[clap(visible_alias = "rct")]
+    #[clap(name = "receipt")]
+    #[clap(about = "Get the receipt of a transaction.")]
+    TransactionReceipt {
+        #[clap(value_name = "TX_HASH")]
+        #[clap(value_parser(FieldElementParser))]
+        hash: FieldElement,
+
+        #[clap(long)]
+        field: Option<String>,
+
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions,
+    },
+
     #[clap(visible_alias = "gca")]
     #[clap(about = "Generate call array calldata")]
     CallArray {
@@ -489,8 +493,6 @@ pub enum Commands {
         example : <contract address> <function name> [<calldata> ...] - ..."#)]
         calls: Vec<String>,
     },
-
-    Invoke(InvokeArgs),
 }
 
 #[derive(Subcommand, Debug)]

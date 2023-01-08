@@ -152,7 +152,7 @@ async fn main() -> Result<()> {
 
         Commands::TransactionPending { starknet } => {
             let transactions = Probe::new(starknet.rpc_url).pending_transactions().await?;
-            println!("{}", transactions);
+            println!("{transactions}");
         }
 
         Commands::Storage {

@@ -70,12 +70,10 @@ pub enum Commands {
     #[clap(visible_alias = "su")]
     #[clap(name = "--split-u256")]
     #[clap(about = "Split a uint256 into its low and high components.")]
-    SplitU256 {
-        value: String,
-    },
+    SplitU256 { value: String },
 
     #[clap(visible_alias = "acc")]
-    #[clap(about = "")]
+    #[clap(about = "Account management utilities")]
     Account {
         #[clap(subcommand)]
         commands: WalletCommands,
@@ -335,6 +333,8 @@ pub enum Commands {
         keys: Vec<FieldElement>,
     },
 
+    #[clap(visible_alias = "inv")]
+    #[clap(about = "Submit a new transaction to be added to the chain.")]
     Invoke(InvokeArgs),
 
     #[clap(visible_alias = "kck")]

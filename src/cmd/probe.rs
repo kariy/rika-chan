@@ -1,5 +1,5 @@
 use super::account::WalletCommands;
-use super::parser::{BlockIdParser, FieldElementParser};
+use super::parser::BlockIdParser;
 use super::rpc::RpcArgs;
 use super::send::InvokeArgs;
 use crate::opts::starknet::StarkNetOptions;
@@ -22,7 +22,6 @@ pub enum Commands {
     #[clap(about = "Convert decimal felt to hexadecimal.")]
     DecToHex {
         #[clap(value_name = "DECIMAL")]
-        #[clap(value_parser(FieldElementParser))]
         dec: FieldElement,
     },
 
@@ -31,7 +30,6 @@ pub enum Commands {
     #[clap(about = "Convert hexadecimal felt to decimal.")]
     HexToDec {
         #[clap(value_name = "HEX")]
-        #[clap(value_parser(FieldElementParser))]
         hex: FieldElement,
     },
 
@@ -55,7 +53,6 @@ pub enum Commands {
     #[clap(about = "Convert from ASCII to Cairo short string.")]
     FromAscii {
         #[clap(value_name = "ASCII")]
-        #[clap(value_parser(FieldElementParser))]
         ascii: FieldElement,
     },
 
@@ -150,11 +147,9 @@ pub enum Commands {
 
     #[clap(about = "Call a StarkNet function without creating a transaction.")]
     Call {
-        #[clap(short = 'C', long)]
         #[clap(display_order = 1)]
         contract_address: FieldElement,
 
-        #[clap(short, long)]
         #[clap(display_order = 2)]
         #[clap(help = "The name of the function to be called")]
         #[clap(value_name = "FUNCTION_NAME")]
@@ -162,11 +157,11 @@ pub enum Commands {
 
         #[clap(short, long)]
         #[clap(display_order = 3)]
-        inputs: Vec<FieldElement>,
+        input: Vec<FieldElement>,
 
         #[clap(short, long)]
         #[clap(display_order = 4)]
-        #[clap(help = "Path to the contract's abi file to validate the call inputs")]
+        #[clap(help = "Path to the contract's abi file to validate the call input.")]
         abi: Option<PathBuf>,
 
         #[clap(next_line_help = true)]
@@ -347,7 +342,6 @@ pub enum Commands {
     #[clap(visible_alias = "n1")]
     #[clap(about = "Get the latest nonce associated with the address.")]
     Nonce {
-        #[clap(value_parser(FieldElementParser))]
         contract_address: FieldElement,
 
         #[clap(next_line_help = true)]
@@ -394,10 +388,8 @@ pub enum Commands {
     #[clap(visible_alias = "str")]
     #[clap(about = "Get the value of a contract's storage at the given index")]
     Storage {
-        #[clap(value_parser(FieldElementParser))]
         contract_address: FieldElement,
 
-        #[clap(value_parser(FieldElementParser))]
         index: FieldElement,
 
         #[clap(next_line_help = true)]
@@ -418,7 +410,6 @@ pub enum Commands {
     #[clap(about = "Get information about a transaction.")]
     Transaction {
         #[clap(value_name = "TX_HASH")]
-        #[clap(value_parser(FieldElementParser))]
         hash: FieldElement,
 
         #[clap(long)]
@@ -460,7 +451,6 @@ pub enum Commands {
     #[clap(about = "Get the status of a transaction.")]
     TransactionStatus {
         #[clap(value_name = "TX_HASH")]
-        #[clap(value_parser(FieldElementParser))]
         hash: FieldElement,
 
         #[clap(flatten)]
@@ -473,7 +463,6 @@ pub enum Commands {
     #[clap(about = "Get the receipt of a transaction.")]
     TransactionReceipt {
         #[clap(value_name = "TX_HASH")]
-        #[clap(value_parser(FieldElementParser))]
         hash: FieldElement,
 
         #[clap(long)]
@@ -501,13 +490,11 @@ pub enum EcdsaCommand {
     Sign {
         #[clap(short, long)]
         #[clap(value_name = "MESSAGE_HASH")]
-        #[clap(value_parser(FieldElementParser))]
         #[clap(help = "Message hash to be signed.")]
         message: FieldElement,
 
         #[clap(short, long)]
         #[clap(value_name = "PRIVATE_KEY")]
-        #[clap(value_parser(FieldElementParser))]
         #[clap(help = "The private key for signing.")]
         private_key: FieldElement,
     },
@@ -516,7 +503,6 @@ pub enum EcdsaCommand {
     Verify {
         #[clap(short, long)]
         #[clap(value_name = "MESSAGE_HASH")]
-        #[clap(value_parser(FieldElementParser))]
         #[clap(help = "Message hash used in the signature.")]
         message: FieldElement,
 
@@ -524,12 +510,10 @@ pub enum EcdsaCommand {
         #[clap(required = true)]
         #[clap(number_of_values = 2)]
         #[clap(value_names = &["SIGNATURE_R", "SIGNATURE_S"])]
-        #[clap(value_parser(FieldElementParser))]
         signature: Vec<FieldElement>,
 
         #[clap(short, long)]
         #[clap(value_name = "VERIFYING_KEY")]
-        #[clap(value_parser(FieldElementParser))]
         #[clap(help = "The key for verification.")]
         verifying_key: FieldElement,
     },

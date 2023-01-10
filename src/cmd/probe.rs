@@ -162,11 +162,11 @@ pub enum Commands {
 
         #[clap(short, long)]
         #[clap(display_order = 3)]
-        inputs: Vec<FieldElement>,
+        input: Vec<FieldElement>,
 
         #[clap(short, long)]
         #[clap(display_order = 4)]
-        #[clap(help = "Path to the contract's abi file to validate the call inputs")]
+        #[clap(help = "Path to the contract's abi file to validate the call input.")]
         abi: Option<PathBuf>,
 
         #[clap(next_line_help = true)]

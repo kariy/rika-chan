@@ -176,13 +176,13 @@ async fn main() -> Result<()> {
         Commands::Call {
             contract_address,
             function,
-            inputs,
+            input,
             abi,
             block_id,
             starknet,
         } => {
             let res = Probe::new(starknet.rpc_url)
-                .call(&contract_address, &function, &inputs, &block_id, &abi)
+                .call(&contract_address, &function, &input, &block_id, &abi)
                 .await?;
 
             println!("{res}");

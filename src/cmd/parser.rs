@@ -13,33 +13,6 @@ use starknet::{
 };
 
 #[derive(Debug, Clone, Copy)]
-pub struct FieldElementParser;
-
-#[allow(unused_variables)]
-impl TypedValueParser for FieldElementParser {
-    type Value = FieldElement;
-
-    fn parse_ref(
-        &self,
-        cmd: &clap::Command,
-        arg: Option<&clap::Arg>,
-        value: &std::ffi::OsStr,
-    ) -> Result<Self::Value, Error> {
-        let value = value
-            .to_str()
-            .ok_or_else(|| Error::raw(ErrorKind::InvalidUtf8, "Invalid utf-8"))?;
-
-        if value.starts_with("0x") {
-            FieldElement::from_hex_be(value)
-                .map_err(|e| Error::raw(ErrorKind::InvalidValue, e.to_string()))
-        } else {
-            FieldElement::from_dec_str(value)
-                .map_err(|e| Error::raw(ErrorKind::InvalidValue, e.to_string()))
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
 pub struct BlockIdParser;
 
 #[allow(unused_variables)]

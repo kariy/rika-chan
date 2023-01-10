@@ -152,11 +152,9 @@ pub enum Commands {
 
     #[clap(about = "Call a StarkNet function without creating a transaction.")]
     Call {
-        #[clap(short = 'C', long)]
         #[clap(display_order = 1)]
         contract_address: FieldElement,
 
-        #[clap(short, long)]
         #[clap(display_order = 2)]
         #[clap(help = "The name of the function to be called")]
         #[clap(value_name = "FUNCTION_NAME")]

@@ -87,17 +87,18 @@ async fn main() -> Result<()> {
         Commands::Transaction {
             hash,
             field,
+            to_json,
             starknet,
         } => {
             let res = Probe::new(starknet.rpc_url)
-                .get_transaction_by_hash(hash, field)
+                .get_transaction_by_hash(hash, field, to_json)
                 .await?;
             println!("{res}");
         }
 
         Commands::TransactionStatus { hash, starknet } => {
             let res = Probe::new(starknet.rpc_url)
-                .get_transaction_receipt(hash, Some("status".to_string()))
+                .get_transaction_receipt(hash, Some("status".to_string()), false)
                 .await?;
             println!("{res}");
         }
@@ -105,10 +106,11 @@ async fn main() -> Result<()> {
         Commands::TransactionReceipt {
             hash,
             field,
+            to_json,
             starknet,
         } => {
             let res = Probe::new(starknet.rpc_url)
-                .get_transaction_receipt(hash, field)
+                .get_transaction_receipt(hash, field, to_json)
                 .await?;
             println!("{res}");
         }
@@ -116,16 +118,19 @@ async fn main() -> Result<()> {
         Commands::Block {
             id,
             full,
+            to_json,
             field,
             starknet,
         } => {
-            let block = Probe::new(starknet.rpc_url).block(id, full, field).await?;
+            let block = Probe::new(starknet.rpc_url)
+                .block(id, full, field, to_json)
+                .await?;
             println!("{block}")
         }
 
         Commands::Age { block_id, starknet } => {
             let timestamp = Probe::new(starknet.rpc_url)
-                .block(block_id, false, Some("timestamp".to_string()))
+                .block(block_id, false, Some("timestamp".to_string()), false)
                 .await?;
 
             println!("{timestamp}");

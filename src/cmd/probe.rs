@@ -132,6 +132,10 @@ pub enum Commands {
         #[clap(long)]
         field: Option<String>,
 
+        #[clap(short = 'j', long = "json")]
+        #[clap(help_heading = "Display options")]
+        to_json: bool,
+
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions,
@@ -415,6 +419,10 @@ pub enum Commands {
         #[clap(long)]
         field: Option<String>,
 
+        #[clap(short = 'j', long = "json")]
+        #[clap(help_heading = "Display options")]
+        to_json: bool,
+
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions,
@@ -467,6 +475,10 @@ pub enum Commands {
 
         #[clap(long)]
         field: Option<String>,
+
+        #[clap(short = 'j', long = "json")]
+        #[clap(help_heading = "Display options")]
+        to_json: bool,
 
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]

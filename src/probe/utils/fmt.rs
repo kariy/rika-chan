@@ -134,21 +134,15 @@ impl Pretty for MaybePendingTransactionReceipt {
             .add_row(vec!["STATUS", value["status"].take().as_str().unwrap()])
             .add_row(vec![
                 "EVENTS",
-                &format!(
-                    "{}",
-                    &serde_json::from_value::<Vec<Event>>(value["events"].take())
-                        .unwrap()
-                        .prettify()
-                ),
+                &serde_json::from_value::<Vec<Event>>(value["events"].take())
+                    .unwrap()
+                    .prettify(),
             ])
             .add_row(vec![
                 "MESSAGES SENT",
-                &format!(
-                    "{}",
-                    &serde_json::from_value::<Vec<MsgToL1>>(value["messages_sent"].take())
-                        .unwrap()
-                        .prettify()
-                ),
+                &serde_json::from_value::<Vec<MsgToL1>>(value["messages_sent"].take())
+                    .unwrap()
+                    .prettify(),
             ]);
 
         format!("{table}")

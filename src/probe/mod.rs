@@ -1,5 +1,7 @@
 pub mod utils;
 
+use self::utils::fmt::{pretty_block_without_txs, Pretty};
+
 use std::cmp::Ordering;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -40,28 +42,29 @@ impl Probe {
         block_id: BlockId,
         full: bool,
         field: Option<String>,
+        to_json: bool,
     ) -> Result<String> {
         let block = self.client.get_block_with_txs(&block_id).await?;
-        let mut block_json = match block {
-            MaybePendingBlockWithTxs::Block(block) => serde_json::to_value(block)?,
-            MaybePendingBlockWithTxs::PendingBlock(block) => serde_json::to_value(block)?,
-        };
 
-        if !full {
-            block_json
-                .as_object_mut()
-                .unwrap()
-                .remove_entry("transactions");
+        if to_json || field.is_some() {
+            let mut json = match block {
+                MaybePendingBlockWithTxs::Block(block) => serde_json::to_value(block)?,
+                MaybePendingBlockWithTxs::PendingBlock(block) => serde_json::to_value(block)?,
+            };
+
+            if let Some(field) = field {
+                json = json
+                    .get(&field)
+                    .ok_or_else(|| eyre!("`{field}` is not a valid block field."))?
+                    .to_owned();
+            }
+
+            Ok(serde_json::to_string_pretty(&json)?)
+        } else if full {
+            Ok(format!("\n{}", block.prettify()))
+        } else {
+            Ok(format!("\n{}", pretty_block_without_txs(&block)))
         }
-
-        if let Some(field) = field {
-            block_json = block_json
-                .get(&field)
-                .ok_or_else(|| eyre!("`{}` is not a valid block field.", field))?
-                .to_owned();
-        }
-
-        Ok(serde_json::to_string_pretty(&block_json)?)
     }
 
     pub async fn get_block_transaction_count(&self, block_id: BlockId) -> Result<u64> {
@@ -81,44 +84,54 @@ impl Probe {
         &self,
         transaction_hash: FieldElement,
         field: Option<String>,
+        to_json: bool,
     ) -> Result<String> {
         let tx = self
             .client
             .get_transaction_by_hash(transaction_hash)
             .await?;
 
-        let mut tx_json = serde_json::to_value(tx)?;
+        if to_json || field.is_some() {
+            let mut value = serde_json::to_value(tx)?;
 
-        if let Some(field) = field {
-            tx_json = tx_json
-                .get(&field)
-                .ok_or_else(|| eyre!("`{}` is not a valid transaction field.", field))?
-                .to_owned();
+            if let Some(field) = field {
+                value = value
+                    .get(&field)
+                    .ok_or_else(|| eyre!("`{}` is not a valid transaction field.", field))?
+                    .to_owned();
+            }
+
+            Ok(serde_json::to_string_pretty(&value)?)
+        } else {
+            Ok(format!("\n{}", tx.prettify()))
         }
-
-        Ok(serde_json::to_string_pretty(&tx_json)?)
     }
 
     pub async fn get_transaction_receipt(
         &self,
         transaction_hash: FieldElement,
         field: Option<String>,
+        to_json: bool,
     ) -> Result<String> {
-        let tx = self
+        let receipt = self
             .client
             .get_transaction_receipt(transaction_hash)
             .await?;
 
-        let mut tx_json = serde_json::to_value(tx)?;
+        if to_json || field.is_some() {
+            let mut json = serde_json::to_value(&receipt)?;
 
-        if let Some(field) = field {
-            tx_json = tx_json
-                .get(&field)
-                .ok_or_else(|| eyre!("`{}` is not a valid transaction receipt field.", field))?
-                .to_owned();
+            if let Some(field) = field {
+                json = json
+                    .get(&field)
+                    .ok_or_else(|| eyre!("`{field}` is not a valid transaction receipt field."))?
+                    .to_owned();
+            }
+
+            Ok(serde_json::to_string_pretty(&json)?)
+        } else {
+            Ok(format!("\n{}", receipt.prettify()))
         }
-
-        Ok(serde_json::to_string_pretty(&tx_json)?)
     }
 
     pub async fn pending_transactions(&self) -> Result<String> {

@@ -1,3 +1,5 @@
+pub mod fmt;
+
 use std::fs;
 use std::path::Path;
 use std::{collections::HashMap, path::PathBuf};

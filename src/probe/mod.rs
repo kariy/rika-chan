@@ -57,13 +57,19 @@ impl Probe {
                     .get(&field)
                     .ok_or_else(|| eyre!("`{field}` is not a valid block field."))?
                     .to_owned();
+            } else if !full {
+                json.as_object_mut().unwrap().remove("transactions");
             }
 
             Ok(serde_json::to_string_pretty(&json)?)
-        } else if full {
-            Ok(format!("\n{}", block.prettify()))
         } else {
-            Ok(format!("\n{}", pretty_block_without_txs(&block)))
+            Ok(format!("\n{}", {
+                if full {
+                    block.prettify()
+                } else {
+                    pretty_block_without_txs(&block)
+                }
+            }))
         }
     }
 

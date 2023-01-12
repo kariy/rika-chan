@@ -161,6 +161,8 @@ pub enum Commands {
 
         #[clap(short, long)]
         #[clap(display_order = 3)]
+        #[clap(value_delimiter = ',')]
+        #[clap(help = "Comma seperated values e.g., 0x12345,0x69420,...")]
         input: Vec<FieldElement>,
 
         #[clap(short, long)]
@@ -297,7 +299,9 @@ pub enum Commands {
         from: Option<FieldElement>,
 
         #[clap(short, long)]
+        #[clap(value_delimiter = ',')]
         #[clap(help = "The values used to filter the events")]
+        #[clap(help = "Comma seperated values e.g., 0x12345,0x69420,...")]
         keys: Option<Vec<FieldElement>>,
 
         #[clap(short, long)]

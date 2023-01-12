@@ -23,6 +23,7 @@ pub struct InvokeArgs {
 
     #[clap(long)]
     #[clap(value_delimiter = ',')]
+    #[clap(help = "Comma seperated values e.g., 0x12345,0x69420,...")]
     pub calldata: Vec<FieldElement>,
 
     #[clap(flatten)]

@@ -23,7 +23,7 @@ reqwest = "0.11.12"
 serde = "1.0.145"
 serde_json = "1.0.85"
 starknet = { git = "https://github.com/xJonathanLEI/starknet-rs/" }
-tokio = { version = "1.21.1", features = ["full"] }
+tokio = { version = "1.23.1", features = ["full"] }
 walkdir = "2.3.2"
 starknet-keystore = { git = "https://github.com/kariy/starknet-keystore-rs" }
 rand = "0.8.5"

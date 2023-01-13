@@ -1,5 +1,6 @@
 use std::vec;
 
+use chrono::{Local, TimeZone};
 use comfy_table::modifiers::UTF8_SOLID_INNER_BORDERS;
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::Table;
@@ -268,7 +269,13 @@ impl Pretty for MaybePendingBlockWithTxs {
                     .add_row(vec!["PARENT HASH", &block.parent_hash.prettify()])
                     .add_row(vec!["BLOCK NUMBER", &block.block_number.prettify()])
                     .add_row(vec!["NEW ROOT", &block.new_root.prettify()])
-                    .add_row(vec!["TIMESTAMP", &block.timestamp.prettify()])
+                    .add_row(vec![
+                        "TIMESTAMP",
+                        &Local
+                            .timestamp_opt(block.timestamp as i64, 0)
+                            .unwrap()
+                            .to_string(),
+                    ])
                     .add_row(vec![
                         "SEQUENCER ADDRESS",
                         &block.sequencer_address.prettify(),
@@ -286,7 +293,13 @@ impl Pretty for MaybePendingBlockWithTxs {
             Self::PendingBlock(block) => {
                 table
                     .add_row(vec!["PARENT HASH", &block.parent_hash.prettify()])
-                    .add_row(vec!["TIMESTAMP", &block.timestamp.prettify()])
+                    .add_row(vec![
+                        "TIMESTAMP",
+                        &Local
+                            .timestamp_opt(block.timestamp as i64, 0)
+                            .unwrap()
+                            .to_string(),
+                    ])
                     .add_row(vec![
                         "SEQUENCER ADDRESS",
                         &block.sequencer_address.prettify(),
@@ -312,7 +325,13 @@ pub fn pretty_block_without_txs(block: &MaybePendingBlockWithTxs) -> String {
                 .add_row(vec!["PARENT HASH", &block.parent_hash.prettify()])
                 .add_row(vec!["BLOCK NUMBER", &block.block_number.prettify()])
                 .add_row(vec!["NEW ROOT", &block.new_root.prettify()])
-                .add_row(vec!["TIMESTAMP", &block.timestamp.prettify()])
+                .add_row(vec![
+                    "TIMESTAMP",
+                    &Local
+                        .timestamp_opt(block.timestamp as i64, 0)
+                        .unwrap()
+                        .to_string(),
+                ])
                 .add_row(vec![
                     "SEQUENCER ADDRESS",
                     &block.sequencer_address.prettify(),
@@ -328,7 +347,13 @@ pub fn pretty_block_without_txs(block: &MaybePendingBlockWithTxs) -> String {
         MaybePendingBlockWithTxs::PendingBlock(block) => {
             table
                 .add_row(vec!["PARENT HASH", &block.parent_hash.prettify()])
-                .add_row(vec!["TIMESTAMP", &block.timestamp.prettify()])
+                .add_row(vec![
+                    "TIMESTAMP",
+                    &Local
+                        .timestamp_opt(block.timestamp as i64, 0)
+                        .unwrap()
+                        .to_string(),
+                ])
                 .add_row(vec![
                     "SEQUENCER ADDRESS",
                     &block.sequencer_address.prettify(),

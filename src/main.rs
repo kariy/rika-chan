@@ -319,7 +319,7 @@ async fn main() -> Result<()> {
 
         Commands::ShellCompletions { shell } => {
             let shell = shell
-                .or_else(|| Shell::from_env())
+                .or_else(Shell::from_env)
                 .ok_or_else(|| eyre!("unable to identify shell from environment variable"))?;
             generate(shell, &mut App::command(), "probe", &mut std::io::stdout());
         }

@@ -12,7 +12,9 @@ use eyre::{eyre, Report, Result};
 use reqwest::Url;
 use starknet::accounts::Call;
 use starknet::core::utils::get_selector_from_name;
-use starknet::providers::jsonrpc::models::{BlockId, EventFilter, FunctionCall};
+use starknet::providers::jsonrpc::models::{
+    BlockId, EventFilter, FunctionCall, MaybePendingTransactionReceipt,
+};
 use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 use starknet::{
     core::{
@@ -137,6 +139,26 @@ impl Probe {
             Ok(serde_json::to_string_pretty(&json)?)
         } else {
             Ok(format!("\n{}", receipt.prettify()))
+        }
+    }
+
+    pub async fn get_transaction_status(&self, transaction_hash: FieldElement) -> Result<String> {
+        let receipt = self
+            .client
+            .get_transaction_receipt(transaction_hash)
+            .await?;
+
+        match receipt {
+            MaybePendingTransactionReceipt::Receipt(receipt) => {
+                let json = serde_json::to_value(receipt)?;
+                Ok(json
+                    .get("status")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .replace("_", " "))
+            }
+            MaybePendingTransactionReceipt::PendingReceipt(_) => Ok("PENDING".into()),
         }
     }
 

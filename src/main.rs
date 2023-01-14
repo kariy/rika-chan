@@ -99,7 +99,7 @@ async fn main() -> Result<()> {
 
         Commands::TransactionStatus { hash, starknet } => {
             let res = Probe::new(starknet.rpc_url)
-                .get_transaction_receipt(hash, Some("status".to_string()), false)
+                .get_transaction_status(hash)
                 .await?;
             println!("{res}");
         }

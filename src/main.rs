@@ -5,8 +5,9 @@ mod probe;
 use crate::cmd::probe::{App, Commands, EcdsaCommand};
 use crate::probe::{Probe, SimpleProbe};
 
-use clap::Parser;
-use eyre::Result;
+use clap::{CommandFactory, Parser};
+use clap_complete::{generate, Shell};
+use eyre::{eyre, Result};
 use starknet::providers::jsonrpc::models::EventFilter;
 
 #[tokio::main]
@@ -314,6 +315,13 @@ async fn main() -> Result<()> {
         Commands::Invoke(args) => {
             let res = args.run().await?;
             println!("Transaction hash : {:#x}", res.transaction_hash);
+        }
+
+        Commands::ShellCompletions { shell } => {
+            let shell = shell
+                .or_else(|| Shell::from_env())
+                .ok_or_else(|| eyre!("unable to identify shell from environment variable"))?;
+            generate(shell, &mut App::command(), "probe", &mut std::io::stdout());
         }
     }
 

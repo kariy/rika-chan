@@ -5,6 +5,7 @@ use super::send::InvokeArgs;
 use crate::opts::starknet::StarkNetOptions;
 
 use clap::{Parser, Subcommand};
+use clap_complete::Shell;
 use starknet::{core::types::FieldElement, providers::jsonrpc::models::BlockId};
 use std::path::PathBuf;
 
@@ -376,6 +377,11 @@ pub enum Commands {
 
     #[clap(about = "Perform a raw JSON-RPC request.")]
     Rpc(RpcArgs),
+
+    #[clap(name = "completions")]
+    #[clap(visible_alias = "com")]
+    #[clap(about = "Generate command completion script for a specific shell.")]
+    ShellCompletions { shell: Option<Shell> },
 
     #[clap(about = "Get the information about the result of executing the requested block")]
     StateUpdate {

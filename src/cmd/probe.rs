@@ -420,6 +420,14 @@ pub enum Commands {
         starknet: StarkNetOptions,
     },
 
+    #[clap(visible_alias = "sync")]
+    #[clap(about = "Get the synchronization status of the StarkNet node")]
+    Syncing {
+        #[clap(flatten)]
+        #[clap(next_help_heading = "STARKNET OPTIONS")]
+        starknet: StarkNetOptions,
+    },
+
     #[clap(name = "tx")]
     #[clap(about = "Get information about a transaction.")]
     Transaction {

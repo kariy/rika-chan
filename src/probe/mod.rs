@@ -313,6 +313,11 @@ impl Probe {
             .await?;
         Ok(format!("{:#x}{:x}", res[1], res[0]))
     }
+
+    pub async fn syncing(&self) -> Result<String> {
+        let res = self.client.syncing().await?;
+        Ok(serde_json::to_string_pretty(&res)?)
+    }
 }
 
 pub struct SimpleProbe;

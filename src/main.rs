@@ -323,6 +323,11 @@ async fn main() -> Result<()> {
                 .ok_or_else(|| eyre!("unable to identify shell from environment variable"))?;
             generate(shell, &mut App::command(), "probe", &mut std::io::stdout());
         }
+
+        Commands::Syncing { starknet } => {
+            let res = Probe::new(starknet.rpc_url).syncing().await?;
+            println!("{res}");
+        }
     }
 
     Ok(())

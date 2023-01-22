@@ -1,5 +1,6 @@
 use clap::Parser;
 use eyre::Result;
+use reqwest::Url;
 use serde_json::json;
 
 #[derive(Debug, Clone, Parser)]
@@ -27,8 +28,10 @@ rpc starknet_getStorageAt '["0x123", "0x69420", "latest"]' --raw
 
     #[clap(long)]
     #[clap(value_name = "URL")]
+    #[clap(help = "The RPC endpoint")]
     #[clap(env = "STARKNET_RPC_URL")]
-    rpc_url: Option<String>,
+    #[clap(default_value = "http://localhost:5050/rpc")]
+    rpc_url: Url,
 }
 
 impl RpcArgs {
@@ -53,7 +56,7 @@ impl RpcArgs {
 
         let params = serde_json::Value::Array(vec);
         let res = reqwest::Client::new()
-            .post(rpc_url.unwrap())
+            .post(rpc_url)
             .json(&json!({
                 "id": 1,
                 "jsonrpc": "2.0",

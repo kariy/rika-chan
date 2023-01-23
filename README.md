@@ -35,6 +35,7 @@ Commands:
   chain-id         Get the StarkNet chain ID. [aliases: ci]
   class            Get the contract class definition in the given block associated with the given hash [aliases: cl]
   code             Get the contract class definition in the given block at the given address [aliases: cd]
+  completions      Generate command completion script for a specific shell. [aliases: com]
   compute-address  Compute the contract address from the given information [aliases: ca]
   contract-class   Get the contract class hash in the given block for the contract deployed at the given address [aliases: cc]
   contract-hash    Compute the hash of a StarkNet contract. [aliases: ch]
@@ -48,6 +49,7 @@ Commands:
   rpc              Perform a raw JSON-RPC request.
   state-update     Get the information about the result of executing the requested block
   storage          Get the value of a contract's storage at the given index [aliases: str]
+  syncing          Get the synchronization status of the StarkNet node [aliases: sync]
   tx               Get information about a transaction.
   tx-count         Get the number of transactions in a block. [aliases: txc]
   tx-pending       Get the transactions in the transaction pool, recognized by the sequencer. [aliases: txp]

@@ -5,6 +5,7 @@ mod probe;
 use crate::cmd::probe::{App, Commands, EcdsaCommand};
 use crate::probe::{Probe, SimpleProbe};
 
+use chrono::{Local, TimeZone};
 use clap::{CommandFactory, Parser};
 use clap_complete::{generate, Shell};
 use eyre::{eyre, Result};
@@ -129,12 +130,24 @@ async fn main() -> Result<()> {
             println!("{block}")
         }
 
-        Commands::Age { block_id, starknet } => {
+        Commands::Age {
+            block_id,
+            human_readable,
+            starknet,
+        } => {
             let timestamp = Probe::new(starknet.rpc_url)
                 .block(block_id, false, Some("timestamp".to_string()), false)
                 .await?;
 
-            println!("{timestamp}");
+            if human_readable {
+                let timestamp = Local
+                    .timestamp_opt(timestamp.parse::<i64>().unwrap(), 0)
+                    .unwrap()
+                    .to_string();
+                println!("{timestamp}")
+            } else {
+                println!("{timestamp}");
+            }
         }
 
         Commands::TransactionCount { block_id, starknet } => {

@@ -156,7 +156,7 @@ impl Probe {
                     .unwrap()
                     .as_str()
                     .unwrap()
-                    .replace("_", " "))
+                    .replace('_', " "))
             }
             MaybePendingTransactionReceipt::PendingReceipt(_) => Ok("PENDING".into()),
         }

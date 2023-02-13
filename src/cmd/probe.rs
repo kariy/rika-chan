@@ -87,6 +87,10 @@ pub enum Commands {
         )]
         block_id: BlockId,
 
+        #[clap(short = 'r', long)]
+        #[clap(help_heading = "Display options")]
+        human_readable: bool,
+
         #[clap(flatten)]
         #[clap(next_help_heading = "STARKNET OPTIONS")]
         starknet: StarkNetOptions,

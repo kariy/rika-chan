@@ -1,22 +1,23 @@
-use clap::Parser;
 use starknet::core::types::FieldElement;
 
-#[derive(Debug, Clone, Parser)]
+#[cfg_attr(test, derive(clap::Parser))]
+#[cfg_attr(not(test), derive(clap::Args))]
+#[derive(Debug, Clone)]
 pub struct TransactionOptions {
-    #[clap(long)]
+    #[arg(long)]
     pub nonce: Option<FieldElement>,
 
-    #[clap(long)]
-    #[clap(help = "The maximal fee that can be charged for including the transaction")]
+    #[arg(long)]
+    #[arg(help = "The maximal fee that can be charged for including the transaction")]
     pub max_fee: Option<FieldElement>,
 
-    #[clap(long)]
-    #[clap(value_delimiter = ',')]
-    #[clap(help = "The transaction signature")]
+    #[arg(long)]
+    #[arg(value_delimiter = ',')]
+    #[arg(help = "The transaction signature")]
     pub signature: Option<Vec<FieldElement>>,
 
-    #[clap(long)]
-    #[clap(help = "Version of the transaction scheme")]
+    #[arg(long)]
+    #[arg(help = "Version of the transaction scheme")]
     pub version: Option<u64>,
 }
 

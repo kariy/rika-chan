@@ -2,26 +2,26 @@ use crate::cmd::parser::ChainParser;
 
 use std::{fmt, str::FromStr};
 
-use clap::Parser;
+use clap::Args;
 use reqwest::Url;
 use starknet::core::{
     chain_id::{MAINNET, TESTNET, TESTNET2},
     types::FieldElement,
 };
 
-#[derive(Debug, Clone, Parser)]
+#[derive(Debug, Clone, Args)]
 pub struct StarkNetOptions {
-    #[clap(long)]
-    #[clap(value_name = "URL")]
-    #[clap(help = "The RPC endpoint")]
-    #[clap(env = "STARKNET_RPC_URL")]
-    #[clap(default_value = "http://localhost:5050/rpc")]
+    #[arg(long)]
+    #[arg(value_name = "URL")]
+    #[arg(help = "The RPC endpoint")]
+    #[arg(env = "STARKNET_RPC_URL")]
+    #[arg(default_value = "http://localhost:5050/rpc")]
     pub rpc_url: Url,
 
-    #[clap(long)]
-    #[clap(env = "STARKNET_CHAIN")]
-    #[clap(value_name = "CHAIN_ID")]
-    #[clap(value_parser(ChainParser))]
+    #[arg(long)]
+    #[arg(env = "STARKNET_CHAIN")]
+    #[arg(value_name = "CHAIN_ID")]
+    #[arg(value_parser(ChainParser))]
     pub chain: Option<FieldElement>,
 }
 

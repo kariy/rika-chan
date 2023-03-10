@@ -1,24 +1,24 @@
-use clap::Parser;
+use clap::Args;
 use eyre::Result;
 use reqwest::Url;
 use serde_json::json;
 
-#[derive(Debug, Clone, Parser)]
+#[derive(Debug, Clone, Args)]
 pub struct RpcArgs {
-    #[clap(help = "RPC method name")]
+    #[arg(help = "RPC method name")]
     method: String,
 
-    #[clap(short, long)]
-    #[clap(help = r#"Pass the "params" as is"#)]
-    #[clap(long_help = r#"Pass the "params" as is
+    #[arg(short, long)]
+    #[arg(help = r#"Pass the "params" as is"#)]
+    #[arg(long_help = r#"Pass the "params" as is
 If --raw is passed the first PARAM will be taken as the value of "params". If no params are given, stdin will be used. For example:
 rpc starknet_getStorageAt '["0x123", "0x69420", "latest"]' --raw
     => {"method": "eth_getBlockByNumber", "params": ["0x123", false] ... }"#)]
     raw: bool,
 
-    #[clap(value_name = "PARAMS")]
-    #[clap(help = "RPC parameters")]
-    #[clap(long_help = r#"RPC parameters
+    #[arg(value_name = "PARAMS")]
+    #[arg(help = "RPC parameters")]
+    #[arg(long_help = r#"RPC parameters
 
     Parameters are interpreted as JSON and then fall back to string. For example:
 
@@ -26,11 +26,11 @@ rpc starknet_getStorageAt '["0x123", "0x69420", "latest"]' --raw
     => {"method": "starknet_getStorageAt", "params": ["0x123", "0x69420", "latest"] ... }"#)]
     params: Vec<String>,
 
-    #[clap(long)]
-    #[clap(value_name = "URL")]
-    #[clap(help = "The RPC endpoint")]
-    #[clap(env = "STARKNET_RPC_URL")]
-    #[clap(default_value = "http://localhost:5050/rpc")]
+    #[arg(long)]
+    #[arg(value_name = "URL")]
+    #[arg(help = "The RPC endpoint")]
+    #[arg(env = "STARKNET_RPC_URL")]
+    #[arg(default_value = "http://localhost:5050/rpc")]
     rpc_url: Url,
 }
 

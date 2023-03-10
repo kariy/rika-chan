@@ -16,64 +16,64 @@ use walkdir::WalkDir;
 
 #[derive(Debug, Subcommand)]
 pub enum WalletCommands {
-    #[clap(about = "Create a keystore for a StarkNet account.")]
-    #[clap(group(ArgGroup::new("new-raw").args(&["path"]).requires_all(&["account", "privatekey", "password", "chain"])))]
+    #[command(about = "Create a keystore for a StarkNet account.")]
+    #[command(group(ArgGroup::new("new-raw").args(&["path"]).requires_all(&["account", "privatekey", "password", "chain"])))]
     New {
-        #[clap(long)]
-        #[clap(value_name = "PATH")]
-        #[clap(value_parser(PathParser))]
-        #[clap(help = "If provided, then keypair will be written to an encrypted JSON keystore.")]
+        #[arg(long)]
+        #[arg(value_name = "PATH")]
+        #[arg(value_parser(PathParser))]
+        #[arg(help = "If provided, then keypair will be written to an encrypted JSON keystore.")]
         path: Option<PathBuf>,
 
-        #[clap(long)]
-        #[clap(value_name = "ACCOUNT_ADDRESS")]
-        #[clap(
+        #[arg(long)]
+        #[arg(value_name = "ACCOUNT_ADDRESS")]
+        #[arg(
             help = "Address of the StarkNet account contract you want to create a keystore for."
         )]
         account: Option<FieldElement>,
 
-        #[clap(long)]
-        #[clap(requires = "path")]
-        #[clap(value_name = "PRIVATE_KEY")]
-        #[clap(help = "The raw private key associated with the account contract.")]
+        #[arg(long)]
+        #[arg(requires = "path")]
+        #[arg(value_name = "PRIVATE_KEY")]
+        #[arg(help = "The raw private key associated with the account contract.")]
         privatekey: Option<FieldElement>,
 
-        #[clap(long)]
-        #[clap(requires = "path")]
-        #[clap(value_name = "CHAIN")]
+        #[arg(long)]
+        #[arg(requires = "path")]
+        #[arg(value_name = "CHAIN")]
         chain: Option<StarknetChain>,
 
-        #[clap(long)]
-        #[clap(requires = "path")]
-        #[clap(value_name = "KEYSTORE_NAME")]
-        #[clap(help = "A name to identify the keystore with.")]
+        #[arg(long)]
+        #[arg(requires = "path")]
+        #[arg(value_name = "KEYSTORE_NAME")]
+        #[arg(help = "A name to identify the keystore with.")]
         name: Option<String>,
 
-        #[clap(long)]
-        #[clap(requires = "path")]
-        #[clap(value_name = "KEYSTORE_PASSWORD")]
-        #[clap(help = "Provide the password for the JSON keystore in cleartext.")]
+        #[arg(long)]
+        #[arg(requires = "path")]
+        #[arg(value_name = "KEYSTORE_PASSWORD")]
+        #[arg(help = "Provide the password for the JSON keystore in cleartext.")]
         password: Option<String>,
     },
 
-    #[clap(about = "Sign a message using an account's signing key.")]
-    #[clap(group(ArgGroup::new("sign-raw").args(&["keystore"]).requires_all(&["password", "message"])))]
+    #[command(about = "Sign a message using an account's signing key.")]
+    #[command(group(ArgGroup::new("sign-raw").args(&["keystore"]).requires_all(&["password", "message"])))]
     Sign {
-        #[clap(short, long)]
-        #[clap(value_name = "PATH")]
-        #[clap(value_parser(PathParser))]
+        #[arg(short, long)]
+        #[arg(value_name = "PATH")]
+        #[arg(value_parser(PathParser))]
         keystore: Option<PathBuf>,
 
-        #[clap(short, long)]
-        #[clap(requires = "keystore")]
-        #[clap(value_name = "KEYSTORE_PASSWORD")]
-        #[clap(help = "Provide the password for the JSON keystore in cleartext.")]
+        #[arg(short, long)]
+        #[arg(requires = "keystore")]
+        #[arg(value_name = "KEYSTORE_PASSWORD")]
+        #[arg(help = "Provide the password for the JSON keystore in cleartext.")]
         password: Option<String>,
 
-        #[clap(short, long)]
-        #[clap(requires = "keystore")]
-        #[clap(value_name = "MESSAGE_HASH")]
-        #[clap(help = "The hash of the message you want to sign.")]
+        #[arg(short, long)]
+        #[arg(requires = "keystore")]
+        #[arg(value_name = "MESSAGE_HASH")]
+        #[arg(help = "The hash of the message you want to sign.")]
         message: Option<String>,
     },
 }

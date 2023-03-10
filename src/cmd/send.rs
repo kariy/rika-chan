@@ -3,7 +3,7 @@ use crate::opts::account::WalletOptions;
 use crate::opts::starknet::StarkNetOptions;
 use crate::opts::transaction::TransactionOptions;
 
-use clap::Parser;
+use clap::Args;
 use eyre::{bail, eyre, Result};
 use starknet::accounts::Call;
 use starknet::core::types::FieldElement;
@@ -11,31 +11,31 @@ use starknet::core::utils::get_selector_from_name;
 use starknet::providers::jsonrpc::models::{BroadcastedTransaction, InvokeTransactionResult};
 use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 
-#[derive(Debug, Parser)]
+#[derive(Debug, Args)]
 pub struct InvokeArgs {
-    #[clap(long)]
-    #[clap(value_name = "CONTRACT_ADDRESS")]
+    #[arg(long)]
+    #[arg(value_name = "CONTRACT_ADDRESS")]
     pub to: FieldElement,
 
-    #[clap(long)]
-    #[clap(value_name = "FUNCTION_NAME")]
+    #[arg(long)]
+    #[arg(value_name = "FUNCTION_NAME")]
     pub function: String,
 
-    #[clap(long)]
-    #[clap(value_delimiter = ',')]
-    #[clap(help = "Comma seperated values e.g., 0x12345,0x69420,...")]
+    #[arg(long)]
+    #[arg(value_delimiter = ',')]
+    #[arg(help = "Comma seperated values e.g., 0x12345,0x69420,...")]
     pub calldata: Vec<FieldElement>,
 
-    #[clap(flatten)]
-    #[clap(next_help_heading = "STARKNET OPTIONS")]
+    #[command(flatten)]
+    #[command(next_help_heading = "STARKNET OPTIONS")]
     pub starknet: StarkNetOptions,
 
-    #[clap(flatten)]
-    #[clap(next_help_heading = "Wallet OPTIONS")]
+    #[command(flatten)]
+    #[command(next_help_heading = "Wallet OPTIONS")]
     pub wallet: WalletOptions,
 
-    #[clap(flatten)]
-    #[clap(next_help_heading = "TRANSACTION OPTIONS")]
+    #[command(flatten)]
+    #[command(next_help_heading = "TRANSACTION OPTIONS")]
     pub transaction: TransactionOptions,
 }
 

@@ -5,54 +5,54 @@ use crate::cmd::account::simple_account::SimpleAccount;
 
 use std::{path::PathBuf, str::FromStr};
 
-use clap::{ArgGroup, Parser};
+use clap::{ArgGroup, Args};
 use eyre::Result;
 use inquire::CustomType;
 use starknet::core::types::FieldElement;
 
-#[derive(Debug, Clone, Parser, Default)]
-#[clap(group(ArgGroup::new("wallet-method").args(["private_key", "keystore_path"])))]
-#[clap(group(ArgGroup::new("password-method").args(["keystore_password", "keystore_password_file"]).requires("keystore_path")))]
-#[clap(group(ArgGroup::new("wallet-interactive").args(["interactive"]).conflicts_with_all(["private_key", "account", "keystore_path", "keystore_password", "keystore_password_file"])))]
+#[derive(Debug, Clone, Args, Default)]
+#[command(group(ArgGroup::new("wallet-method").args(["private_key", "keystore_path"])))]
+#[command(group(ArgGroup::new("password-method").args(["keystore_password", "keystore_password_file"]).requires("keystore_path")))]
+#[command(group(ArgGroup::new("wallet-interactive").args(["interactive"]).conflicts_with_all(["private_key", "account", "keystore_path", "keystore_password", "keystore_password_file"])))]
 pub struct WalletOptions {
-    #[clap(short, long)]
-    #[clap(help_heading = "WALLET OPTIONS - RAW")]
-    #[clap(help = "Open an interactive prompt to enter your wallet details.")]
+    #[arg(short, long)]
+    #[arg(help_heading = "WALLET OPTIONS - RAW")]
+    #[arg(help = "Open an interactive prompt to enter your wallet details.")]
     pub interactive: bool,
 
-    #[clap(long)]
-    #[clap(requires = "account")]
-    #[clap(value_name = "PRIVATE_KEY")]
-    #[clap(help_heading = "WALLET OPTIONS - RAW")]
-    #[clap(help = "The raw private key associated with the account contract.")]
+    #[arg(long)]
+    #[arg(requires = "account")]
+    #[arg(value_name = "PRIVATE_KEY")]
+    #[arg(help_heading = "WALLET OPTIONS - RAW")]
+    #[arg(help = "The raw private key associated with the account contract.")]
     pub private_key: Option<FieldElement>,
 
-    #[clap(long)]
-    #[clap(value_name = "FROM")]
-    #[clap(requires = "wallet-method")]
-    #[clap(help_heading = "WALLET OPTIONS - RAW")]
-    #[clap(help = "Account contract to initiate the transaction from.")]
+    #[arg(long)]
+    #[arg(value_name = "FROM")]
+    #[arg(requires = "wallet-method")]
+    #[arg(help_heading = "WALLET OPTIONS - RAW")]
+    #[arg(help = "Account contract to initiate the transaction from.")]
     pub account: Option<FieldElement>,
 
-    #[clap(long = "keystore")]
-    #[clap(value_name = "PATH")]
-    #[clap(env = "STARKNET_KEYSTORE")]
-    #[clap(help_heading = "WALLET OPTIONS - KEYSTORE")]
-    #[clap(help = "Use the keystore in the given folder or file.")]
+    #[arg(long = "keystore")]
+    #[arg(value_name = "PATH")]
+    #[arg(env = "STARKNET_KEYSTORE")]
+    #[arg(help_heading = "WALLET OPTIONS - KEYSTORE")]
+    #[arg(help = "Use the keystore in the given folder or file.")]
     pub keystore_path: Option<PathBuf>,
 
-    #[clap(long = "password")]
-    #[clap(value_name = "PASSWORD")]
-    #[clap(help_heading = "WALLET OPTIONS - KEYSTORE")]
-    #[clap(help = "The keystore password. Used with --keystore.")]
+    #[arg(long = "password")]
+    #[arg(value_name = "PASSWORD")]
+    #[arg(help_heading = "WALLET OPTIONS - KEYSTORE")]
+    #[arg(help = "The keystore password. Used with --keystore.")]
     pub keystore_password: Option<String>,
 
-    #[clap(long = "password-file")]
-    #[clap(value_name = "PASSWORD_FILE")]
-    #[clap(env = "STARKNET_KEYSTORE_PASSWORD")]
-    #[clap(conflicts_with = "keystore_password")]
-    #[clap(help_heading = "WALLET OPTIONS - KEYSTORE")]
-    #[clap(help = "The keystore password file path. Used with --keystore.")]
+    #[arg(long = "password-file")]
+    #[arg(value_name = "PASSWORD_FILE")]
+    #[arg(env = "STARKNET_KEYSTORE_PASSWORD")]
+    #[arg(conflicts_with = "keystore_password")]
+    #[arg(help_heading = "WALLET OPTIONS - KEYSTORE")]
+    #[arg(help = "The keystore password file path. Used with --keystore.")]
     pub keystore_password_file: Option<PathBuf>,
 }
 

@@ -24,6 +24,10 @@ pub enum Commands {
     DecToHex {
         #[clap(value_name = "DECIMAL")]
         dec: FieldElement,
+
+        #[clap(long)]
+        #[clap(help = "Pad the resulting hex value to 32 bytes.")]
+        pad: bool,
     },
 
     #[clap(visible_alias = "td")]

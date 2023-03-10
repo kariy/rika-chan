@@ -323,8 +323,12 @@ impl Probe {
 pub struct SimpleProbe;
 
 impl SimpleProbe {
-    pub fn to_hex(dec: &FieldElement) -> String {
-        format!("{dec:#x}")
+    pub fn to_hex(dec: &FieldElement, pad: bool) -> String {
+        if pad {
+            format!("{dec:#064x}")
+        } else {
+            format!("{dec:#x}")
+        }
     }
 
     pub fn to_dec(hex: &FieldElement) -> String {

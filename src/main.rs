@@ -16,8 +16,8 @@ async fn main() -> Result<()> {
     let cli = App::parse();
 
     match cli.command {
-        Commands::DecToHex { dec } => {
-            println!("{}", SimpleProbe::to_hex(&dec));
+        Commands::DecToHex { dec, pad } => {
+            println!("{}", SimpleProbe::to_hex(&dec, pad));
         }
 
         Commands::Ecdsa { commands } => match commands {

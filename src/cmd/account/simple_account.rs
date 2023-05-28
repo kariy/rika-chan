@@ -168,7 +168,7 @@ impl Account for SimpleAccount {
         let provider = self.get_provider()?;
 
         provider
-            .get_nonce(&BlockId::Tag(BlockTag::Latest), self.account)
+            .get_nonce(BlockId::Tag(BlockTag::Latest), self.account)
             .await
             .map_err(AccountError::ProviderError)
     }
@@ -218,7 +218,7 @@ impl Account for SimpleAccount {
     async fn get_max_fee(&self, request: &BroadcastedTransaction) -> Result<u64, Self::Error> {
         let provider = self.get_provider()?;
         let res = provider
-            .estimate_fee([request.clone()], &BlockId::Tag(BlockTag::Latest))
+            .estimate_fee([request.clone()], BlockId::Tag(BlockTag::Latest))
             .await
             .map_err(AccountError::ProviderError)?;
 

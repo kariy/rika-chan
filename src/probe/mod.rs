@@ -48,7 +48,7 @@ impl Probe {
         field: Option<String>,
         to_json: bool,
     ) -> Result<String> {
-        let block = self.client.get_block_with_txs(&block_id).await?;
+        let block = self.client.get_block_with_txs(block_id).await?;
 
         if to_json || field.is_some() {
             let mut json = match block {
@@ -78,7 +78,7 @@ impl Probe {
     }
 
     pub async fn get_block_transaction_count(&self, block_id: BlockId) -> Result<u64> {
-        let total = self.client.get_block_transaction_count(&block_id).await?;
+        let total = self.client.get_block_transaction_count(block_id).await?;
         Ok(total)
     }
 
@@ -298,7 +298,7 @@ impl Probe {
                         186492163330788704u64,
                     ]),
                 },
-                &block_id,
+                block_id,
             )
             .await?;
         Ok(format!("{:#x}{:x}", res[1], res[0]))

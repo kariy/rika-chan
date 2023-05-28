@@ -296,7 +296,7 @@ impl Pretty for MaybePendingBlockWithTxs {
                     ])
                     .add_row(vec![
                         "STATUS",
-                        serde_json::to_value(&block.status)
+                        serde_json::to_value(block.status)
                             .unwrap_or_default()
                             .as_str()
                             .unwrap_or_default(),
@@ -352,7 +352,7 @@ pub fn pretty_block_without_txs(block: &MaybePendingBlockWithTxs) -> String {
                 ])
                 .add_row(vec![
                     "STATUS",
-                    serde_json::to_value(&block.status)
+                    serde_json::to_value(block.status)
                         .unwrap_or_default()
                         .as_str()
                         .unwrap_or_default(),

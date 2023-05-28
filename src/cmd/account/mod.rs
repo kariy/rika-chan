@@ -2,13 +2,12 @@ pub mod simple_account;
 
 use super::{account::simple_account::SimpleWallet, parser::PathParser};
 use crate::opts::account::{utils::get_main_keystore_dir, WalletOptions};
-use crate::probe::utils::parse_hex_or_str_as_felt;
+use crate::probe::utils::{get_chain_id_from_name, parse_hex_or_str_as_felt};
 
 use std::path::PathBuf;
-use std::str::FromStr;
 
 use clap::{ArgGroup, Subcommand};
-use eyre::Result;
+use eyre::{bail, Result};
 use inquire::{Password, Select, Text};
 use starknet::core::types::FieldElement;
 use walkdir::WalkDir;
@@ -91,8 +90,7 @@ impl WalletCommands {
                 if let Some(path) = path {
                     if !path.is_dir() {
                         // we require path to be an existing directory
-                        eprintln!("`{}` is not a directory.", path.display());
-                        std::process::exit(1)
+                        bail!("'{}' is not a directory.", path.display())
                     }
 
                     let wallet = SimpleWallet::new(account.unwrap(), privatekey.unwrap(), chain);
@@ -116,7 +114,7 @@ impl WalletCommands {
                     let chain = Select::new("Please select the chain for this account.", options)
                         .prompt()?;
 
-                    wallet.chain_id = Some(FieldElement::from_str(chain)?);
+                    wallet.chain_id = Some(get_chain_id_from_name(chain)?);
 
                     let name = Text::new("Enter account name : ").prompt()?;
                     let password = Password::new("Enter keystore password : ").prompt()?;

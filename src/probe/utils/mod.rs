@@ -2,8 +2,12 @@ pub mod fmt;
 
 use std::path::PathBuf;
 
-use eyre::Result;
-use starknet::core::{types::FieldElement, utils::cairo_short_string_to_felt};
+use eyre::{bail, Result};
+use starknet::core::{
+    chain_id::{MAINNET, TESTNET, TESTNET2},
+    types::FieldElement,
+    utils::cairo_short_string_to_felt,
+};
 
 // const STARKNET_ACCOUNT_FILEPATH: &'static str = "~/.starknet_accounts";
 pub const SIGNED_FELT_MIN: &str =
@@ -29,4 +33,13 @@ pub fn parse_hex_or_str_as_felt(data: &str) -> Result<FieldElement> {
 pub fn canonicalize_path(path: impl AsRef<str>) -> Result<PathBuf> {
     let path = shellexpand::tilde(path.as_ref());
     Ok(dunce::canonicalize(path.to_string().as_str())?)
+}
+
+pub fn get_chain_id_from_name(chain: &str) -> Result<FieldElement> {
+    Ok(match chain {
+        "mainnet" => MAINNET,
+        "testnet" => TESTNET,
+        "testnet2" => TESTNET2,
+        _ => bail!("Invalid chain name '{chain}'."),
+    })
 }

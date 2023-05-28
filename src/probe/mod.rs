@@ -3,17 +3,21 @@ pub mod utils;
 use self::utils::fmt::{pretty_block_without_txs, Pretty};
 
 use std::cmp::Ordering;
-use std::fs;
+use std::fs::File;
 use std::path::Path;
 use std::str::FromStr;
 
+use cairo_lang_starknet::casm_contract_class::CasmContractClass;
+use cairo_lang_starknet::contract_class::ContractClass;
 use crypto_bigint::U256;
 use eyre::{eyre, Report, Result};
 use reqwest::Url;
 use starknet::accounts::Call;
 use starknet::core::crypto::ExtendedSignature;
-use starknet::core::types::contract::legacy::LegacyContractClass;
-use starknet::core::types::{BlockId, EventFilter, FunctionCall, MaybePendingTransactionReceipt};
+use starknet::core::types::contract::CompiledClass;
+use starknet::core::types::{
+    BlockId, ContractArtifact, EventFilter, FunctionCall, MaybePendingTransactionReceipt,
+};
 use starknet::core::utils::get_selector_from_name;
 use starknet::core::{
     crypto::{ecdsa_sign, ecdsa_verify, pedersen_hash, Signature},
@@ -389,13 +393,30 @@ impl SimpleProbe {
         get_storage_var_address(var_name, keys).map_err(Report::new)
     }
 
-    pub fn compute_contract_hash<P>(compiled_contract: P) -> Result<FieldElement>
+    pub fn compute_contract_hash<P>(path: P) -> Result<FieldElement>
     where
         P: AsRef<Path>,
     {
-        let res = fs::read_to_string(compiled_contract)?;
-        let contract: LegacyContractClass = serde_json::from_str(&res)?;
-        contract.class_hash().map_err(Report::new)
+        let contract_artifact: ContractArtifact = serde_json::from_reader(File::open(path)?)?;
+
+        Ok(match contract_artifact {
+            ContractArtifact::SierraClass(class) => class.class_hash()?,
+            ContractArtifact::CompiledClass(class) => class.class_hash()?,
+            ContractArtifact::LegacyClass(class) => class.class_hash()?,
+        })
+    }
+
+    pub fn compute_compiled_contract_hash<P>(path: P) -> Result<FieldElement>
+    where
+        P: AsRef<Path>,
+    {
+        let casm_contract_class: ContractClass = serde_json::from_reader(File::open(path)?)?;
+
+        let casm_contract = CasmContractClass::from_contract_class(casm_contract_class, true)?;
+        let compiled_class = serde_json::to_string_pretty(&casm_contract)
+            .and_then(|c| serde_json::from_str::<CompiledClass>(&c))?;
+
+        compiled_class.class_hash().map_err(|e| eyre!(e))
     }
 
     pub fn compute_contract_address(

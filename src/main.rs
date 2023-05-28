@@ -221,8 +221,13 @@ async fn main() -> Result<()> {
             println!("{res:#x}");
         }
 
-        Commands::ContractHash { contract } => {
+        Commands::ClassHash { contract } => {
             let res = SimpleProbe::compute_contract_hash(contract)?;
+            println!("{res:#x}");
+        }
+
+        Commands::CompiledClassHash { contract } => {
+            let res = SimpleProbe::compute_compiled_contract_hash(contract)?;
             println!("{res:#x}");
         }
 

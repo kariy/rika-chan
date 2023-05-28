@@ -278,9 +278,16 @@ pub enum Commands {
     },
 
     #[command(visible_alias = "ch")]
-    #[command(about = "Compute the hash of a StarkNet contract.")]
-    ContractHash {
-        #[arg(help = "The compiled contract file")]
+    #[command(about = "Compute the hash of a contract class.")]
+    ClassHash {
+        #[arg(help = "Path to the contract artifact file")]
+        contract: PathBuf,
+    },
+
+    #[command(visible_alias = "cch")]
+    #[command(about = "Compute the compiled class hash of a Sierra contract class.")]
+    CompiledClassHash {
+        #[arg(help = "Path to the Sierra contract artifact file")]
         contract: PathBuf,
     },
 

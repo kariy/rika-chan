@@ -1,7 +1,7 @@
 pub mod utils;
 
 use self::utils::get_from_keystore;
-use crate::cmd::account::simple_account::SimpleAccount;
+use crate::cmd::account::simple_account::SimpleWallet;
 
 use std::{path::PathBuf, str::FromStr};
 
@@ -57,14 +57,14 @@ pub struct WalletOptions {
 }
 
 impl WalletOptions {
-    pub fn build_wallet(&self) -> Result<Option<SimpleAccount>> {
+    pub fn build_wallet(&self) -> Result<Option<SimpleWallet>> {
         match self.keystore()?.or_else(|| self.raw()) {
             Some(account) => Ok(Some(account)),
             None => self.interactive(),
         }
     }
 
-    pub fn interactive(&self) -> Result<Option<SimpleAccount>> {
+    pub fn interactive(&self) -> Result<Option<SimpleWallet>> {
         Ok(if self.interactive {
             let felt_prompter = |message: &'static str| {
                 CustomType::new(message)
@@ -78,20 +78,20 @@ impl WalletOptions {
             let account = felt_prompter("Enter account address : ").prompt()?;
             let private_key = felt_prompter("Enter private key : ").prompt()?;
 
-            Some(SimpleAccount::new(None, account, private_key, None))
+            Some(SimpleWallet::new(account, private_key, None))
         } else {
             None
         })
     }
 
-    pub fn raw(&self) -> Option<SimpleAccount> {
+    pub fn raw(&self) -> Option<SimpleWallet> {
         match (self.account, self.private_key) {
-            (Some(from), Some(pk)) => Some(SimpleAccount::new(None, from, pk, None)),
+            (Some(account), Some(pk)) => Some(SimpleWallet::new(account, pk, None)),
             _ => None,
         }
     }
 
-    pub fn keystore(&self) -> Result<Option<SimpleAccount>> {
+    pub fn keystore(&self) -> Result<Option<SimpleWallet>> {
         get_from_keystore(
             self.account,
             self.keystore_path.as_ref(),
@@ -131,14 +131,8 @@ mod tests {
             )
             .unwrap()
         );
-        assert_eq!(
-            wallet.get_signing_key(),
-            FieldElement::from_hex_be(
-                "0x1a2e71241e4c65739c87717d99101e8ea9523126c6ad9e67f9cae703ba3dacf"
-            )
-            .unwrap()
-        );
-        assert_eq!(wallet.chain.unwrap().to_string(), "mainnet");
+
+        assert_eq!(wallet.chain_id.unwrap().to_string(), "mainnet");
     }
 
     #[test]
@@ -167,14 +161,8 @@ mod tests {
             )
             .unwrap()
         );
-        assert_eq!(
-            wallet.get_signing_key(),
-            FieldElement::from_hex_be(
-                "0x1a2e71241e4c65739c87717d99101e8ea9523126c6ad9e67f9cae703ba3dacf"
-            )
-            .unwrap()
-        );
-        assert_eq!(wallet.chain.unwrap().to_string(), "mainnet");
+
+        assert_eq!(wallet.chain_id.unwrap().to_string(), "mainnet");
     }
 
     #[test]
@@ -190,8 +178,7 @@ mod tests {
 
         let wallet = opts.raw().unwrap();
 
-        assert!(wallet.chain.is_none());
+        assert!(wallet.chain_id.is_none());
         assert_eq!(wallet.account, from);
-        assert_eq!(wallet.get_signing_key(), private_key);
     }
 }

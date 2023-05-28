@@ -1,15 +1,20 @@
-use crate::cmd::account::simple_account::Account;
+use std::fs::File;
+use std::path::PathBuf;
+use std::sync::Arc;
+
 use crate::opts::account::WalletOptions;
 use crate::opts::starknet::StarkNetOptions;
 use crate::opts::transaction::TransactionOptions;
+use crate::probe::SimpleProbe;
 
 use clap::Args;
-use eyre::{bail, eyre, Result};
-use starknet::accounts::Call;
-use starknet::core::types::FieldElement;
-use starknet::core::types::{BroadcastedTransaction, InvokeTransactionResult};
+use eyre::{bail, Result};
+use starknet::accounts::{Account, Call};
+use starknet::core::types::contract::legacy::LegacyContractClass;
+use starknet::core::types::contract::SierraClass;
+use starknet::core::types::InvokeTransactionResult;
+use starknet::core::types::{DeclareTransactionResult, FieldElement};
 use starknet::core::utils::get_selector_from_name;
-use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 
 #[derive(Debug, Args)]
 pub struct InvokeArgs {
@@ -31,7 +36,7 @@ pub struct InvokeArgs {
     pub starknet: StarkNetOptions,
 
     #[command(flatten)]
-    #[command(next_help_heading = "Wallet OPTIONS")]
+    #[command(next_help_heading = "WALLET OPTIONS")]
     pub wallet: WalletOptions,
 
     #[command(flatten)]
@@ -50,46 +55,126 @@ impl InvokeArgs {
             transaction,
         } = self;
 
-        let Some(mut account) = wallet.build_wallet()? else {
+        let Some(wallet) = wallet.build_wallet()? else {
             bail!("missing wallet")
         };
 
-        account
-            .provider
-            .get_or_insert(JsonRpcClient::new(HttpTransport::new(starknet.rpc_url)));
+        let account = wallet.account(starknet.provider()).await?;
 
-        let call = Call {
+        let mut tx = account.execute(vec![Call {
             to,
             selector: get_selector_from_name(&function)?,
             calldata,
+        }]);
+
+        if let Some(nonce) = transaction.nonce {
+            tx = tx.nonce(nonce);
+        }
+
+        if let Some(max_fee) = transaction.max_fee {
+            tx = tx.max_fee(max_fee);
+        }
+
+        tx.send().await.map_err(|e| e.into())
+    }
+}
+
+#[derive(Debug, Args)]
+pub struct DeclareArgs {
+    #[arg(short = 'C', long)]
+    #[arg(help = "The path to the contract artifact file")]
+    pub contract_path: PathBuf,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "STARKNET OPTIONS")]
+    pub starknet: StarkNetOptions,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "WALLET OPTIONS")]
+    pub wallet: WalletOptions,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "TRANSACTION OPTIONS")]
+    pub transaction: TransactionOptions,
+}
+
+impl DeclareArgs {
+    pub async fn run(self) -> Result<DeclareTransactionResult> {
+        let DeclareArgs {
+            contract_path,
+            starknet,
+            wallet,
+            transaction,
+        } = self;
+
+        let Some(wallet) = wallet.build_wallet()? else {
+            bail!("missing wallet")
         };
 
-        let nonce = match transaction.nonce {
-            Some(nonce) => nonce,
-            None => account.get_nonce().await?,
+        let account = wallet.account(starknet.provider()).await?;
+        let contract: SierraClass = serde_json::from_reader(File::open(&contract_path)?)?;
+        let compiled_class_hash = SimpleProbe::compute_compiled_contract_hash(contract_path)?;
+
+        let mut tx = account.declare(Arc::new(contract.flatten()?), compiled_class_hash);
+
+        if let Some(nonce) = transaction.nonce {
+            tx = tx.nonce(nonce);
+        }
+
+        if let Some(max_fee) = transaction.max_fee {
+            tx = tx.max_fee(max_fee);
+        }
+
+        println!("bruh");
+        tx.send().await.map_err(|e| e.into())
+    }
+}
+
+#[derive(Debug, Args)]
+pub struct LegacyDeclareArgs {
+    #[arg(short = 'C', long)]
+    #[arg(help = "The path to the contract artifact file")]
+    pub contract_path: PathBuf,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "STARKNET OPTIONS")]
+    pub starknet: StarkNetOptions,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "WALLET OPTIONS")]
+    pub wallet: WalletOptions,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "TRANSACTION OPTIONS")]
+    pub transaction: TransactionOptions,
+}
+
+impl LegacyDeclareArgs {
+    pub async fn run(self) -> Result<DeclareTransactionResult> {
+        let LegacyDeclareArgs {
+            contract_path,
+            starknet,
+            wallet,
+            transaction,
+        } = self;
+
+        let Some(wallet) = wallet.build_wallet()? else {
+            bail!("missing wallet")
         };
 
-        let max_fee = match transaction.max_fee {
-            Some(ref fee) => fee.to_owned(),
-            None => {
-                let request = account
-                    .prepare_invoke_transaction(&[call.clone()], nonce, FieldElement::ZERO)
-                    .await?;
+        let account = wallet.account(starknet.provider()).await?;
+        let contract: LegacyContractClass = serde_json::from_reader(File::open(&contract_path)?)?;
 
-                account
-                    .get_max_fee(&BroadcastedTransaction::Invoke(request))
-                    .await
-                    .map(FieldElement::from)?
-            }
-        };
+        let mut tx = account.declare_legacy(Arc::new(contract));
 
-        let request = account
-            .prepare_invoke_transaction(&[call], nonce, max_fee)
-            .await?;
+        if let Some(nonce) = transaction.nonce {
+            tx = tx.nonce(nonce);
+        }
 
-        account
-            .send_invoke_transaction(&request)
-            .await
-            .map_err(|e| eyre!(e))
+        if let Some(max_fee) = transaction.max_fee {
+            tx = tx.max_fee(max_fee);
+        }
+
+        tx.send().await.map_err(|e| e.into())
     }
 }

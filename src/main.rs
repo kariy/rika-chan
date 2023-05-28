@@ -345,6 +345,17 @@ async fn main() -> Result<()> {
             let res = Probe::new(starknet.rpc_url).syncing().await?;
             println!("{res}");
         }
+
+        Commands::Declare(args) => {
+            println!("yohallo");
+            let res = args.run().await?;
+            println!("Transaction hash : {:#x}", res.transaction_hash);
+        }
+
+        Commands::LegacyDeclare(args) => {
+            let res = args.run().await?;
+            println!("Transaction hash : {:#x}", res.transaction_hash);
+        }
     }
 
     Ok(())

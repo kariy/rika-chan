@@ -4,9 +4,12 @@ use std::{fmt, str::FromStr};
 
 use clap::Args;
 use reqwest::Url;
-use starknet::core::{
-    chain_id::{MAINNET, TESTNET, TESTNET2},
-    types::FieldElement,
+use starknet::{
+    core::{
+        chain_id::{MAINNET, TESTNET, TESTNET2},
+        types::FieldElement,
+    },
+    providers::{jsonrpc::HttpTransport, JsonRpcClient},
 };
 
 #[derive(Debug, Clone, Args)]
@@ -23,6 +26,12 @@ pub struct StarkNetOptions {
     #[arg(value_name = "CHAIN_ID")]
     #[arg(value_parser(ChainParser))]
     pub chain: Option<FieldElement>,
+}
+
+impl StarkNetOptions {
+    pub fn provider(&self) -> JsonRpcClient<HttpTransport> {
+        JsonRpcClient::new(HttpTransport::new(self.rpc_url.clone()))
+    }
 }
 
 #[derive(Debug, Clone)]

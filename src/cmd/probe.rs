@@ -1,7 +1,7 @@
-use super::account::WalletCommands;
 use super::parser::BlockIdParser;
 use super::rpc::RpcArgs;
-use super::send::InvokeArgs;
+use super::send::{InvokeArgs, LegacyDeclareArgs};
+use super::{account::WalletCommands, send::DeclareArgs};
 use crate::opts::starknet::StarkNetOptions;
 
 use clap::{Parser, Subcommand};
@@ -291,6 +291,10 @@ pub enum Commands {
         contract: PathBuf,
     },
 
+    #[command(visible_alias = "dec")]
+    #[command(about = "Declare a new contract class.")]
+    Declare(DeclareArgs),
+
     #[command(visible_alias = "ec")]
     #[command(about = "Perform ECDSA operations over the STARK-friendly elliptic curve.")]
     Ecdsa {
@@ -357,6 +361,10 @@ pub enum Commands {
         #[arg(value_name = "DATA")]
         data: String,
     },
+
+    #[command(visible_alias = "ldec")]
+    #[command(about = "Declare a new legacy contract class.")]
+    LegacyDeclare(LegacyDeclareArgs),
 
     #[command(visible_alias = "n1")]
     #[command(about = "Get the latest nonce associated with the address.")]

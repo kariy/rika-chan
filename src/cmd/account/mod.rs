@@ -1,8 +1,7 @@
 pub mod simple_account;
 
-use super::{account::simple_account::SimpleAccount, parser::PathParser};
+use super::{account::simple_account::SimpleWallet, parser::PathParser};
 use crate::opts::account::{utils::get_main_keystore_dir, WalletOptions};
-use crate::opts::starknet::StarknetChain;
 use crate::probe::utils::parse_hex_or_str_as_felt;
 
 use std::path::PathBuf;
@@ -11,7 +10,7 @@ use std::str::FromStr;
 use clap::{ArgGroup, Subcommand};
 use eyre::Result;
 use inquire::{Password, Select, Text};
-use starknet::{core::types::FieldElement, signers::Signer};
+use starknet::core::types::FieldElement;
 use walkdir::WalkDir;
 
 #[derive(Debug, Subcommand)]
@@ -41,7 +40,7 @@ pub enum WalletCommands {
         #[arg(long)]
         #[arg(requires = "path")]
         #[arg(value_name = "CHAIN")]
-        chain: Option<StarknetChain>,
+        chain: Option<FieldElement>,
 
         #[arg(long)]
         #[arg(requires = "path")]
@@ -96,16 +95,15 @@ impl WalletCommands {
                         std::process::exit(1)
                     }
 
-                    let account =
-                        SimpleAccount::new(None, account.unwrap(), privatekey.unwrap(), chain);
-                    account.encrypt_keystore(&path, password.unwrap(), name)?;
+                    let wallet = SimpleWallet::new(account.unwrap(), privatekey.unwrap(), chain);
+                    wallet.encrypt_keystore(&path, password.unwrap(), name)?;
 
                     println!(
                         "\n🎉 Successfully created new encrypted keystore at {}.\n\nAccount: {:#X}\nPrivate key: {:#X}\nChain: {}",
                         path.display(),
-                        account.account,
-                        account.get_signing_key(),
-                        account.chain.map_or_else(|| "".to_string(), |c| c.to_string())
+                        wallet.account,
+                        wallet.signing_key.secret_scalar(),
+                        wallet.chain_id.map_or_else(|| "".to_string(), |c| c.to_string())
                     );
                 } else {
                     let wallet = WalletOptions {
@@ -113,23 +111,23 @@ impl WalletCommands {
                         ..Default::default()
                     };
 
-                    let mut account = wallet.interactive()?.unwrap();
+                    let mut wallet = wallet.interactive()?.unwrap();
                     let options = vec!["mainnet", "testnet", "testnet2"];
                     let chain = Select::new("Please select the chain for this account.", options)
                         .prompt()?;
 
-                    account.chain = Some(StarknetChain::from_str(chain)?);
+                    wallet.chain_id = Some(FieldElement::from_str(chain)?);
 
                     let name = Text::new("Enter account name : ").prompt()?;
                     let password = Password::new("Enter keystore password : ").prompt()?;
 
-                    account.encrypt_keystore(get_main_keystore_dir(), password, Some(name))?;
+                    wallet.encrypt_keystore(get_main_keystore_dir(), password, Some(name))?;
 
                     println!(
                         "\n🎉 Created new encrypted keystore.\n\nAccount: {:#X}\nPrivate key: {:#X}\nChain: {}",
-                        account.account,
-                        account.get_signing_key(),
-                        account.chain.map_or_else(|| "".to_string(), |c| c.to_string())
+                        wallet.account,
+                        wallet.signing_key.secret_scalar(),
+                        wallet.chain_id.map_or_else(|| "".to_string(), |c| c.to_string())
                     );
                 }
 
@@ -144,9 +142,9 @@ impl WalletCommands {
                 // construct a SimpleAccount from the keystore
                 // `path` must be the encrypted keystore json file
                 if let Some(path) = path {
-                    let account = SimpleAccount::decrypt_keystore(path, password.unwrap())?;
+                    let wallet = SimpleWallet::decrypt_keystore(path, password.unwrap())?;
                     let hash = parse_hex_or_str_as_felt(message.as_ref().unwrap())?;
-                    let sig = account.sign_hash(&hash).await?;
+                    let sig = wallet.signing_key.sign(&hash)?;
                     println!("{:#x} {:#x}", sig.r, sig.s);
                 } else {
                     let chain = Select::new("Select chain", vec!["mainnet", "testnet", "testnet2"])
@@ -166,12 +164,12 @@ impl WalletCommands {
 
                     let keystore = Select::new("Select keystore", keystores_path).prompt()?;
                     let password = Password::new("Enter keystore password :").prompt()?;
-                    let account = SimpleAccount::decrypt_keystore(keystore, password)?;
+                    let account = SimpleWallet::decrypt_keystore(keystore, password)?;
 
                     let message = Text::new("Enter message to sign : ").with_help_message("Message with 0x prefix is treated as hex value otherwise literal string").prompt()?;
 
                     let hash = parse_hex_or_str_as_felt(&message)?;
-                    let sig = account.sign_hash(&hash).await?;
+                    let sig = account.signing_key.sign(&hash)?;
 
                     println!("\n{:#x} {:#x}", sig.r, sig.s);
                 }

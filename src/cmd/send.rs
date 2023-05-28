@@ -7,8 +7,8 @@ use clap::Args;
 use eyre::{bail, eyre, Result};
 use starknet::accounts::Call;
 use starknet::core::types::FieldElement;
+use starknet::core::types::{BroadcastedTransaction, InvokeTransactionResult};
 use starknet::core::utils::get_selector_from_name;
-use starknet::providers::jsonrpc::models::{BroadcastedTransaction, InvokeTransactionResult};
 use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 
 #[derive(Debug, Args)]

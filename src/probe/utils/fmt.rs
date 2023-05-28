@@ -4,8 +4,8 @@ use chrono::{Local, TimeZone};
 use comfy_table::modifiers::UTF8_SOLID_INNER_BORDERS;
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::Table;
-use starknet::core::types::FieldElement;
-use starknet::providers::jsonrpc::models::{
+use starknet::core::types::{DeclareTransaction, FieldElement};
+use starknet::core::types::{
     Event, InvokeTransaction, MaybePendingBlockWithTxs, MaybePendingTransactionReceipt, MsgToL1,
     Transaction, TransactionReceipt,
 };
@@ -190,15 +190,30 @@ impl Pretty for Transaction {
             }
 
             Self::Declare(tx) => {
-                table
-                    .add_row(vec!["TYPE", "DECLARE"])
-                    .add_row(vec!["TRANSACTION HASH", &tx.transaction_hash.prettify()])
-                    .add_row(vec!["SENDER ADDRESS", &tx.sender_address.prettify()])
-                    .add_row(vec!["CLASS HASH", &tx.class_hash.prettify()])
-                    .add_row(vec!["SIGNATURE", &tx.signature.prettify()])
-                    .add_row(vec!["NONCE", &tx.nonce.prettify()])
-                    .add_row(vec!["MAX FEE", &tx.max_fee.prettify()])
-                    .add_row(vec!["VERSION", &tx.version.prettify()]);
+                table.add_row(vec!["TYPE", "DECLARE"]);
+                match tx {
+                    DeclareTransaction::V1(tx) => {
+                        table
+                            .add_row(vec!["TRANSACTION HASH", &tx.transaction_hash.prettify()])
+                            .add_row(vec!["SENDER ADDRESS", &tx.sender_address.prettify()])
+                            .add_row(vec!["CLASS HASH", &tx.class_hash.prettify()])
+                            .add_row(vec!["SIGNATURE", &tx.signature.prettify()])
+                            .add_row(vec!["NONCE", &tx.nonce.prettify()])
+                            .add_row(vec!["MAX FEE", &tx.max_fee.prettify()])
+                            .add_row(vec!["VERSION", &FieldElement::ONE.prettify()]);
+                    }
+
+                    DeclareTransaction::V2(tx) => {
+                        table
+                            .add_row(vec!["TRANSACTION HASH", &tx.transaction_hash.prettify()])
+                            .add_row(vec!["SENDER ADDRESS", &tx.sender_address.prettify()])
+                            .add_row(vec!["CLASS HASH", &tx.class_hash.prettify()])
+                            .add_row(vec!["SIGNATURE", &tx.signature.prettify()])
+                            .add_row(vec!["NONCE", &tx.nonce.prettify()])
+                            .add_row(vec!["MAX FEE", &tx.max_fee.prettify()])
+                            .add_row(vec!["VERSION", &FieldElement::TWO.prettify()]);
+                    }
+                }
             }
 
             Self::Deploy(tx) => {
@@ -246,8 +261,7 @@ impl Pretty for Transaction {
                     ])
                     .add_row(vec!["SIGNATURE", &tx.signature.prettify()])
                     .add_row(vec!["MAX FEE", &tx.max_fee.prettify()])
-                    .add_row(vec!["NONCE", &tx.nonce.prettify()])
-                    .add_row(vec!["VERSION", &tx.version.prettify()]);
+                    .add_row(vec!["NONCE", &tx.nonce.prettify()]);
             }
         }
 

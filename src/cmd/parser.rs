@@ -4,12 +4,10 @@ use std::{path::PathBuf, str::FromStr};
 
 use clap::builder::{PossibleValue, TypedValueParser};
 use clap::error::{Error, ErrorKind};
-use starknet::{
-    core::{
-        chain_id::{MAINNET, TESTNET},
-        types::FieldElement,
-    },
-    providers::jsonrpc::models::{BlockId, BlockTag},
+use starknet::core::types::{BlockId, BlockTag};
+use starknet::core::{
+    chain_id::{MAINNET, TESTNET},
+    types::FieldElement,
 };
 
 #[derive(Debug, Clone, Copy)]

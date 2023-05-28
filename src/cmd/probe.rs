@@ -6,7 +6,7 @@ use crate::opts::starknet::StarkNetOptions;
 
 use clap::{Parser, Subcommand};
 use clap_complete::Shell;
-use starknet::{core::types::FieldElement, providers::jsonrpc::models::BlockId};
+use starknet::core::types::{BlockId, FieldElement};
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
@@ -173,11 +173,6 @@ pub enum Commands {
         #[arg(value_delimiter = ',')]
         #[arg(help = "Comma seperated values e.g., 0x12345,0x69420,...")]
         input: Vec<FieldElement>,
-
-        #[arg(short, long)]
-        #[arg(display_order = 4)]
-        #[arg(help = "Path to the contract's abi file to validate the call input.")]
-        abi: Option<PathBuf>,
 
         #[arg(next_line_help = true)]
         #[arg(display_order = 5)]

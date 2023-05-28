@@ -9,7 +9,7 @@ use chrono::{Local, TimeZone};
 use clap::{CommandFactory, Parser};
 use clap_complete::{generate, Shell};
 use eyre::{eyre, Result};
-use starknet::providers::jsonrpc::models::EventFilter;
+use starknet::core::types::EventFilter;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -196,12 +196,11 @@ async fn main() -> Result<()> {
             contract_address,
             function,
             input,
-            abi,
             block_id,
             starknet,
         } => {
             let res = Probe::new(starknet.rpc_url)
-                .call(&contract_address, &function, &input, &block_id, &abi)
+                .call(&contract_address, &function, &input, &block_id)
                 .await?;
 
             println!("{res}");
@@ -286,7 +285,7 @@ async fn main() -> Result<()> {
                         address: from,
                         from_block,
                         to_block,
-                        keys,
+                        keys: keys.map(|k| vec![k]),
                     },
                     chunk_size,
                     continuation_token,

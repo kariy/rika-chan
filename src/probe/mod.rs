@@ -4,29 +4,27 @@ use self::utils::fmt::{pretty_block_without_txs, Pretty};
 
 use std::cmp::Ordering;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::str::FromStr;
 
 use crypto_bigint::U256;
 use eyre::{eyre, Report, Result};
 use reqwest::Url;
 use starknet::accounts::Call;
+use starknet::core::crypto::ExtendedSignature;
+use starknet::core::types::contract::legacy::LegacyContractClass;
+use starknet::core::types::{BlockId, EventFilter, FunctionCall, MaybePendingTransactionReceipt};
 use starknet::core::utils::get_selector_from_name;
-use starknet::providers::jsonrpc::models::{
-    BlockId, EventFilter, FunctionCall, MaybePendingTransactionReceipt,
+use starknet::core::{
+    crypto::{ecdsa_sign, ecdsa_verify, pedersen_hash, Signature},
+    types::{FieldElement, FromStrError, MaybePendingBlockWithTxs},
+    utils::{
+        cairo_short_string_to_felt, get_contract_address, get_storage_var_address,
+        parse_cairo_short_string, starknet_keccak,
+    },
 };
 use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
-use starknet::{
-    core::{
-        crypto::{ecdsa_sign, ecdsa_verify, pedersen_hash, Signature},
-        types::{ContractArtifact, FieldElement, FromStrError},
-        utils::{
-            cairo_short_string_to_felt, get_contract_address, get_storage_var_address,
-            parse_cairo_short_string, starknet_keccak,
-        },
-    },
-    providers::jsonrpc::models::MaybePendingBlockWithTxs,
-};
+use starknet::providers::Provider;
 
 pub struct Probe {
     client: JsonRpcClient<HttpTransport>,
@@ -197,19 +195,7 @@ impl Probe {
         function_name: &str,
         calldata: &Vec<FieldElement>,
         block_id: &BlockId,
-        abi: &Option<PathBuf>,
     ) -> Result<String> {
-        if let Some(abi) = abi {
-            let expected_input_count = utils::count_function_inputs(abi, function_name)?;
-            if expected_input_count != calldata.len() as u64 {
-                return Err(eyre!(
-                    "expected {} input(s) but got {}",
-                    expected_input_count,
-                    calldata.len()
-                ));
-            }
-        }
-
         let res = self
             .client
             .call(
@@ -378,7 +364,7 @@ impl SimpleProbe {
     pub fn ecdsa_sign(
         private_key: &FieldElement,
         message_hash: &FieldElement,
-    ) -> Result<Signature> {
+    ) -> Result<ExtendedSignature> {
         ecdsa_sign(private_key, message_hash).map_err(Report::new)
     }
 
@@ -408,7 +394,7 @@ impl SimpleProbe {
         P: AsRef<Path>,
     {
         let res = fs::read_to_string(compiled_contract)?;
-        let contract: ContractArtifact = serde_json::from_str(&res)?;
+        let contract: LegacyContractClass = serde_json::from_str(&res)?;
         contract.class_hash().map_err(Report::new)
     }
 

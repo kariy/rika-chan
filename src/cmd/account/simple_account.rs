@@ -10,12 +10,13 @@ use eyre::Result;
 use rand::thread_rng;
 use starknet::accounts::Call;
 use starknet::core::crypto::compute_hash_on_elements;
+use starknet::core::types::BroadcastedInvokeTransaction;
+use starknet::core::types::BroadcastedInvokeTransactionV1;
+use starknet::core::types::{BlockId, BlockTag};
+use starknet::core::types::{BroadcastedTransaction, InvokeTransactionResult};
 use starknet::core::{crypto::Signature, types::FieldElement};
-use starknet::providers::jsonrpc::models::BroadcastedInvokeTransaction;
-use starknet::providers::jsonrpc::models::BroadcastedInvokeTransactionV1;
-use starknet::providers::jsonrpc::models::{BlockId, BlockTag};
-use starknet::providers::jsonrpc::models::{BroadcastedTransaction, InvokeTransactionResult};
-use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient, JsonRpcClientError};
+use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
+use starknet::providers::{Provider, ProviderError};
 use starknet::signers::{local_wallet::SignError, Signer, SigningKey, VerifyingKey};
 use starknet_keystore::Keystore;
 
@@ -27,9 +28,9 @@ const PREFIX_INVOKE: FieldElement = FieldElement::from_mont([
 ]);
 
 #[derive(Debug, thiserror::Error)]
-pub enum AccountError {
+pub enum AccountError<E> {
     #[error(transparent)]
-    ProviderError(JsonRpcClientError<reqwest::Error>),
+    ProviderError(ProviderError<E>),
 
     #[error("provider is not set for this account")]
     MissingProvider,
@@ -157,7 +158,7 @@ pub trait Account: Signer {
 
 #[async_trait]
 impl Account for SimpleAccount {
-    type Error = AccountError;
+    type Error = AccountError<<JsonRpcClient<HttpTransport> as Provider>::Error>;
 
     fn get_provider(&self) -> Result<&JsonRpcClient<HttpTransport>, Self::Error> {
         self.provider.as_ref().ok_or(AccountError::MissingProvider)
@@ -217,11 +218,11 @@ impl Account for SimpleAccount {
     async fn get_max_fee(&self, request: &BroadcastedTransaction) -> Result<u64, Self::Error> {
         let provider = self.get_provider()?;
         let res = provider
-            .estimate_fee(request, &BlockId::Tag(BlockTag::Latest))
+            .estimate_fee([request.clone()], &BlockId::Tag(BlockTag::Latest))
             .await
             .map_err(AccountError::ProviderError)?;
 
-        Ok(res.overall_fee)
+        Ok(res[0].overall_fee)
     }
 
     // must be called after setting the max fee

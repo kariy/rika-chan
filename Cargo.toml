@@ -1,7 +1,7 @@
 [package]
 name = "starknet-probe"
 description = "A cli tool for performing RPC calls to the StarkNet network."
-authors = ["Kari <evergreenkary@gmail.com>"]
+authors = [ "Kari <evergreenkary@gmail.com>" ]
 version = "0.1.2"
 edition = "2021"
 repository = "https://github.com/kariy/starknet-probe"
@@ -14,7 +14,7 @@ path = "./src/main.rs"
 
 [dependencies]
 async-trait = "0.1.60"
-clap = { version = "4.1.8", features = ["derive", "env"] }
+clap = { version = "4.1.8", features = [ "derive", "env" ] }
 crypto-bigint = "0.4.9"
 eyre = "0.6.8"
 hex = "0.4.3"
@@ -22,12 +22,12 @@ inquire = "0.5.2"
 reqwest = "0.11.12"
 serde = "1.0.145"
 serde_json = "1.0.85"
-starknet = { git = "https://github.com/xJonathanLEI/starknet-rs/" }
-tokio = { version = "1.24.2", features = ["full"] }
+starknet = { git = "https://github.com/xJonathanLEI/starknet-rs/", branch = "dev/jsonrpc_0_3_0" }
+tokio = { version = "1.24.2", features = [ "full" ] }
 walkdir = "2.3.2"
 starknet-keystore = { git = "https://github.com/kariy/starknet-keystore-rs" }
 rand = "0.8.5"
-thiserror = "1.0.38"
+thiserror = "1.0.40"
 home = "0.5.4"
 shellexpand = "3.0.0"
 dunce = "1.0.3"

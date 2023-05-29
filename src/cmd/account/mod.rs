@@ -2,15 +2,16 @@ pub mod simple_account;
 
 use super::{account::simple_account::SimpleWallet, parser::PathParser};
 use crate::opts::account::{utils::get_main_keystore_dir, WalletOptions};
-use crate::probe::utils::{get_chain_id_from_name, parse_hex_or_str_as_felt};
+use crate::opts::starknet::StarknetChain;
+use crate::probe::utils::parse_hex_or_str_as_felt;
 
 use std::path::PathBuf;
+use std::str::FromStr;
 
 use clap::{ArgGroup, Subcommand};
-use eyre::{bail, Result};
+use eyre::{bail, Context, Result};
 use inquire::{Password, Select, Text};
 use starknet::core::types::FieldElement;
-use walkdir::WalkDir;
 
 #[derive(Debug, Subcommand)]
 pub enum WalletCommands {
@@ -87,22 +88,27 @@ impl WalletCommands {
                 name,
                 password,
             } => {
-                if let Some(path) = path {
+                let (path, account_address, private_key, chain) = if let Some(path) = path {
                     if !path.is_dir() {
                         // we require path to be an existing directory
                         bail!("'{}' is not a directory.", path.display())
                     }
 
-                    let wallet = SimpleWallet::new(account.unwrap(), privatekey.unwrap(), chain);
-                    wallet.encrypt_keystore(&path, password.unwrap(), name)?;
+                    let wallet = SimpleWallet::new(
+                        account.unwrap(),
+                        privatekey.unwrap(),
+                        chain.map(|c| c.into()),
+                    );
+                    let path = wallet.encrypt_keystore(&path, password.unwrap(), name)?;
 
-                    println!(
-                        "\n🎉 Successfully created new encrypted keystore at {}.\n\nAccount: {:#X}\nPrivate key: {:#X}\nChain: {}",
-                        path.display(),
+                    (
+                        path.display().to_string(),
                         wallet.account,
                         wallet.signing_key.secret_scalar(),
-                        wallet.chain_id.map_or_else(|| "".to_string(), |c| c.to_string())
-                    );
+                        wallet
+                            .chain
+                            .map_or_else(|| "OTHER".to_string(), |c| c.to_string()),
+                    )
                 } else {
                     let wallet = WalletOptions {
                         interactive: true,
@@ -110,24 +116,42 @@ impl WalletCommands {
                     };
 
                     let mut wallet = wallet.interactive()?.unwrap();
-                    let options = vec!["mainnet", "testnet", "testnet2"];
-                    let chain = Select::new("Please select the chain for this account.", options)
-                        .prompt()?;
 
-                    wallet.chain_id = Some(get_chain_id_from_name(chain)?);
+                    let chain = Select::new(
+                        "Please select the chain for this account.",
+                        [StarknetChain::options(), vec!["OTHER".to_string()]].concat(),
+                    )
+                    .prompt()
+                    .map(|chain| StarknetChain::from_str(&chain).ok())?;
+
+                    wallet.chain = chain;
 
                     let name = Text::new("Enter account name : ").prompt()?;
                     let password = Password::new("Enter keystore password : ").prompt()?;
 
-                    wallet.encrypt_keystore(get_main_keystore_dir(), password, Some(name))?;
+                    let path = wallet.encrypt_keystore(
+                        get_main_keystore_dir(),
+                        password,
+                        if name.is_empty() { None } else { Some(name) },
+                    )?;
 
-                    println!(
-                        "\n🎉 Created new encrypted keystore.\n\nAccount: {:#X}\nPrivate key: {:#X}\nChain: {}",
+                    (
+                        path.display().to_string(),
                         wallet.account,
                         wallet.signing_key.secret_scalar(),
-                        wallet.chain_id.map_or_else(|| "".to_string(), |c| c.to_string())
-                    );
-                }
+                        wallet
+                            .chain
+                            .map_or_else(|| "OTHER".to_string(), |c| c.to_string()),
+                    )
+                };
+
+                println!(
+                    "\n🎉 Successfully created new encrypted keystore at {}\n\nAccount address: {:#x}\nPrivate key: {:#x}\nChain: {}",
+                    path,
+                    account_address,
+                    private_key,
+                    chain
+                );
 
                 Ok(())
             }
@@ -145,29 +169,14 @@ impl WalletCommands {
                     let sig = wallet.signing_key.sign(&hash)?;
                     println!("{:#x} {:#x}", sig.r, sig.s);
                 } else {
-                    let chain = Select::new("Select chain", vec!["mainnet", "testnet", "testnet2"])
-                        .prompt()?;
-
-                    let mut keystores_path: Vec<String> = Vec::new();
-
-                    let path = format!("~/.starknet/keystore/{chain}");
-                    let path = shellexpand::tilde(&path);
-
-                    for entry in WalkDir::new(path.as_ref()) {
-                        let file = entry?;
-                        if file.file_type().is_file() {
-                            keystores_path.push(file.into_path().to_str().unwrap().to_string());
-                        }
-                    }
-
-                    let keystore = Select::new("Select keystore", keystores_path).prompt()?;
-                    let password = Password::new("Enter keystore password :").prompt()?;
-                    let account = SimpleWallet::decrypt_keystore(keystore, password)?;
+                    let wallet = WalletOptions::default()
+                        .interactive()
+                        .wrap_err_with(|| "Failed to open keystore".to_string())?
+                        .expect("Must create wallet from keystore");
 
                     let message = Text::new("Enter message to sign : ").with_help_message("Message with 0x prefix is treated as hex value otherwise literal string").prompt()?;
-
                     let hash = parse_hex_or_str_as_felt(&message)?;
-                    let sig = account.signing_key.sign(&hash)?;
+                    let sig = wallet.signing_key.sign(&hash)?;
 
                     println!("\n{:#x} {:#x}", sig.r, sig.s);
                 }

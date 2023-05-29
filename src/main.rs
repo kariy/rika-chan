@@ -331,7 +331,7 @@ async fn main() -> Result<()> {
 
         Commands::Invoke(args) => {
             let res = args.run().await?;
-            println!("Transaction hash : {:#x}", res.transaction_hash);
+            println!("Transaction hash: {:#x}", res.transaction_hash);
         }
 
         Commands::ShellCompletions { shell } => {
@@ -347,14 +347,19 @@ async fn main() -> Result<()> {
         }
 
         Commands::Declare(args) => {
-            println!("yohallo");
             let res = args.run().await?;
-            println!("Transaction hash : {:#x}", res.transaction_hash);
+            println!(
+                "Transaction hash: {:#x}\nClass hash: {:#x}",
+                res.transaction_hash, res.class_hash
+            );
         }
 
         Commands::LegacyDeclare(args) => {
             let res = args.run().await?;
-            println!("Transaction hash : {:#x}", res.transaction_hash);
+            println!(
+                "Transaction hash: {:#x}\nClass hash: {:#x}",
+                res.transaction_hash, res.class_hash
+            );
         }
     }
 

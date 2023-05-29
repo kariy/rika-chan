@@ -1,9 +1,9 @@
-use std::fs::File;
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use crate::opts::account::utils::read_json_file;
 use crate::opts::account::WalletOptions;
-use crate::opts::starknet::StarkNetOptions;
+use crate::opts::starknet::StarknetOptions;
 use crate::opts::transaction::TransactionOptions;
 use crate::probe::SimpleProbe;
 
@@ -32,15 +32,15 @@ pub struct InvokeArgs {
     pub calldata: Vec<FieldElement>,
 
     #[command(flatten)]
-    #[command(next_help_heading = "STARKNET OPTIONS")]
-    pub starknet: StarkNetOptions,
+    #[command(next_help_heading = "Starknet options")]
+    pub starknet: StarknetOptions,
 
     #[command(flatten)]
-    #[command(next_help_heading = "WALLET OPTIONS")]
+    #[command(next_help_heading = "Wallet options")]
     pub wallet: WalletOptions,
 
     #[command(flatten)]
-    #[command(next_help_heading = "TRANSACTION OPTIONS")]
+    #[command(next_help_heading = "Transaction options")]
     pub transaction: TransactionOptions,
 }
 
@@ -86,15 +86,15 @@ pub struct DeclareArgs {
     pub contract_path: PathBuf,
 
     #[command(flatten)]
-    #[command(next_help_heading = "STARKNET OPTIONS")]
-    pub starknet: StarkNetOptions,
+    #[command(next_help_heading = "Starknet options")]
+    pub starknet: StarknetOptions,
 
     #[command(flatten)]
-    #[command(next_help_heading = "WALLET OPTIONS")]
+    #[command(next_help_heading = "Wallet options")]
     pub wallet: WalletOptions,
 
     #[command(flatten)]
-    #[command(next_help_heading = "TRANSACTION OPTIONS")]
+    #[command(next_help_heading = "Transaction options")]
     pub transaction: TransactionOptions,
 }
 
@@ -112,7 +112,7 @@ impl DeclareArgs {
         };
 
         let account = wallet.account(starknet.provider()).await?;
-        let contract: SierraClass = serde_json::from_reader(File::open(&contract_path)?)?;
+        let contract: SierraClass = read_json_file(&contract_path)?;
         let compiled_class_hash = SimpleProbe::compute_compiled_contract_hash(contract_path)?;
 
         let mut tx = account.declare(Arc::new(contract.flatten()?), compiled_class_hash);
@@ -125,7 +125,6 @@ impl DeclareArgs {
             tx = tx.max_fee(max_fee);
         }
 
-        println!("bruh");
         tx.send().await.map_err(|e| e.into())
     }
 }
@@ -137,15 +136,15 @@ pub struct LegacyDeclareArgs {
     pub contract_path: PathBuf,
 
     #[command(flatten)]
-    #[command(next_help_heading = "STARKNET OPTIONS")]
-    pub starknet: StarkNetOptions,
+    #[command(next_help_heading = "Starknet options")]
+    pub starknet: StarknetOptions,
 
     #[command(flatten)]
-    #[command(next_help_heading = "WALLET OPTIONS")]
+    #[command(next_help_heading = "Wallet options")]
     pub wallet: WalletOptions,
 
     #[command(flatten)]
-    #[command(next_help_heading = "TRANSACTION OPTIONS")]
+    #[command(next_help_heading = "Transaction options")]
     pub transaction: TransactionOptions,
 }
 
@@ -163,7 +162,7 @@ impl LegacyDeclareArgs {
         };
 
         let account = wallet.account(starknet.provider()).await?;
-        let contract: LegacyContractClass = serde_json::from_reader(File::open(&contract_path)?)?;
+        let contract: LegacyContractClass = read_json_file(&contract_path)?;
 
         let mut tx = account.declare_legacy(Arc::new(contract));
 

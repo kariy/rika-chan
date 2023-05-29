@@ -2,7 +2,7 @@ use super::parser::BlockIdParser;
 use super::rpc::RpcArgs;
 use super::send::{InvokeArgs, LegacyDeclareArgs};
 use super::{account::WalletCommands, send::DeclareArgs};
-use crate::opts::starknet::StarkNetOptions;
+use crate::opts::starknet::StarknetOptions;
 
 use clap::{Parser, Subcommand};
 use clap_complete::Shell;
@@ -96,8 +96,8 @@ pub enum Commands {
         human_readable: bool,
 
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "bal")]
@@ -117,8 +117,8 @@ pub enum Commands {
         block_id: BlockId,
 
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "b")]
@@ -146,16 +146,16 @@ pub enum Commands {
         to_json: bool,
 
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "bn")]
     #[command(about = "Get the latest block number.")]
     BlockNumber {
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(about = "Call a StarkNet function without creating a transaction.")]
@@ -185,16 +185,16 @@ pub enum Commands {
         block_id: BlockId,
 
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "ci")]
     #[command(about = "Get the StarkNet chain ID.")]
     ChainId {
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "cl")]
@@ -215,8 +215,8 @@ pub enum Commands {
         block_id: BlockId,
 
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "cd")]
@@ -235,8 +235,8 @@ pub enum Commands {
         block_id: BlockId,
 
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "ca")]
@@ -273,8 +273,8 @@ pub enum Commands {
         block_id: BlockId,
 
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "ch")]
@@ -338,8 +338,8 @@ pub enum Commands {
         continuation_token: Option<String>,
 
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "idx")]
@@ -380,8 +380,8 @@ pub enum Commands {
         block_id: BlockId,
 
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "ped")]
@@ -413,8 +413,8 @@ pub enum Commands {
         block_id: BlockId,
 
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "str")]
@@ -434,16 +434,16 @@ pub enum Commands {
         block_id: BlockId,
 
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "sync")]
     #[command(about = "Get the synchronization status of the StarkNet node")]
     Syncing {
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(name = "tx")]
@@ -460,8 +460,8 @@ pub enum Commands {
         to_json: bool,
 
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "txc")]
@@ -477,8 +477,8 @@ pub enum Commands {
         block_id: BlockId,
 
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "txp")]
@@ -488,8 +488,8 @@ pub enum Commands {
     )]
     TransactionPending {
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "txs")]
@@ -500,8 +500,8 @@ pub enum Commands {
         hash: FieldElement,
 
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "rct")]
@@ -519,8 +519,8 @@ pub enum Commands {
         to_json: bool,
 
         #[command(flatten)]
-        #[command(next_help_heading = "STARKNET OPTIONS")]
-        starknet: StarkNetOptions,
+        #[command(next_help_heading = "Starknet options")]
+        starknet: StarknetOptions,
     },
 
     #[command(visible_alias = "gca")]

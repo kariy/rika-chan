@@ -1,10 +1,11 @@
 use crate::opts::account::utils::read_json_file;
+use crate::opts::starknet::StarknetChain;
 
 use std::fs::DirBuilder;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use eyre::Result;
+use eyre::{anyhow, bail, Result};
 use rand::thread_rng;
 use starknet::accounts::SingleOwnerAccount;
 use starknet::core::types::FieldElement;
@@ -17,17 +18,17 @@ use starknet_keystore::Keystore;
 pub struct SimpleWallet {
     pub signing_key: SigningKey,
     pub account: FieldElement,
-    pub chain_id: Option<FieldElement>,
+    pub chain: Option<StarknetChain>,
 }
 
 impl SimpleWallet {
     pub fn new(
         account: FieldElement,
         signing_key: FieldElement,
-        chain_id: Option<FieldElement>,
+        chain: Option<StarknetChain>,
     ) -> Self {
         Self {
-            chain_id,
+            chain,
             account,
             signing_key: SigningKey::from_secret_scalar(signing_key),
         }
@@ -37,12 +38,10 @@ impl SimpleWallet {
         self,
         provider: JsonRpcClient<HttpTransport>,
     ) -> Result<SingleOwnerAccount<JsonRpcClient<HttpTransport>, LocalWallet>> {
-        let chain_id = match self.chain_id {
-            Some(chain_id) => chain_id,
+        let chain_id = match self.chain {
+            Some(chain_id) => chain_id.id(),
             None => provider.chain_id().await?,
         };
-
-        print!("hi");
 
         Ok(SingleOwnerAccount::new(
             provider,
@@ -57,15 +56,18 @@ impl SimpleWallet {
         path: T,
         password: U,
         tag: Option<String>,
-    ) -> Result<String>
+    ) -> Result<PathBuf>
     where
         T: AsRef<Path>,
         U: AsRef<str>,
     {
         let mut path = path.as_ref().to_path_buf();
-        if self.chain_id.is_some() {
-            path = path.join(self.chain_id.as_ref().unwrap().to_string());
-        }
+
+        path = match &self.chain {
+            Some(chain) => path.join(chain.to_string()),
+            None => path.join("OTHER"),
+        };
+
         DirBuilder::new().recursive(true).create(&path)?;
 
         let mut filename = format!("{:#x}", self.account);
@@ -76,24 +78,21 @@ impl SimpleWallet {
 
         // check if a keystore with that filename already exists
         if path.join(&filename).exists() {
-            eprintln!("keystore already exists `{filename}`.");
-            std::process::exit(1)
+            bail!("keystore already exists `{filename}`.")
         }
-
-        let chain: Option<String> = self.chain_id.as_ref().map(|chain| chain.to_string());
 
         let mut rng = thread_rng();
         starknet_keystore::encrypt_key(
-            path,
+            &path,
             &mut rng,
             self.signing_key.secret_scalar().to_bytes_be(),
             password.as_ref().as_bytes(),
             Some(&filename),
             Some(format!("{:#x}", self.account)),
-            chain,
+            self.chain.as_ref().map(|c| c.to_string()),
         )?;
 
-        Ok(filename)
+        Ok(path.join(&filename))
     }
 
     pub fn decrypt_keystore<P, S>(path: P, password: S) -> Result<Self>
@@ -105,13 +104,17 @@ impl SimpleWallet {
         let v = starknet_keystore::decrypt_key(path, password)?;
         let priv_key = unsafe { FieldElement::from_bytes_be(&*(v.as_ptr() as *const [u8; 32]))? };
         let chain = if let Some(c) = keystore.chain {
-            FieldElement::from_str(&c).ok()
+            Some(StarknetChain::from_str(&c)?)
         } else {
             None
         };
 
         Ok(SimpleWallet::new(
-            FieldElement::from_str(&keystore.address.unwrap())?,
+            FieldElement::from_str(
+                &keystore
+                    .address
+                    .ok_or(anyhow!("Missing account address."))?,
+            )?,
             priv_key,
             chain,
         ))

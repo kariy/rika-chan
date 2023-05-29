@@ -155,7 +155,7 @@ mod tests {
             .unwrap()
         );
 
-        assert_eq!(wallet.chain.unwrap().to_string(), "mainnet");
+        assert_eq!(wallet.chain.unwrap().to_string(), "SN_MAIN");
     }
 
     #[test]
@@ -185,7 +185,7 @@ mod tests {
             .unwrap()
         );
 
-        assert_eq!(wallet.chain.unwrap().to_string(), "mainnet");
+        assert_eq!(wallet.chain.unwrap().to_string(), "SN_MAIN");
     }
 
     #[test]

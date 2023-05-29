@@ -3,30 +3,32 @@ pub mod utils;
 use self::utils::fmt::{pretty_block_without_txs, Pretty};
 
 use std::cmp::Ordering;
-use std::fs;
-use std::path::{Path, PathBuf};
+use std::fs::File;
+use std::path::Path;
 use std::str::FromStr;
 
+use cairo_lang_starknet::casm_contract_class::CasmContractClass;
+use cairo_lang_starknet::contract_class::ContractClass;
 use crypto_bigint::U256;
 use eyre::{eyre, Report, Result};
 use reqwest::Url;
 use starknet::accounts::Call;
+use starknet::core::crypto::ExtendedSignature;
+use starknet::core::types::contract::CompiledClass;
+use starknet::core::types::{
+    BlockId, ContractArtifact, EventFilter, FunctionCall, MaybePendingTransactionReceipt,
+};
 use starknet::core::utils::get_selector_from_name;
-use starknet::providers::jsonrpc::models::{
-    BlockId, EventFilter, FunctionCall, MaybePendingTransactionReceipt,
+use starknet::core::{
+    crypto::{ecdsa_sign, ecdsa_verify, pedersen_hash, Signature},
+    types::{FieldElement, FromStrError, MaybePendingBlockWithTxs},
+    utils::{
+        cairo_short_string_to_felt, get_contract_address, get_storage_var_address,
+        parse_cairo_short_string, starknet_keccak,
+    },
 };
 use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
-use starknet::{
-    core::{
-        crypto::{ecdsa_sign, ecdsa_verify, pedersen_hash, Signature},
-        types::{ContractArtifact, FieldElement, FromStrError},
-        utils::{
-            cairo_short_string_to_felt, get_contract_address, get_storage_var_address,
-            parse_cairo_short_string, starknet_keccak,
-        },
-    },
-    providers::jsonrpc::models::MaybePendingBlockWithTxs,
-};
+use starknet::providers::Provider;
 
 pub struct Probe {
     client: JsonRpcClient<HttpTransport>,
@@ -46,7 +48,7 @@ impl Probe {
         field: Option<String>,
         to_json: bool,
     ) -> Result<String> {
-        let block = self.client.get_block_with_txs(&block_id).await?;
+        let block = self.client.get_block_with_txs(block_id).await?;
 
         if to_json || field.is_some() {
             let mut json = match block {
@@ -76,7 +78,7 @@ impl Probe {
     }
 
     pub async fn get_block_transaction_count(&self, block_id: BlockId) -> Result<u64> {
-        let total = self.client.get_block_transaction_count(&block_id).await?;
+        let total = self.client.get_block_transaction_count(block_id).await?;
         Ok(total)
     }
 
@@ -197,19 +199,7 @@ impl Probe {
         function_name: &str,
         calldata: &Vec<FieldElement>,
         block_id: &BlockId,
-        abi: &Option<PathBuf>,
     ) -> Result<String> {
-        if let Some(abi) = abi {
-            let expected_input_count = utils::count_function_inputs(abi, function_name)?;
-            if expected_input_count != calldata.len() as u64 {
-                return Err(eyre!(
-                    "expected {} input(s) but got {}",
-                    expected_input_count,
-                    calldata.len()
-                ));
-            }
-        }
-
         let res = self
             .client
             .call(
@@ -308,7 +298,7 @@ impl Probe {
                         186492163330788704u64,
                     ]),
                 },
-                &block_id,
+                block_id,
             )
             .await?;
         Ok(format!("{:#x}{:x}", res[1], res[0]))
@@ -378,7 +368,7 @@ impl SimpleProbe {
     pub fn ecdsa_sign(
         private_key: &FieldElement,
         message_hash: &FieldElement,
-    ) -> Result<Signature> {
+    ) -> Result<ExtendedSignature> {
         ecdsa_sign(private_key, message_hash).map_err(Report::new)
     }
 
@@ -403,13 +393,30 @@ impl SimpleProbe {
         get_storage_var_address(var_name, keys).map_err(Report::new)
     }
 
-    pub fn compute_contract_hash<P>(compiled_contract: P) -> Result<FieldElement>
+    pub fn compute_contract_hash<P>(path: P) -> Result<FieldElement>
     where
         P: AsRef<Path>,
     {
-        let res = fs::read_to_string(compiled_contract)?;
-        let contract: ContractArtifact = serde_json::from_str(&res)?;
-        contract.class_hash().map_err(Report::new)
+        let contract_artifact: ContractArtifact = serde_json::from_reader(File::open(path)?)?;
+
+        Ok(match contract_artifact {
+            ContractArtifact::SierraClass(class) => class.class_hash()?,
+            ContractArtifact::CompiledClass(class) => class.class_hash()?,
+            ContractArtifact::LegacyClass(class) => class.class_hash()?,
+        })
+    }
+
+    pub fn compute_compiled_contract_hash<P>(path: P) -> Result<FieldElement>
+    where
+        P: AsRef<Path>,
+    {
+        let casm_contract_class: ContractClass = serde_json::from_reader(File::open(path)?)?;
+
+        let casm_contract = CasmContractClass::from_contract_class(casm_contract_class, true)?;
+        let compiled_class = serde_json::to_string_pretty(&casm_contract)
+            .and_then(|c| serde_json::from_str::<CompiledClass>(&c))?;
+
+        compiled_class.class_hash().map_err(|e| eyre!(e))
     }
 
     pub fn compute_contract_address(

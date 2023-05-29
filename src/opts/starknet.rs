@@ -4,13 +4,12 @@ use std::{fmt, str::FromStr};
 
 use clap::Args;
 use reqwest::Url;
-use starknet::core::{
-    chain_id::{MAINNET, TESTNET, TESTNET2},
-    types::FieldElement,
-};
+use starknet::core::chain_id::{MAINNET, TESTNET, TESTNET2};
+use starknet::core::types::FieldElement;
+use starknet::providers::{jsonrpc::HttpTransport, JsonRpcClient};
 
 #[derive(Debug, Clone, Args)]
-pub struct StarkNetOptions {
+pub struct StarknetOptions {
     #[arg(long)]
     #[arg(value_name = "URL")]
     #[arg(help = "The RPC endpoint")]
@@ -25,6 +24,12 @@ pub struct StarkNetOptions {
     pub chain: Option<FieldElement>,
 }
 
+impl StarknetOptions {
+    pub fn provider(&self) -> JsonRpcClient<HttpTransport> {
+        JsonRpcClient::new(HttpTransport::new(self.rpc_url.clone()))
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum StarknetChain {
     Mainnet,
@@ -32,13 +37,34 @@ pub enum StarknetChain {
     Testnet2,
 }
 
-#[allow(unused)]
 impl StarknetChain {
-    pub fn get_id(&self) -> FieldElement {
+    pub fn id(&self) -> FieldElement {
         match self {
             Self::Mainnet => MAINNET,
             Self::Testnet => TESTNET,
             Self::Testnet2 => TESTNET2,
+        }
+    }
+
+    pub fn options() -> Vec<String> {
+        vec![
+            Self::Mainnet.to_string(),
+            Self::Testnet.to_string(),
+            Self::Testnet2.to_string(),
+        ]
+    }
+}
+
+impl From<FieldElement> for StarknetChain {
+    fn from(chain_id: FieldElement) -> Self {
+        if chain_id == MAINNET {
+            Self::Mainnet
+        } else if chain_id == TESTNET {
+            Self::Testnet
+        } else if chain_id == TESTNET2 {
+            Self::Testnet2
+        } else {
+            panic!("{}", InvalidStarknetChain(format!("{chain_id:#x}")))
         }
     }
 }
@@ -46,27 +72,27 @@ impl StarknetChain {
 impl fmt::Display for StarknetChain {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Mainnet => write!(f, "mainnet"),
-            Self::Testnet => write!(f, "testnet"),
-            Self::Testnet2 => write!(f, "testnet2"),
+            Self::Mainnet => write!(f, "SN_MAIN"),
+            Self::Testnet => write!(f, "SN_GOERLI"),
+            Self::Testnet2 => write!(f, "SN_GOERLI2"),
         }
     }
 }
-
-#[derive(Debug, thiserror::Error)]
-#[error("invalid chain id")]
-pub struct InvalidStarknetChain;
 
 impl FromStr for StarknetChain {
     type Err = InvalidStarknetChain;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let s = s.to_lowercase();
+        let s = s.to_uppercase();
         match s.as_str() {
-            "mainnet" => Ok(Self::Mainnet),
-            "testnet" => Ok(Self::Testnet),
-            "testnet2" => Ok(Self::Testnet2),
-            _ => Err(InvalidStarknetChain),
+            "SN_MAIN" => Ok(Self::Mainnet),
+            "SN_GOERLI" => Ok(Self::Testnet),
+            "SN_GOERLI2" => Ok(Self::Testnet2),
+            _ => Err(InvalidStarknetChain(s)),
         }
     }
 }
+
+#[derive(Debug, thiserror::Error)]
+#[error("Invalid chain id: {0}")]
+pub struct InvalidStarknetChain(String);

@@ -1,14 +1,17 @@
 pub mod utils;
 
 use self::utils::get_from_keystore;
-use crate::cmd::account::simple_account::SimpleAccount;
+use crate::cmd::account::simple_account::SimpleWallet;
 
 use std::{path::PathBuf, str::FromStr};
 
 use clap::{ArgGroup, Args};
 use eyre::Result;
-use inquire::CustomType;
+use inquire::{CustomType, Password, Select};
 use starknet::core::types::FieldElement;
+use walkdir::WalkDir;
+
+use super::starknet::StarknetChain;
 
 #[derive(Debug, Clone, Args, Default)]
 #[command(group(ArgGroup::new("wallet-method").args(["private_key", "keystore_path"])))]
@@ -16,34 +19,34 @@ use starknet::core::types::FieldElement;
 #[command(group(ArgGroup::new("wallet-interactive").args(["interactive"]).conflicts_with_all(["private_key", "account", "keystore_path", "keystore_password", "keystore_password_file"])))]
 pub struct WalletOptions {
     #[arg(short, long)]
-    #[arg(help_heading = "WALLET OPTIONS - RAW")]
+    #[arg(help_heading = "Wallet options - RAW")]
     #[arg(help = "Open an interactive prompt to enter your wallet details.")]
     pub interactive: bool,
 
     #[arg(long)]
     #[arg(requires = "account")]
     #[arg(value_name = "PRIVATE_KEY")]
-    #[arg(help_heading = "WALLET OPTIONS - RAW")]
+    #[arg(help_heading = "Wallet options - RAW")]
     #[arg(help = "The raw private key associated with the account contract.")]
     pub private_key: Option<FieldElement>,
 
     #[arg(long)]
     #[arg(value_name = "FROM")]
     #[arg(requires = "wallet-method")]
-    #[arg(help_heading = "WALLET OPTIONS - RAW")]
+    #[arg(help_heading = "Wallet options - RAW")]
     #[arg(help = "Account contract to initiate the transaction from.")]
     pub account: Option<FieldElement>,
 
     #[arg(long = "keystore")]
     #[arg(value_name = "PATH")]
     #[arg(env = "STARKNET_KEYSTORE")]
-    #[arg(help_heading = "WALLET OPTIONS - KEYSTORE")]
+    #[arg(help_heading = "Wallet options - KEYSTORE")]
     #[arg(help = "Use the keystore in the given folder or file.")]
     pub keystore_path: Option<PathBuf>,
 
     #[arg(long = "password")]
     #[arg(value_name = "PASSWORD")]
-    #[arg(help_heading = "WALLET OPTIONS - KEYSTORE")]
+    #[arg(help_heading = "Wallet options - KEYSTORE")]
     #[arg(help = "The keystore password. Used with --keystore.")]
     pub keystore_password: Option<String>,
 
@@ -51,20 +54,20 @@ pub struct WalletOptions {
     #[arg(value_name = "PASSWORD_FILE")]
     #[arg(env = "STARKNET_KEYSTORE_PASSWORD")]
     #[arg(conflicts_with = "keystore_password")]
-    #[arg(help_heading = "WALLET OPTIONS - KEYSTORE")]
+    #[arg(help_heading = "Wallet options - KEYSTORE")]
     #[arg(help = "The keystore password file path. Used with --keystore.")]
     pub keystore_password_file: Option<PathBuf>,
 }
 
 impl WalletOptions {
-    pub fn build_wallet(&self) -> Result<Option<SimpleAccount>> {
+    pub fn build_wallet(&self) -> Result<Option<SimpleWallet>> {
         match self.keystore()?.or_else(|| self.raw()) {
             Some(account) => Ok(Some(account)),
             None => self.interactive(),
         }
     }
 
-    pub fn interactive(&self) -> Result<Option<SimpleAccount>> {
+    pub fn interactive(&self) -> Result<Option<SimpleWallet>> {
         Ok(if self.interactive {
             let felt_prompter = |message: &'static str| {
                 CustomType::new(message)
@@ -78,20 +81,40 @@ impl WalletOptions {
             let account = felt_prompter("Enter account address : ").prompt()?;
             let private_key = felt_prompter("Enter private key : ").prompt()?;
 
-            Some(SimpleAccount::new(None, account, private_key, None))
+            Some(SimpleWallet::new(account, private_key, None))
         } else {
-            None
+            let chain = Select::new(
+                "Select chain",
+                [StarknetChain::options(), vec!["OTHER".to_string()]].concat(),
+            )
+            .prompt()?;
+
+            let mut keystores_path: Vec<String> = Vec::new();
+
+            let path = format!("~/.starknet/keystore/{chain}");
+            let path = shellexpand::tilde(&path);
+
+            for entry in WalkDir::new(path.as_ref()) {
+                let file = entry?;
+                if file.file_type().is_file() {
+                    keystores_path.push(file.into_path().to_str().unwrap().to_string());
+                }
+            }
+
+            let keystore = Select::new("Select keystore", keystores_path).prompt()?;
+            let password = Password::new("Enter keystore password :").prompt()?;
+            Some(SimpleWallet::decrypt_keystore(keystore, password)?)
         })
     }
 
-    pub fn raw(&self) -> Option<SimpleAccount> {
+    pub fn raw(&self) -> Option<SimpleWallet> {
         match (self.account, self.private_key) {
-            (Some(from), Some(pk)) => Some(SimpleAccount::new(None, from, pk, None)),
+            (Some(account), Some(pk)) => Some(SimpleWallet::new(account, pk, None)),
             _ => None,
         }
     }
 
-    pub fn keystore(&self) -> Result<Option<SimpleAccount>> {
+    pub fn keystore(&self) -> Result<Option<SimpleWallet>> {
         get_from_keystore(
             self.account,
             self.keystore_path.as_ref(),
@@ -131,14 +154,8 @@ mod tests {
             )
             .unwrap()
         );
-        assert_eq!(
-            wallet.get_signing_key(),
-            FieldElement::from_hex_be(
-                "0x1a2e71241e4c65739c87717d99101e8ea9523126c6ad9e67f9cae703ba3dacf"
-            )
-            .unwrap()
-        );
-        assert_eq!(wallet.chain.unwrap().to_string(), "mainnet");
+
+        assert_eq!(wallet.chain.unwrap().to_string(), "SN_MAIN");
     }
 
     #[test]
@@ -167,14 +184,8 @@ mod tests {
             )
             .unwrap()
         );
-        assert_eq!(
-            wallet.get_signing_key(),
-            FieldElement::from_hex_be(
-                "0x1a2e71241e4c65739c87717d99101e8ea9523126c6ad9e67f9cae703ba3dacf"
-            )
-            .unwrap()
-        );
-        assert_eq!(wallet.chain.unwrap().to_string(), "mainnet");
+
+        assert_eq!(wallet.chain.unwrap().to_string(), "SN_MAIN");
     }
 
     #[test]
@@ -192,6 +203,5 @@ mod tests {
 
         assert!(wallet.chain.is_none());
         assert_eq!(wallet.account, from);
-        assert_eq!(wallet.get_signing_key(), private_key);
     }
 }

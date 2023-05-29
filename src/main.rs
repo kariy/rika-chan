@@ -9,7 +9,7 @@ use chrono::{Local, TimeZone};
 use clap::{CommandFactory, Parser};
 use clap_complete::{generate, Shell};
 use eyre::{eyre, Result};
-use starknet::providers::jsonrpc::models::EventFilter;
+use starknet::core::types::EventFilter;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -196,12 +196,11 @@ async fn main() -> Result<()> {
             contract_address,
             function,
             input,
-            abi,
             block_id,
             starknet,
         } => {
             let res = Probe::new(starknet.rpc_url)
-                .call(&contract_address, &function, &input, &block_id, &abi)
+                .call(&contract_address, &function, &input, &block_id)
                 .await?;
 
             println!("{res}");
@@ -222,8 +221,13 @@ async fn main() -> Result<()> {
             println!("{res:#x}");
         }
 
-        Commands::ContractHash { contract } => {
+        Commands::ClassHash { contract } => {
             let res = SimpleProbe::compute_contract_hash(contract)?;
+            println!("{res:#x}");
+        }
+
+        Commands::CompiledClassHash { contract } => {
+            let res = SimpleProbe::compute_compiled_contract_hash(contract)?;
             println!("{res:#x}");
         }
 
@@ -286,7 +290,7 @@ async fn main() -> Result<()> {
                         address: from,
                         from_block,
                         to_block,
-                        keys,
+                        keys: keys.map(|k| vec![k]),
                     },
                     chunk_size,
                     continuation_token,
@@ -327,7 +331,7 @@ async fn main() -> Result<()> {
 
         Commands::Invoke(args) => {
             let res = args.run().await?;
-            println!("Transaction hash : {:#x}", res.transaction_hash);
+            println!("Transaction hash: {:#x}", res.transaction_hash);
         }
 
         Commands::ShellCompletions { shell } => {
@@ -340,6 +344,22 @@ async fn main() -> Result<()> {
         Commands::Syncing { starknet } => {
             let res = Probe::new(starknet.rpc_url).syncing().await?;
             println!("{res}");
+        }
+
+        Commands::Declare(args) => {
+            let res = args.run().await?;
+            println!(
+                "Transaction hash: {:#x}\nClass hash: {:#x}",
+                res.transaction_hash, res.class_hash
+            );
+        }
+
+        Commands::LegacyDeclare(args) => {
+            let res = args.run().await?;
+            println!(
+                "Transaction hash: {:#x}\nClass hash: {:#x}",
+                res.transaction_hash, res.class_hash
+            );
         }
     }
 

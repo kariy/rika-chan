@@ -1,54 +1,28 @@
-use crate::opts::{account::utils::read_json_file, starknet::StarknetChain};
-use crate::probe::SimpleProbe;
+use crate::opts::account::utils::read_json_file;
+use crate::opts::starknet::StarknetChain;
 
 use std::fs::DirBuilder;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
-use std::{convert::Infallible, path::Path};
 
-use async_trait::async_trait;
-use eyre::Result;
+use eyre::{anyhow, bail, Result};
 use rand::thread_rng;
-use starknet::accounts::Call;
-use starknet::core::crypto::compute_hash_on_elements;
-use starknet::core::{crypto::Signature, types::FieldElement};
-use starknet::providers::jsonrpc::models::BroadcastedInvokeTransaction;
-use starknet::providers::jsonrpc::models::BroadcastedInvokeTransactionV1;
-use starknet::providers::jsonrpc::models::{BlockId, BlockTag};
-use starknet::providers::jsonrpc::models::{BroadcastedTransaction, InvokeTransactionResult};
-use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient, JsonRpcClientError};
-use starknet::signers::{local_wallet::SignError, Signer, SigningKey, VerifyingKey};
+use starknet::accounts::SingleOwnerAccount;
+use starknet::core::types::FieldElement;
+use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
+use starknet::providers::Provider;
+use starknet::signers::{LocalWallet, SigningKey};
 use starknet_keystore::Keystore;
 
-const PREFIX_INVOKE: FieldElement = FieldElement::from_mont([
-    18443034532770911073,
-    18446744073709551615,
-    18446744073709551615,
-    513398556346534256,
-]);
-
-#[derive(Debug, thiserror::Error)]
-pub enum AccountError {
-    #[error(transparent)]
-    ProviderError(JsonRpcClientError<reqwest::Error>),
-
-    #[error("provider is not set for this account")]
-    MissingProvider,
-
-    #[error(transparent)]
-    SignError(SignError),
-}
-
 #[derive(Debug)]
-pub struct SimpleAccount {
-    signing_key: SigningKey,
+pub struct SimpleWallet {
+    pub signing_key: SigningKey,
     pub account: FieldElement,
     pub chain: Option<StarknetChain>,
-    pub provider: Option<JsonRpcClient<HttpTransport>>,
 }
 
-impl SimpleAccount {
+impl SimpleWallet {
     pub fn new(
-        provider: Option<JsonRpcClient<HttpTransport>>,
         account: FieldElement,
         signing_key: FieldElement,
         chain: Option<StarknetChain>,
@@ -56,13 +30,25 @@ impl SimpleAccount {
         Self {
             chain,
             account,
-            provider,
             signing_key: SigningKey::from_secret_scalar(signing_key),
         }
     }
 
-    pub fn get_signing_key(&self) -> FieldElement {
-        self.signing_key.secret_scalar()
+    pub async fn account(
+        self,
+        provider: JsonRpcClient<HttpTransport>,
+    ) -> Result<SingleOwnerAccount<JsonRpcClient<HttpTransport>, LocalWallet>> {
+        let chain_id = match self.chain {
+            Some(chain_id) => chain_id.id(),
+            None => provider.chain_id().await?,
+        };
+
+        Ok(SingleOwnerAccount::new(
+            provider,
+            LocalWallet::from_signing_key(self.signing_key.clone()),
+            self.account,
+            chain_id,
+        ))
     }
 
     pub fn encrypt_keystore<T, U>(
@@ -70,15 +56,18 @@ impl SimpleAccount {
         path: T,
         password: U,
         tag: Option<String>,
-    ) -> Result<String>
+    ) -> Result<PathBuf>
     where
         T: AsRef<Path>,
         U: AsRef<str>,
     {
         let mut path = path.as_ref().to_path_buf();
-        if self.chain.is_some() {
-            path = path.join(self.chain.as_ref().unwrap().to_string());
-        }
+
+        path = match &self.chain {
+            Some(chain) => path.join(chain.to_string()),
+            None => path.join("OTHER"),
+        };
+
         DirBuilder::new().recursive(true).create(&path)?;
 
         let mut filename = format!("{:#x}", self.account);
@@ -89,24 +78,21 @@ impl SimpleAccount {
 
         // check if a keystore with that filename already exists
         if path.join(&filename).exists() {
-            eprintln!("keystore already exists `{filename}`.");
-            std::process::exit(1)
+            bail!("keystore already exists `{filename}`.")
         }
-
-        let chain: Option<String> = self.chain.as_ref().map(|chain| chain.to_string());
 
         let mut rng = thread_rng();
         starknet_keystore::encrypt_key(
-            path,
+            &path,
             &mut rng,
             self.signing_key.secret_scalar().to_bytes_be(),
             password.as_ref().as_bytes(),
             Some(&filename),
             Some(format!("{:#x}", self.account)),
-            chain,
+            self.chain.as_ref().map(|c| c.to_string()),
         )?;
 
-        Ok(filename)
+        Ok(path.join(&filename))
     }
 
     pub fn decrypt_keystore<P, S>(path: P, password: S) -> Result<Self>
@@ -118,167 +104,19 @@ impl SimpleAccount {
         let v = starknet_keystore::decrypt_key(path, password)?;
         let priv_key = unsafe { FieldElement::from_bytes_be(&*(v.as_ptr() as *const [u8; 32]))? };
         let chain = if let Some(c) = keystore.chain {
-            StarknetChain::from_str(&c).ok()
+            Some(StarknetChain::from_str(&c)?)
         } else {
             None
         };
 
-        Ok(SimpleAccount::new(
-            None,
-            FieldElement::from_str(&keystore.address.unwrap())?,
+        Ok(SimpleWallet::new(
+            FieldElement::from_str(
+                &keystore
+                    .address
+                    .ok_or(anyhow!("Missing account address."))?,
+            )?,
             priv_key,
             chain,
         ))
-    }
-}
-
-#[async_trait]
-pub trait Account: Signer {
-    type Error: std::error::Error;
-
-    fn get_provider(&self) -> Result<&JsonRpcClient<HttpTransport>, Self::Error>;
-
-    async fn get_max_fee(&self, request: &BroadcastedTransaction) -> Result<u64, Self::Error>;
-
-    async fn get_nonce(&self) -> Result<FieldElement, Self::Error>;
-
-    async fn send_invoke_transaction(
-        &self,
-        request: &BroadcastedInvokeTransaction,
-    ) -> Result<InvokeTransactionResult, Self::Error>;
-
-    async fn prepare_invoke_transaction(
-        &self,
-        calls: &[Call],
-        nonce: FieldElement,
-        max_fee: FieldElement,
-    ) -> Result<BroadcastedInvokeTransaction, Self::Error>;
-}
-
-#[async_trait]
-impl Account for SimpleAccount {
-    type Error = AccountError;
-
-    fn get_provider(&self) -> Result<&JsonRpcClient<HttpTransport>, Self::Error> {
-        self.provider.as_ref().ok_or(AccountError::MissingProvider)
-    }
-
-    async fn get_nonce(&self) -> Result<FieldElement, Self::Error> {
-        let provider = self.get_provider()?;
-
-        provider
-            .get_nonce(&BlockId::Tag(BlockTag::Latest), self.account)
-            .await
-            .map_err(AccountError::ProviderError)
-    }
-
-    async fn prepare_invoke_transaction(
-        &self,
-        calls: &[Call],
-        nonce: FieldElement,
-        max_fee: FieldElement,
-    ) -> Result<BroadcastedInvokeTransaction, Self::Error> {
-        let provider = self.get_provider()?;
-        let chain = provider
-            .chain_id()
-            .await
-            .map_err(AccountError::ProviderError)?;
-
-        let calldata = SimpleProbe::generate_calldata_for_multicall_account(calls);
-
-        let tx_hash = compute_hash_on_elements(&[
-            PREFIX_INVOKE,
-            FieldElement::ONE, // version
-            self.account,
-            FieldElement::ZERO, // entry_point_selector
-            compute_hash_on_elements(&calldata),
-            max_fee,
-            chain,
-            nonce,
-        ]);
-
-        let signature = self
-            .sign_hash(&tx_hash)
-            .await
-            .map_err(AccountError::SignError)?;
-
-        Ok(BroadcastedInvokeTransaction::V1(
-            BroadcastedInvokeTransactionV1 {
-                calldata,
-                nonce,
-                sender_address: self.account,
-                max_fee,
-                signature: vec![signature.r, signature.s],
-            },
-        ))
-    }
-
-    // must be called after prepare_transaction
-    async fn get_max_fee(&self, request: &BroadcastedTransaction) -> Result<u64, Self::Error> {
-        let provider = self.get_provider()?;
-        let res = provider
-            .estimate_fee(request, &BlockId::Tag(BlockTag::Latest))
-            .await
-            .map_err(AccountError::ProviderError)?;
-
-        Ok(res.overall_fee)
-    }
-
-    // must be called after setting the max fee
-    async fn send_invoke_transaction(
-        &self,
-        request: &BroadcastedInvokeTransaction,
-    ) -> Result<InvokeTransactionResult, Self::Error> {
-        let provider = self.get_provider()?;
-
-        provider
-            .add_invoke_transaction(request)
-            .await
-            .map_err(AccountError::ProviderError)
-    }
-}
-
-#[cfg_attr(not(target_arch = "wasm32"), async_trait)]
-#[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
-impl Signer for SimpleAccount {
-    type GetPublicKeyError = Infallible;
-    type SignError = SignError;
-
-    async fn get_public_key(&self) -> Result<VerifyingKey, Self::GetPublicKeyError> {
-        Ok(self.signing_key.verifying_key())
-    }
-
-    async fn sign_hash(&self, hash: &FieldElement) -> Result<Signature, Self::SignError> {
-        Ok(self.signing_key.sign(hash)?)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::opts::account::utils::get_main_keystore_dir;
-
-    use super::*;
-    use rand::Rng;
-
-    #[test]
-    fn test_encrypt_wallet() {
-        let mut rng = thread_rng();
-
-        let account = {
-            let mut arr = [0u64; 4];
-            rng.fill(&mut arr);
-            FieldElement::from_mont(arr)
-        };
-        let priv_key = {
-            let mut arr = [0u64; 4];
-            rng.fill(&mut arr);
-            FieldElement::from_mont(arr)
-        };
-
-        let wallet = SimpleAccount::new(None, account, priv_key, None);
-
-        assert!(wallet
-            .encrypt_keystore(get_main_keystore_dir(), "yohallo", Some("kari".to_string()))
-            .is_ok());
     }
 }

@@ -1,7 +1,7 @@
 {
 	"address": "0x148A764E88277F972B6E1517A60CD6EF5FC11FF3DBC686EA932451552D0641B",
 	"pubkey": "0x46b3bc0cf8588bacd46c549089613804c528b39036764ba15d14ac2ffb1eac8",
-	"chain": "mainnet",
+	"chain": "SN_MAIN",
 	"crypto": {
 		"cipher": "aes-128-ctr",
 		"cipherparams": {

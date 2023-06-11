@@ -5,7 +5,7 @@ A command-line tool for performing RPC calls to the StarkNet network.
 ## Installation
 
 ```
-$ cargo install --git https://github.com/kariy/starknet-probe --locked
+λ cargo install --git https://github.com/kariy/starknet-probe --locked --force
 ```
 
 ## Usage

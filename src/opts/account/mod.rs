@@ -6,7 +6,7 @@ use crate::cmd::account::simple_account::SimpleWallet;
 use std::{path::PathBuf, str::FromStr};
 
 use clap::{ArgGroup, Args};
-use eyre::Result;
+use eyre::{eyre, Result};
 use inquire::{CustomType, Password, Select};
 use starknet::core::types::FieldElement;
 use walkdir::WalkDir;
@@ -91,10 +91,14 @@ impl WalletOptions {
 
             let mut keystores_path: Vec<String> = Vec::new();
 
-            let path = format!("~/.starknet/keystore/{chain}");
-            let path = shellexpand::tilde(&path);
+            let path_str = format!("~/.starknet/keystore/{chain}");
+            let path = PathBuf::from(shellexpand::tilde(&path_str).as_ref());
 
-            for entry in WalkDir::new(path.as_ref()) {
+            if !path.exists() {
+                return Err(eyre!("Keystore directory for chain {chain} doesn't exist."));
+            }
+
+            for entry in WalkDir::new(path) {
                 let file = entry?;
                 if file.file_type().is_file() {
                     keystores_path.push(file.into_path().to_str().unwrap().to_string());

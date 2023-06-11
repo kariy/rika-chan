@@ -11,8 +11,7 @@ $ cargo install --git https://github.com/kariy/starknet-probe --locked
 ## Usage
 
 ```console
-$ probe
-
+λ probe
 A cli tool for performing RPC calls to the StarkNet network.
 
 Usage: probe <COMMAND>
@@ -40,6 +39,7 @@ Commands:
   class-hash           Compute the hash of a contract class. [aliases: ch]
   compiled-class-hash  Compute the compiled class hash of a Sierra contract class. [aliases: cch]
   declare              Declare a new contract class. [aliases: dec]
+  deploy               Deploy a new contract. [aliases: dep]
   ecdsa                Perform ECDSA operations over the STARK-friendly elliptic curve. [aliases: ec]
   events               Returns all events matching the given filter [aliases: ev]
   index                Compute the address of a storage variable. [aliases: idx]
@@ -62,5 +62,5 @@ Commands:
 
 Options:
   -h, --help     Print help
-  -V, --version  Print version information
+  -V, --version  Print version
 ```

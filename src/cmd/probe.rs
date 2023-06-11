@@ -1,6 +1,6 @@
 use super::parser::BlockIdParser;
 use super::rpc::RpcArgs;
-use super::send::{InvokeArgs, LegacyDeclareArgs};
+use super::send::{DeployArgs, InvokeArgs, LegacyDeclareArgs};
 use super::{account::WalletCommands, send::DeclareArgs};
 use crate::opts::starknet::StarknetOptions;
 
@@ -294,6 +294,10 @@ pub enum Commands {
     #[command(visible_alias = "dec")]
     #[command(about = "Declare a new contract class.")]
     Declare(DeclareArgs),
+
+    #[command(visible_alias = "dep")]
+    #[command(about = "Deploy a new contract.")]
+    Deploy(DeployArgs),
 
     #[command(visible_alias = "ec")]
     #[command(about = "Perform ECDSA operations over the STARK-friendly elliptic curve.")]

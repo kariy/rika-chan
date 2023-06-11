@@ -361,6 +361,14 @@ async fn main() -> Result<()> {
                 res.transaction_hash, res.class_hash
             );
         }
+
+        Commands::Deploy(args) => {
+            let res = args.run().await?;
+            println!(
+                "Transaction hash: {:#x}\nContract address: {:#x}",
+                res.transaction_hash, res.contract_address
+            );
+        }
     }
 
     Ok(())

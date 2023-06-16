@@ -23,7 +23,7 @@ inquire = "0.5.2"
 reqwest = "0.11.12"
 serde = "1.0.145"
 serde_json = "1.0.85"
-starknet = { git = "https://github.com/xJonathanLEI/starknet-rs/", branch = "dev/jsonrpc_0_3_0" }
+starknet = "0.3.0"
 tokio = { version = "1.24.2", features = [ "full" ] }
 walkdir = "2.3.2"
 starknet-keystore = { git = "https://github.com/kariy/starknet-keystore-rs" }

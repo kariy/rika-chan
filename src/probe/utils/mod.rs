@@ -1,9 +1,12 @@
 pub mod fmt;
 
-use std::path::PathBuf;
+use std::{path::PathBuf, str::FromStr};
 
 use eyre::Result;
-use starknet::core::{types::FieldElement, utils::cairo_short_string_to_felt};
+use starknet::core::{
+    types::{FieldElement, FromStrError},
+    utils::cairo_short_string_to_felt,
+};
 
 // const STARKNET_ACCOUNT_FILEPATH: &'static str = "~/.starknet_accounts";
 pub const SIGNED_FELT_MIN: &str =
@@ -29,4 +32,10 @@ pub fn parse_hex_or_str_as_felt(data: &str) -> Result<FieldElement> {
 pub fn canonicalize_path(path: impl AsRef<str>) -> Result<PathBuf> {
     let path = shellexpand::tilde(path.as_ref());
     Ok(dunce::canonicalize(path.to_string().as_str())?)
+}
+
+// Expected format for keys : 0x124123,0x14123,0x1342
+// where each array is a key
+pub fn parse_event_keys(value: &str) -> std::result::Result<Vec<FieldElement>, FromStrError> {
+    value.split(',').map(FieldElement::from_str).collect()
 }

@@ -3,6 +3,7 @@ use super::rpc::RpcArgs;
 use super::send::{DeployArgs, InvokeArgs, LegacyDeclareArgs};
 use super::{account::WalletCommands, send::DeclareArgs};
 use crate::opts::starknet::StarknetOptions;
+use crate::probe::utils::parse_event_keys;
 
 use clap::{Parser, Subcommand};
 use clap_complete::Shell;
@@ -312,16 +313,21 @@ pub enum Commands {
         long_about = "Returns all event objects matching the conditions in the provided filter"
     )]
     Events {
+        #[arg(num_args(0..))]
+        #[arg(help = r"The values used to filter the events. 
+Example: 0x12,0x23 0x34,0x45 - Which will be parsed as [[0x12,0x23], [0x34,0x45]]")]
+        #[arg(value_parser = parse_event_keys)]
+        keys: Option<Vec<Vec<FieldElement>>>,
+
+        #[arg(required = true)]
+        #[arg(short = 's', long)]
+        #[arg(help = "The number of events to return in each page")]
+        chunk_size: u64,
+
         #[arg(short = 'C', long)]
         #[arg(value_name = "CONTRACT_ADDRESS")]
         #[arg(help = "Address of the contract emitting the events")]
         from: Option<FieldElement>,
-
-        #[arg(short, long)]
-        #[arg(value_delimiter = ',')]
-        #[arg(help = "The values used to filter the events")]
-        #[arg(help = "Comma seperated values e.g., 0x12345,0x69420,...")]
-        keys: Option<Vec<FieldElement>>,
 
         #[arg(short, long)]
         #[arg(value_parser(BlockIdParser))]
@@ -330,10 +336,6 @@ pub enum Commands {
         #[arg(short, long)]
         #[arg(value_parser(BlockIdParser))]
         to_block: Option<BlockId>,
-
-        #[arg(required = true)]
-        #[arg(short = 's', long)]
-        chunk_size: u64,
 
         #[arg(short = 'c', long)]
         #[arg(
@@ -575,11 +577,38 @@ pub enum EcdsaCommand {
 
 #[cfg(test)]
 mod tests {
+    use crate::cmd::probe::Commands;
+
     use super::App;
-    use clap::CommandFactory;
+    use clap::{CommandFactory, Parser};
+    use starknet::core::types::FieldElement;
 
     #[test]
     fn verify_cli() {
         App::command().debug_assert()
+    }
+
+    #[test]
+    fn parse_event_keys() {
+        let expected_keys = vec![
+            vec![FieldElement::from(0x1234u64), FieldElement::from(0x12u64)],
+            vec![FieldElement::from(0x6666u64), FieldElement::from(0x7777u64)],
+        ];
+
+        let app = App::parse_from([
+            "probe",
+            "events",
+            "--chunk-size",
+            "2",
+            "0x1234,0x12",
+            "0x6666,0x7777",
+        ]);
+
+        match app.command {
+            Commands::Events { keys, .. } => {
+                assert_eq!(keys, Some(expected_keys));
+            }
+            _ => panic!("wrong command"),
+        }
     }
 }

@@ -290,7 +290,7 @@ async fn main() -> Result<()> {
                         address: from,
                         from_block,
                         to_block,
-                        keys: keys.map(|k| vec![k]),
+                        keys,
                     },
                     chunk_size,
                     continuation_token,

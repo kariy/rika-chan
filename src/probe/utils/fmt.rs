@@ -132,7 +132,14 @@ impl Pretty for MaybePendingTransactionReceipt {
         }
 
         table
-            .add_row(vec!["STATUS", value["status"].take().as_str().unwrap()])
+            .add_row(vec![
+                "FINALITY_STATUS",
+                value["finality_status"].take().as_str().unwrap(),
+            ])
+            .add_row(vec![
+                "EXECUTION_STATUS",
+                value["execution_status"].take().as_str().unwrap(),
+            ])
             .add_row(vec![
                 "EVENTS",
                 &serde_json::from_value::<Vec<Event>>(value["events"].take())

@@ -5,10 +5,10 @@ use std::fs::DirBuilder;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use eyre::{anyhow, bail, Result};
+use eyre::{bail, eyre, Result};
 use rand::thread_rng;
-use starknet::accounts::SingleOwnerAccount;
-use starknet::core::types::FieldElement;
+use starknet::accounts::{ExecutionEncoding, SingleOwnerAccount};
+use starknet::core::types::{BlockId, BlockTag, ContractClass, FieldElement};
 use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 use starknet::providers::Provider;
 use starknet::signers::{LocalWallet, SigningKey};
@@ -43,11 +43,23 @@ impl SimpleWallet {
             None => provider.chain_id().await?,
         };
 
+        // fetch the account class definition to make sure it exists
+        let class = provider
+            .get_class_at(BlockId::Tag(BlockTag::Pending), self.account)
+            .await
+            .map_err(|e| eyre!("Account {:#x} doesn't exists: {e}", self.account))?;
+
+        let execution_encoding = match class {
+            ContractClass::Legacy(_) => ExecutionEncoding::Legacy,
+            ContractClass::Sierra(_) => ExecutionEncoding::New,
+        };
+
         Ok(SingleOwnerAccount::new(
             provider,
             LocalWallet::from_signing_key(self.signing_key.clone()),
             self.account,
             chain_id,
+            execution_encoding,
         ))
     }
 
@@ -110,11 +122,7 @@ impl SimpleWallet {
         };
 
         Ok(SimpleWallet::new(
-            FieldElement::from_str(
-                &keystore
-                    .address
-                    .ok_or(anyhow!("Missing account address."))?,
-            )?,
+            FieldElement::from_str(&keystore.address.ok_or(eyre!("Missing account address."))?)?,
             priv_key,
             chain,
         ))

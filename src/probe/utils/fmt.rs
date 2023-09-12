@@ -181,7 +181,6 @@ impl Pretty for Transaction {
                                 &tx.entry_point_selector.prettify(),
                             ])
                             .add_row(vec!["SIGNATURE", &tx.signature.prettify()])
-                            .add_row(vec!["NONCE", &tx.nonce.prettify()])
                             .add_row(vec!["MAX FEE", &tx.max_fee.prettify()])
                             .add_row(vec!["CALLDATA", &tx.calldata.prettify()])
                             .add_row(vec!["VERSION", "0"]);
@@ -192,6 +191,16 @@ impl Pretty for Transaction {
             Self::Declare(tx) => {
                 table.add_row(vec!["TYPE", "DECLARE"]);
                 match tx {
+                    DeclareTransaction::V0(tx) => {
+                        table
+                            .add_row(vec!["TRANSACTION HASH", &tx.transaction_hash.prettify()])
+                            .add_row(vec!["SENDER ADDRESS", &tx.sender_address.prettify()])
+                            .add_row(vec!["CLASS HASH", &tx.class_hash.prettify()])
+                            .add_row(vec!["SIGNATURE", &tx.signature.prettify()])
+                            .add_row(vec!["MAX FEE", &tx.max_fee.prettify()])
+                            .add_row(vec!["VERSION", &FieldElement::ZERO.prettify()]);
+                    }
+
                     DeclareTransaction::V1(tx) => {
                         table
                             .add_row(vec!["TRANSACTION HASH", &tx.transaction_hash.prettify()])

@@ -1,10 +1,10 @@
 [package]
-name = "starknet-probe"
-description = "A cli tool for performing RPC calls to the StarkNet network."
 authors = [ "Kari <evergreenkary@gmail.com>" ]
-version = "0.1.2"
+description = "A cli tool for performing RPC calls to the StarkNet network."
 edition = "2021"
+name = "starknet-probe"
 repository = "https://github.com/kariy/starknet-probe"
+version = "0.1.2"
 
 [[bin]]
 name = "probe"
@@ -14,24 +14,24 @@ path = "./src/main.rs"
 
 [dependencies]
 async-trait = "0.1.60"
-cairo-lang-starknet = "1.0.0"
+cairo-lang-starknet = "2.2.0"
+chrono = "0.4.23"
 clap = { version = "4.1.8", features = [ "derive", "env" ] }
-crypto-bigint = "0.4.9"
+clap_complete = "4.1.0"
+comfy-table = "6.1.4"
+crypto-bigint = "0.5.3"
+dunce = "1.0.3"
 eyre = "0.6.8"
 hex = "0.4.3"
-inquire = "0.5.2"
-reqwest = "0.11.12"
+home = "0.5.4"
+inquire = "0.6.2"
+rand = "0.8.5"
+reqwest = { version = "0.11.12", features = [ "json", "rustls-tls" ], default-features = false }
 serde = "1.0.145"
 serde_json = "1.0.85"
-starknet = "0.3.0"
+shellexpand = "3.0.0"
+starknet = "0.6.0"
+starknet-keystore = { git = "https://github.com/kariy/starknet-keystore-rs" }
+thiserror = "1.0.40"
 tokio = { version = "1.24.2", features = [ "full" ] }
 walkdir = "2.3.2"
-starknet-keystore = { git = "https://github.com/kariy/starknet-keystore-rs" }
-rand = "0.8.5"
-thiserror = "1.0.40"
-home = "0.5.4"
-shellexpand = "3.0.0"
-dunce = "1.0.3"
-comfy-table = "6.1.4"
-chrono = "0.4.23"
-clap_complete = "4.1.0"

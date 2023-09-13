@@ -5,7 +5,7 @@ use crate::opts::account::utils::read_json_file;
 use crate::opts::account::WalletOptions;
 use crate::opts::starknet::StarknetOptions;
 use crate::opts::transaction::TransactionOptions;
-use crate::probe::SimpleProbe;
+use crate::rika::SimpleRika;
 
 use clap::Args;
 use eyre::{bail, Result};
@@ -113,7 +113,7 @@ impl DeclareArgs {
 
         let account = wallet.account(starknet.provider()).await?;
         let contract: SierraClass = read_json_file(&contract_path)?;
-        let compiled_class_hash = SimpleProbe::compute_compiled_contract_hash(contract_path)?;
+        let compiled_class_hash = SimpleRika::compute_compiled_contract_hash(contract_path)?;
 
         let mut tx = account.declare(Arc::new(contract.flatten()?), compiled_class_hash);
 

@@ -3,7 +3,7 @@ pub mod simple_account;
 use super::{account::simple_account::SimpleWallet, parser::PathParser};
 use crate::opts::account::{utils::get_main_keystore_dir, WalletOptions};
 use crate::opts::starknet::StarknetChain;
-use crate::probe::utils::parse_hex_or_str_as_felt;
+use crate::rika::utils::parse_hex_or_str_as_felt;
 
 use std::path::PathBuf;
 use std::str::FromStr;

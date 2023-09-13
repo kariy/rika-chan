@@ -1,20 +1,20 @@
-# `probe`
+# `rika`
 
-A command-line tool for performing RPC calls to the StarkNet network.
+A Starknet toolkit.
 
 ## Installation
 
 ```
-λ cargo install --git https://github.com/kariy/starknet-probe --locked --force
+λ cargo install --git https://github.com/kariy/rika-chan --locked --force
 ```
 
 ## Usage
 
 ```console
-λ probe
-A cli tool for performing RPC calls to the StarkNet network.
+λ rika
+A Starknet toolkit.
 
-Usage: probe <COMMAND>
+Usage: rika <COMMAND>
 
 Commands:
   --to-hex             Convert decimal felt to hexadecimal. [aliases: th]

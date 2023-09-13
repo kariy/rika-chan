@@ -1,4 +1,4 @@
-use crate::probe::utils::canonicalize_path;
+use crate::rika::utils::canonicalize_path;
 
 use std::{path::PathBuf, str::FromStr};
 

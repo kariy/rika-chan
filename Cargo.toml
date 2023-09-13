@@ -1,14 +1,10 @@
 [package]
 authors = [ "Kari <evergreenkary@gmail.com>" ]
-description = "A cli tool for performing RPC calls to the StarkNet network."
+description = "A Starknet toolkit."
 edition = "2021"
-name = "starknet-probe"
-repository = "https://github.com/kariy/starknet-probe"
+name = "rika"
+repository = "https://github.com/kariy/rika-chan"
 version = "0.1.2"
-
-[[bin]]
-name = "probe"
-path = "./src/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

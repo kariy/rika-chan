@@ -30,11 +30,11 @@ use starknet::core::{
 use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 use starknet::providers::Provider;
 
-pub struct Probe {
+pub struct Rika {
     client: JsonRpcClient<HttpTransport>,
 }
 
-impl Probe {
+impl Rika {
     pub fn new(url: Url) -> Self {
         Self {
             client: JsonRpcClient::new(HttpTransport::new(url)),
@@ -310,9 +310,9 @@ impl Probe {
     }
 }
 
-pub struct SimpleProbe;
+pub struct SimpleRika;
 
-impl SimpleProbe {
+impl SimpleRika {
     pub fn to_hex(dec: &FieldElement, pad: bool) -> String {
         if pad {
             format!("{dec:#064x}")
@@ -520,7 +520,7 @@ mod tests {
     #[test]
     fn parse_multicall_str() {
         let arg = "0x123456789 balanceOf 0x987654321 - 0xabc298498723 get_the_owner_of_something 0x1abdf988 0x9872349 0x19831".to_string();
-        let calls = SimpleProbe::generate_multicall_calldata(&arg).unwrap();
+        let calls = SimpleRika::generate_multicall_calldata(&arg).unwrap();
 
         assert_eq!(
             calls,

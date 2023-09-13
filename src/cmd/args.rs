@@ -3,7 +3,7 @@ use super::rpc::RpcArgs;
 use super::send::{DeployArgs, InvokeArgs, LegacyDeclareArgs};
 use super::{account::WalletCommands, send::DeclareArgs};
 use crate::opts::starknet::StarknetOptions;
-use crate::probe::utils::parse_event_keys;
+use crate::rika::utils::parse_event_keys;
 
 use clap::{Parser, Subcommand};
 use clap_complete::Shell;
@@ -11,8 +11,8 @@ use starknet::core::types::{BlockId, FieldElement};
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
-#[command(name = "probe", version, about, long_about = None)]
-pub struct App {
+#[command(name = "rika", version, about, long_about = None)]
+pub struct Args {
     #[command(subcommand)]
     pub command: Commands,
 }
@@ -577,15 +577,15 @@ pub enum EcdsaCommand {
 
 #[cfg(test)]
 mod tests {
-    use crate::cmd::probe::Commands;
+    use crate::cmd::args::Commands;
 
-    use super::App;
+    use super::Args;
     use clap::{CommandFactory, Parser};
     use starknet::core::types::FieldElement;
 
     #[test]
     fn verify_cli() {
-        App::command().debug_assert()
+        Args::command().debug_assert()
     }
 
     #[test]
@@ -595,8 +595,8 @@ mod tests {
             vec![FieldElement::from(0x6666u64), FieldElement::from(0x7777u64)],
         ];
 
-        let app = App::parse_from([
-            "probe",
+        let app = Args::parse_from([
+            "rika",
             "events",
             "--chunk-size",
             "2",

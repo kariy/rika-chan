@@ -2442,6 +2442,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "rika"
+version = "0.1.2"
+dependencies = [
+ "async-trait",
+ "cairo-lang-starknet",
+ "chrono",
+ "clap",
+ "clap_complete",
+ "comfy-table",
+ "crypto-bigint 0.5.3",
+ "dunce",
+ "eyre",
+ "hex",
+ "home",
+ "inquire",
+ "rand",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "shellexpand",
+ "starknet",
+ "starknet-keystore",
+ "thiserror",
+ "tokio",
+ "walkdir",
+]
+
+[[package]]
 name = "ring"
 version = "0.16.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3118,34 +3146,6 @@ checksum = "ef846b6bb48fc8c3e9a2aa9b5b037414f04a908d9db56493a3ae69a857eb2506"
 dependencies = [
  "starknet-core",
  "syn 2.0.32",
-]
-
-[[package]]
-name = "starknet-probe"
-version = "0.1.2"
-dependencies = [
- "async-trait",
- "cairo-lang-starknet",
- "chrono",
- "clap",
- "clap_complete",
- "comfy-table",
- "crypto-bigint 0.5.3",
- "dunce",
- "eyre",
- "hex",
- "home",
- "inquire",
- "rand",
- "reqwest",
- "serde",
- "serde_json",
- "shellexpand",
- "starknet",
- "starknet-keystore",
- "thiserror",
- "tokio",
- "walkdir",
 ]
 
 [[package]]

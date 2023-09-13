@@ -1,9 +1,9 @@
 mod cmd;
 mod opts;
-mod probe;
+mod rika;
 
-use crate::cmd::probe::{App, Commands, EcdsaCommand};
-use crate::probe::{Probe, SimpleProbe};
+use crate::cmd::args::{Args, Commands, EcdsaCommand};
+use crate::rika::{Rika, SimpleRika};
 
 use chrono::{Local, TimeZone};
 use clap::{CommandFactory, Parser};
@@ -13,11 +13,11 @@ use starknet::core::types::EventFilter;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let cli = App::parse();
+    let cli = Args::parse();
 
     match cli.command {
         Commands::DecToHex { dec, pad } => {
-            println!("{}", SimpleProbe::to_hex(&dec, pad));
+            println!("{}", SimpleRika::to_hex(&dec, pad));
         }
 
         Commands::Ecdsa { commands } => match commands {
@@ -25,7 +25,7 @@ async fn main() -> Result<()> {
                 message,
                 private_key,
             } => {
-                let signature = SimpleProbe::ecdsa_sign(&private_key, &message)?;
+                let signature = SimpleRika::ecdsa_sign(&private_key, &message)?;
                 println!("{:#x} {:#x}", signature.r, signature.s);
             }
 
@@ -34,7 +34,7 @@ async fn main() -> Result<()> {
                 signature,
                 verifying_key,
             } => {
-                let is_valid = SimpleProbe::ecdsa_verify(
+                let is_valid = SimpleRika::ecdsa_verify(
                     &verifying_key,
                     &message,
                     &signature[0],
@@ -45,44 +45,44 @@ async fn main() -> Result<()> {
         },
 
         Commands::FromAscii { ascii } => {
-            println!("{}", SimpleProbe::from_utf8(&ascii)?);
+            println!("{}", SimpleRika::from_utf8(&ascii)?);
         }
 
         Commands::HexToDec { hex } => {
-            println!("{}", SimpleProbe::to_dec(&hex));
+            println!("{}", SimpleRika::to_dec(&hex));
         }
 
         Commands::Keccak { data } => {
-            println!("{}", SimpleProbe::keccak(&data)?);
+            println!("{}", SimpleRika::keccak(&data)?);
         }
 
         Commands::MaxSignedFelt => {
-            println!("{}", SimpleProbe::max_signed_felt());
+            println!("{}", SimpleRika::max_signed_felt());
         }
 
         Commands::MinSignedFelt => {
-            println!("{}", SimpleProbe::min_signed_felt())
+            println!("{}", SimpleRika::min_signed_felt())
         }
 
         Commands::ToAscii { short_str } => {
-            println!("{}", SimpleProbe::str_to_felt(&short_str)?);
+            println!("{}", SimpleRika::str_to_felt(&short_str)?);
         }
 
         Commands::MaxUnsignedFelt => {
-            println!("{}", SimpleProbe::max_felt());
+            println!("{}", SimpleRika::max_felt());
         }
 
         Commands::Pedersen { x, y } => {
-            println!("{}", SimpleProbe::pedersen(&x, &y)?);
+            println!("{}", SimpleRika::pedersen(&x, &y)?);
         }
 
         Commands::BlockNumber { starknet } => {
-            let res = Probe::new(starknet.rpc_url).block_number().await?;
+            let res = Rika::new(starknet.rpc_url).block_number().await?;
             println!("{res}");
         }
 
         Commands::ChainId { starknet } => {
-            let chain_id = Probe::new(starknet.rpc_url).chain_id().await?;
+            let chain_id = Rika::new(starknet.rpc_url).chain_id().await?;
             println!("{chain_id}");
         }
 
@@ -92,14 +92,14 @@ async fn main() -> Result<()> {
             to_json,
             starknet,
         } => {
-            let res = Probe::new(starknet.rpc_url)
+            let res = Rika::new(starknet.rpc_url)
                 .get_transaction_by_hash(hash, field, to_json)
                 .await?;
             println!("{res}");
         }
 
         Commands::TransactionStatus { hash, starknet } => {
-            let res = Probe::new(starknet.rpc_url)
+            let res = Rika::new(starknet.rpc_url)
                 .get_transaction_status(hash)
                 .await?;
             println!("{res}");
@@ -111,7 +111,7 @@ async fn main() -> Result<()> {
             to_json,
             starknet,
         } => {
-            let res = Probe::new(starknet.rpc_url)
+            let res = Rika::new(starknet.rpc_url)
                 .get_transaction_receipt(hash, field, to_json)
                 .await?;
             println!("{res}");
@@ -124,7 +124,7 @@ async fn main() -> Result<()> {
             field,
             starknet,
         } => {
-            let block = Probe::new(starknet.rpc_url)
+            let block = Rika::new(starknet.rpc_url)
                 .block(id, full, field, to_json)
                 .await?;
             println!("{block}")
@@ -135,7 +135,7 @@ async fn main() -> Result<()> {
             human_readable,
             starknet,
         } => {
-            let timestamp = Probe::new(starknet.rpc_url)
+            let timestamp = Rika::new(starknet.rpc_url)
                 .block(block_id, false, Some("timestamp".to_string()), false)
                 .await?;
 
@@ -151,7 +151,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::TransactionCount { block_id, starknet } => {
-            let total = Probe::new(starknet.rpc_url)
+            let total = Rika::new(starknet.rpc_url)
                 .get_block_transaction_count(block_id)
                 .await?;
 
@@ -163,14 +163,14 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let nonce = Probe::new(starknet.rpc_url)
+            let nonce = Rika::new(starknet.rpc_url)
                 .get_nonce(contract_address, &block_id)
                 .await?;
             println!("{nonce}");
         }
 
         Commands::TransactionPending { starknet } => {
-            let transactions = Probe::new(starknet.rpc_url).pending_transactions().await?;
+            let transactions = Rika::new(starknet.rpc_url).pending_transactions().await?;
             println!("{transactions}");
         }
 
@@ -180,7 +180,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Probe::new(starknet.rpc_url)
+            let res = Rika::new(starknet.rpc_url)
                 .get_storage_at(contract_address, index, &block_id)
                 .await?;
 
@@ -199,7 +199,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Probe::new(starknet.rpc_url)
+            let res = Rika::new(starknet.rpc_url)
                 .call(&contract_address, &function, &input, &block_id)
                 .await?;
 
@@ -207,7 +207,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::StateUpdate { block_id, starknet } => {
-            let res = Probe::new(starknet.rpc_url)
+            let res = Rika::new(starknet.rpc_url)
                 .get_state_update(&block_id)
                 .await?;
             println!("{res}");
@@ -217,17 +217,17 @@ async fn main() -> Result<()> {
             variable_name,
             keys,
         } => {
-            let res = SimpleProbe::get_storage_index(&variable_name, &keys)?;
+            let res = SimpleRika::get_storage_index(&variable_name, &keys)?;
             println!("{res:#x}");
         }
 
         Commands::ClassHash { contract } => {
-            let res = SimpleProbe::compute_contract_hash(contract)?;
+            let res = SimpleRika::compute_contract_hash(contract)?;
             println!("{res:#x}");
         }
 
         Commands::CompiledClassHash { contract } => {
-            let res = SimpleProbe::compute_compiled_contract_hash(contract)?;
+            let res = SimpleRika::compute_compiled_contract_hash(contract)?;
             println!("{res:#x}");
         }
 
@@ -236,7 +236,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Probe::new(starknet.rpc_url)
+            let res = Rika::new(starknet.rpc_url)
                 .get_class_code(hash, &block_id)
                 .await?;
             println!("{res}");
@@ -247,7 +247,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Probe::new(starknet.rpc_url)
+            let res = Rika::new(starknet.rpc_url)
                 .get_contract_code(contract_address, &block_id)
                 .await?;
             println!("{res}");
@@ -258,7 +258,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Probe::new(starknet.rpc_url)
+            let res = Rika::new(starknet.rpc_url)
                 .get_contract_class(contract_address, &block_id)
                 .await?;
             println!("{res}");
@@ -271,7 +271,7 @@ async fn main() -> Result<()> {
             calldata,
         } => {
             let res =
-                SimpleProbe::compute_contract_address(caller_address, salt, class_hash, &calldata);
+                SimpleRika::compute_contract_address(caller_address, salt, class_hash, &calldata);
             println!("{res}");
         }
 
@@ -284,7 +284,7 @@ async fn main() -> Result<()> {
             to_block,
             starknet,
         } => {
-            let res = Probe::new(starknet.rpc_url)
+            let res = Rika::new(starknet.rpc_url)
                 .get_events(
                     EventFilter {
                         address: from,
@@ -300,7 +300,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::SplitU256 { value } => {
-            let res = SimpleProbe::split_u256(&value)?;
+            let res = SimpleRika::split_u256(&value)?;
             println!("{} {}", res.0, res.1);
         }
 
@@ -313,7 +313,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Probe::new(starknet.rpc_url)
+            let res = Rika::new(starknet.rpc_url)
                 .get_eth_balance(address, block_id)
                 .await?;
             println!("{res}");
@@ -321,7 +321,7 @@ async fn main() -> Result<()> {
 
         Commands::CallArray { calls } => {
             let arg = calls.join(" ");
-            let vec = SimpleProbe::generate_multicall_calldata(&arg)?
+            let vec = SimpleRika::generate_multicall_calldata(&arg)?
                 .into_iter()
                 .map(|e| format!("{e:#x}"))
                 .collect::<Vec<String>>();
@@ -338,11 +338,11 @@ async fn main() -> Result<()> {
             let shell = shell
                 .or_else(Shell::from_env)
                 .ok_or_else(|| eyre!("unable to identify shell from environment variable"))?;
-            generate(shell, &mut App::command(), "probe", &mut std::io::stdout());
+            generate(shell, &mut Args::command(), "rika", &mut std::io::stdout());
         }
 
         Commands::Syncing { starknet } => {
-            let res = Probe::new(starknet.rpc_url).syncing().await?;
+            let res = Rika::new(starknet.rpc_url).syncing().await?;
             println!("{res}");
         }
 

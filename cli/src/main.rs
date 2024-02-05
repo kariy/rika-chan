@@ -1,7 +1,3 @@
-mod cmd;
-mod opts;
-mod rika;
-
 use crate::cmd::args::{Args, Commands, EcdsaCommand};
 use crate::rika::{Rika, SimpleRika};
 

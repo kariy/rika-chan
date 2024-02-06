@@ -1,12 +1,10 @@
-name: "CI"
+name: ci
 
 on:
     pull_request:
-        branches:
-            - "main"
     push:
         branches:
-            - "main"
+            - main
 
 jobs:
     check:
@@ -26,7 +24,6 @@ jobs:
                   command: "check"
 
     test:
-        name: "Test Suite"
         runs-on: "ubuntu-latest"
         steps:
             - uses: "actions/checkout@v3"

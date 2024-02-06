@@ -1,4 +1,4 @@
-use crate::cmd::account::simple_account::SimpleWallet;
+use crate::account::simple_account::SimpleWallet;
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -39,7 +39,9 @@ pub fn find_keystore_file(
 
     if path.is_dir() {
         let Some(account) = account else {
-            return Err(eyre!("unable to find the keystore with unknown account address"))
+            return Err(eyre!(
+                "unable to find the keystore with unknown account address"
+            ));
         };
 
         let (_, file) = walkdir::WalkDir::new(path)

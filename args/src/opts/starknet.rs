@@ -1,4 +1,4 @@
-use crate::cmd::parser::ChainParser;
+use crate::parser::ChainParser;
 
 use std::{fmt, str::FromStr};
 

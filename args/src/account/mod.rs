@@ -1,9 +1,10 @@
 pub mod simple_account;
 
-use super::{account::simple_account::SimpleWallet, parser::PathParser};
+use super::account::simple_account::SimpleWallet;
 use crate::opts::account::{utils::get_main_keystore_dir, WalletOptions};
 use crate::opts::starknet::StarknetChain;
-use crate::rika::utils::parse_hex_or_str_as_felt;
+use crate::utils::canonicalize_path;
+use crate::utils::parse_hex_or_str_as_felt;
 
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -20,7 +21,7 @@ pub enum WalletCommands {
     New {
         #[arg(long)]
         #[arg(value_name = "PATH")]
-        #[arg(value_parser(PathParser))]
+        #[arg(value_parser = canonicalize_path)]
         #[arg(help = "If provided, then keypair will be written to an encrypted JSON keystore.")]
         path: Option<PathBuf>,
 
@@ -60,7 +61,7 @@ pub enum WalletCommands {
     Sign {
         #[arg(short, long)]
         #[arg(value_name = "PATH")]
-        #[arg(value_parser(PathParser))]
+        #[arg(value_parser = canonicalize_path)]
         keystore: Option<PathBuf>,
 
         #[arg(short, long)]

@@ -4,6 +4,7 @@ use self::utils::fmt::{pretty_block_without_txs, Pretty};
 
 use std::cmp::Ordering;
 use std::fs::File;
+use std::io::BufReader;
 use std::path::Path;
 use std::str::FromStr;
 
@@ -13,7 +14,7 @@ use crypto_bigint::U256;
 use eyre::{eyre, Report, Result};
 use reqwest::Url;
 use starknet::accounts::Call;
-use starknet::core::crypto::ExtendedSignature;
+use starknet::core::crypto::{compute_hash_on_elements, ExtendedSignature};
 use starknet::core::types::contract::CompiledClass;
 use starknet::core::types::{
     BlockId, ContractArtifact, EventFilter, FunctionCall, MaybePendingTransactionReceipt,
@@ -162,11 +163,6 @@ impl Rika {
             }
             MaybePendingTransactionReceipt::PendingReceipt(_) => Ok("PENDING".into()),
         }
-    }
-
-    pub async fn pending_transactions(&self) -> Result<String> {
-        let res = self.client.pending_transactions().await?;
-        Ok(serde_json::to_string_pretty(&res)?)
     }
 
     pub async fn get_nonce(
@@ -336,12 +332,9 @@ impl SimpleRika {
         Ok(format!("{hash:#x}"))
     }
 
-    pub fn pedersen(x: &str, y: &str) -> Result<String> {
-        let x = utils::parse_hex_or_str_as_felt(x)?;
-        let y = utils::parse_hex_or_str_as_felt(y)?;
-        let hash = pedersen_hash(&x, &y);
-
-        Ok(format!("{hash:#x}"))
+    pub fn pedersen(data: &[FieldElement]) -> Result<FieldElement> {
+        let hash = compute_hash_on_elements(data);
+        Ok(hash)
     }
 
     pub fn max_felt() -> String {
@@ -397,7 +390,8 @@ impl SimpleRika {
     where
         P: AsRef<Path>,
     {
-        let contract_artifact: ContractArtifact = serde_json::from_reader(File::open(path)?)?;
+        let file = BufReader::new(File::open(path)?);
+        let contract_artifact: ContractArtifact = serde_json::from_reader(file)?;
 
         Ok(match contract_artifact {
             ContractArtifact::SierraClass(class) => class.class_hash()?,

@@ -1,5 +1,5 @@
-use crate::cmd::args::{Args, Commands, EcdsaCommand};
-use crate::rika::{Rika, SimpleRika};
+use rika::{Rika, SimpleRika};
+use rika_args::args::{Args, Commands, EcdsaCommand};
 
 use chrono::{Local, TimeZone};
 use clap::{CommandFactory, Parser};
@@ -69,7 +69,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::Pedersen { x, y } => {
-            println!("{}", SimpleRika::pedersen(&x, &y)?);
+            println!("{:#x}", SimpleRika::pedersen(&x, &y)?);
         }
 
         Commands::BlockNumber { starknet } => {
@@ -163,11 +163,6 @@ async fn main() -> Result<()> {
                 .get_nonce(contract_address, &block_id)
                 .await?;
             println!("{nonce}");
-        }
-
-        Commands::TransactionPending { starknet } => {
-            let transactions = Rika::new(starknet.rpc_url).pending_transactions().await?;
-            println!("{transactions}");
         }
 
         Commands::Storage {
@@ -325,11 +320,6 @@ async fn main() -> Result<()> {
             println!("{}", vec.join(" "))
         }
 
-        Commands::Invoke(args) => {
-            let res = args.run().await?;
-            println!("Transaction hash: {:#x}", res.transaction_hash);
-        }
-
         Commands::ShellCompletions { shell } => {
             let shell = shell
                 .or_else(Shell::from_env)
@@ -340,30 +330,6 @@ async fn main() -> Result<()> {
         Commands::Syncing { starknet } => {
             let res = Rika::new(starknet.rpc_url).syncing().await?;
             println!("{res}");
-        }
-
-        Commands::Declare(args) => {
-            let res = args.run().await?;
-            println!(
-                "Transaction hash: {:#x}\nClass hash: {:#x}",
-                res.transaction_hash, res.class_hash
-            );
-        }
-
-        Commands::LegacyDeclare(args) => {
-            let res = args.run().await?;
-            println!(
-                "Transaction hash: {:#x}\nClass hash: {:#x}",
-                res.transaction_hash, res.class_hash
-            );
-        }
-
-        Commands::Deploy(args) => {
-            let res = args.run().await?;
-            println!(
-                "Transaction hash: {:#x}\nContract address: {:#x}",
-                res.transaction_hash, res.contract_address
-            );
         }
     }
 

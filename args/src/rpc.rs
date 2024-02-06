@@ -74,13 +74,13 @@ impl RpcArgs {
 
 #[cfg(test)]
 mod tests {
-    use crate::cmd::args::{Args, Commands};
+    use crate::args::{Args, Commands};
 
     use clap::Parser;
     use serde_json::json;
 
-    #[tokio::test]
-    async fn parse_rpc_params() {
+    #[test]
+    fn parse_rpc_params() {
         let p = json!({
             "contract_address": "0x050225ec8d27d8d34c2a5dfd97f01bcd8d55b521fe34ac1db5ba9f544b99af01",
             "entry_point_selector": "0x025ec026985a3bf9d0cc1fe17326b245dfdc3ff89b8fde106542a3ea56c5a918",

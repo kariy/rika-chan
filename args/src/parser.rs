@@ -1,6 +1,4 @@
-use crate::rika::utils::canonicalize_path;
-
-use std::{path::PathBuf, str::FromStr};
+use std::str::FromStr;
 
 use clap::builder::{PossibleValue, TypedValueParser};
 use clap::error::{Error, ErrorKind};
@@ -80,27 +78,5 @@ impl TypedValueParser for ChainParser {
         let possible_values: Vec<PossibleValue> =
             vec![PossibleValue::new("mainnet"), PossibleValue::new("goerli")];
         Some(Box::new(possible_values.into_iter()))
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct PathParser;
-
-// write the clap parser impl for pathbuf
-impl TypedValueParser for PathParser {
-    type Value = PathBuf;
-
-    #[allow(unused_variables)]
-    fn parse_ref(
-        &self,
-        cmd: &clap::Command,
-        arg: Option<&clap::Arg>,
-        value: &std::ffi::OsStr,
-    ) -> Result<Self::Value, Error> {
-        let value = value
-            .to_str()
-            .ok_or_else(|| Error::raw(ErrorKind::InvalidUtf8, "Invalid utf-8"))?;
-
-        canonicalize_path(value).map_err(|e| Error::raw(ErrorKind::ValueValidation, e))
     }
 }

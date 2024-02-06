@@ -1,7 +1,7 @@
 pub mod utils;
 
 use self::utils::get_from_keystore;
-use crate::cmd::account::simple_account::SimpleWallet;
+use crate::account::simple_account::SimpleWallet;
 
 use std::{path::PathBuf, str::FromStr};
 

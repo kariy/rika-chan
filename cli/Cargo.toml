@@ -7,6 +7,14 @@ edition = "2021"
 
 [dependencies]
 rika-args.workspace = true
+rika.workspace = true
+
+clap.workspace = true
+clap_complete.workspace = true
+chrono.workspace = true
+eyre.workspace = true
+starknet.workspace = true
+tokio = { version = "1.24.2", features = ["full"] }
 
 [[bin]]
 name = "rika"

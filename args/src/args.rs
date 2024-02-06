@@ -1,9 +1,8 @@
+use super::account::WalletCommands;
 use super::parser::BlockIdParser;
 use super::rpc::RpcArgs;
-use super::send::{DeployArgs, InvokeArgs, LegacyDeclareArgs};
-use super::{account::WalletCommands, send::DeclareArgs};
 use crate::opts::starknet::StarknetOptions;
-use crate::rika::utils::parse_event_keys;
+use crate::utils::parse_event_keys;
 
 use clap::{Parser, Subcommand};
 use clap_complete::Shell;
@@ -292,14 +291,6 @@ pub enum Commands {
         contract: PathBuf,
     },
 
-    #[command(visible_alias = "dec")]
-    #[command(about = "Declare a new contract class.")]
-    Declare(DeclareArgs),
-
-    #[command(visible_alias = "dep")]
-    #[command(about = "Deploy a new contract.")]
-    Deploy(DeployArgs),
-
     #[command(visible_alias = "ec")]
     #[command(about = "Perform ECDSA operations over the STARK-friendly elliptic curve.")]
     Ecdsa {
@@ -314,7 +305,7 @@ pub enum Commands {
     )]
     Events {
         #[arg(num_args(0..))]
-        #[arg(help = r"The values used to filter the events. 
+        #[arg(help = r"The values used to filter the events.
 Example: 0x12,0x23 0x34,0x45 - Which will be parsed as [[0x12,0x23], [0x34,0x45]]")]
         #[arg(value_parser = parse_event_keys)]
         keys: Option<Vec<Vec<FieldElement>>>,
@@ -357,20 +348,12 @@ Example: 0x12,0x23 0x34,0x45 - Which will be parsed as [[0x12,0x23], [0x34,0x45]
         keys: Vec<FieldElement>,
     },
 
-    #[command(visible_alias = "inv")]
-    #[command(about = "Submit a new transaction to be added to the chain.")]
-    Invoke(InvokeArgs),
-
     #[command(visible_alias = "kck")]
     #[command(about = "Hash abritrary data using StarkNet keccak.")]
     Keccak {
         #[arg(value_name = "DATA")]
         data: String,
     },
-
-    #[command(visible_alias = "ldec")]
-    #[command(about = "Declare a new legacy contract class.")]
-    LegacyDeclare(LegacyDeclareArgs),
 
     #[command(visible_alias = "n1")]
     #[command(about = "Get the latest nonce associated with the address.")]
@@ -394,9 +377,9 @@ Example: 0x12,0x23 0x34,0x45 - Which will be parsed as [[0x12,0x23], [0x34,0x45]
     #[command(about = "Calculate the Pedersen hash on two field elements.")]
     Pedersen {
         #[arg(value_name = "X")]
-        x: String,
+        x: FieldElement,
         #[arg(value_name = "Y")]
-        y: String,
+        y: FieldElement,
     },
 
     #[command(about = "Perform a raw JSON-RPC request.")]
@@ -487,17 +470,6 @@ Example: 0x12,0x23 0x34,0x45 - Which will be parsed as [[0x12,0x23], [0x34,0x45]
         starknet: StarknetOptions,
     },
 
-    #[command(visible_alias = "txp")]
-    #[command(name = "tx-pending")]
-    #[command(
-        about = "Get the transactions in the transaction pool, recognized by the sequencer."
-    )]
-    TransactionPending {
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
     #[command(visible_alias = "txs")]
     #[command(name = "tx-status")]
     #[command(about = "Get the status of a transaction.")]
@@ -577,7 +549,7 @@ pub enum EcdsaCommand {
 
 #[cfg(test)]
 mod tests {
-    use crate::cmd::args::Commands;
+    use crate::args::Commands;
 
     use super::Args;
     use clap::{CommandFactory, Parser};

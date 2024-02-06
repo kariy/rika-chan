@@ -6,11 +6,19 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-reqwest = { version = "0.11.12", features = [
-    "json",
-    "rustls-tls",
-], default-features = false }
-clap = { version = "4.1.8", features = ["derive", "env"] }
-clap_complete = "4.1.0"
+reqwest.workspace = true
+clap.workspace = true
+clap_complete.workspace = true
+dunce = "1.0.3"
 eyre.workspace = true
-starknet = "0.8.0"
+starknet.workspace = true
+serde = "1.0.145"
+inquire = "0.6.2"
+hex.workspace = true
+serde_json.workspace = true
+rand = "0.8.5"
+starknet-keystore = { git = "https://github.com/kariy/starknet-keystore-rs" }
+walkdir = "2.3.2"
+shellexpand.workspace = true
+home = "0.5.4"
+thiserror.workspace = true

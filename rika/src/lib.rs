@@ -21,7 +21,7 @@ use starknet::core::types::{
 };
 use starknet::core::utils::get_selector_from_name;
 use starknet::core::{
-    crypto::{ecdsa_sign, ecdsa_verify, pedersen_hash, Signature},
+    crypto::{ecdsa_sign, ecdsa_verify, Signature},
     types::{FieldElement, FromStrError, MaybePendingBlockWithTxs},
     utils::{
         cairo_short_string_to_felt, get_contract_address, get_storage_var_address,

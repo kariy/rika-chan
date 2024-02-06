@@ -2474,14 +2474,18 @@ version = "0.1.0"
 dependencies = [
  "cairo-lang-starknet",
  "chrono",
+ "clap",
+ "clap_complete",
  "comfy-table",
  "crypto-bigint",
  "eyre",
  "hex",
  "reqwest",
+ "rika-args",
  "serde_json",
  "shellexpand",
  "starknet",
+ "tokio",
 ]
 
 [[package]]
@@ -2504,20 +2508,6 @@ dependencies = [
  "starknet-keystore",
  "thiserror",
  "walkdir",
-]
-
-[[package]]
-name = "rika-cli"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "clap",
- "clap_complete",
- "eyre",
- "rika",
- "rika-args",
- "starknet",
- "tokio",
 ]
 
 [[package]]

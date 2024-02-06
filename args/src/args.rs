@@ -376,10 +376,8 @@ Example: 0x12,0x23 0x34,0x45 - Which will be parsed as [[0x12,0x23], [0x34,0x45]
     #[command(visible_alias = "ped")]
     #[command(about = "Calculate the Pedersen hash on two field elements.")]
     Pedersen {
-        #[arg(value_name = "X")]
-        x: FieldElement,
-        #[arg(value_name = "Y")]
-        y: FieldElement,
+        #[arg(help = "List of elements to compute the hash on.")]
+        elements: Vec<FieldElement>,
     },
 
     #[command(about = "Perform a raw JSON-RPC request.")]

@@ -10,11 +10,11 @@ use starknet::providers::{jsonrpc::HttpTransport, JsonRpcClient};
 
 #[derive(Debug, Clone, Args)]
 pub struct StarknetOptions {
-    #[arg(long)]
+    #[arg(long = "rpc")]
     #[arg(value_name = "URL")]
-    #[arg(help = "The RPC endpoint")]
     #[arg(env = "STARKNET_RPC_URL")]
-    #[arg(default_value = "http://localhost:5050/rpc")]
+    #[arg(help = "The Starknet JSON-RPC endpoint")]
+    #[arg(default_value = "http://localhost:5050/")]
     pub rpc_url: Url,
 
     #[arg(long)]

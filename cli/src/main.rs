@@ -68,17 +68,17 @@ async fn main() -> Result<()> {
             println!("{}", SimpleRika::max_felt());
         }
 
-        Commands::Pedersen { x, y } => {
-            println!("{:#x}", SimpleRika::pedersen(&x, &y)?);
+        Commands::Pedersen { elements } => {
+            println!("{:#x}", SimpleRika::pedersen(&elements));
         }
 
         Commands::BlockNumber { starknet } => {
-            let res = Rika::new(starknet.rpc_url).block_number().await?;
+            let res = Rika::new_with_http(starknet.rpc_url).block_number().await?;
             println!("{res}");
         }
 
         Commands::ChainId { starknet } => {
-            let chain_id = Rika::new(starknet.rpc_url).chain_id().await?;
+            let chain_id = Rika::new_with_http(starknet.rpc_url).chain_id().await?;
             println!("{chain_id}");
         }
 
@@ -88,14 +88,14 @@ async fn main() -> Result<()> {
             to_json,
             starknet,
         } => {
-            let res = Rika::new(starknet.rpc_url)
+            let res = Rika::new_with_http(starknet.rpc_url)
                 .get_transaction_by_hash(hash, field, to_json)
                 .await?;
             println!("{res}");
         }
 
         Commands::TransactionStatus { hash, starknet } => {
-            let res = Rika::new(starknet.rpc_url)
+            let res = Rika::new_with_http(starknet.rpc_url)
                 .get_transaction_status(hash)
                 .await?;
             println!("{res}");
@@ -107,7 +107,7 @@ async fn main() -> Result<()> {
             to_json,
             starknet,
         } => {
-            let res = Rika::new(starknet.rpc_url)
+            let res = Rika::new_with_http(starknet.rpc_url)
                 .get_transaction_receipt(hash, field, to_json)
                 .await?;
             println!("{res}");
@@ -120,7 +120,7 @@ async fn main() -> Result<()> {
             field,
             starknet,
         } => {
-            let block = Rika::new(starknet.rpc_url)
+            let block = Rika::new_with_http(starknet.rpc_url)
                 .block(id, full, field, to_json)
                 .await?;
             println!("{block}")
@@ -131,7 +131,7 @@ async fn main() -> Result<()> {
             human_readable,
             starknet,
         } => {
-            let timestamp = Rika::new(starknet.rpc_url)
+            let timestamp = Rika::new_with_http(starknet.rpc_url)
                 .block(block_id, false, Some("timestamp".to_string()), false)
                 .await?;
 
@@ -147,7 +147,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::TransactionCount { block_id, starknet } => {
-            let total = Rika::new(starknet.rpc_url)
+            let total = Rika::new_with_http(starknet.rpc_url)
                 .get_block_transaction_count(block_id)
                 .await?;
 
@@ -159,7 +159,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let nonce = Rika::new(starknet.rpc_url)
+            let nonce = Rika::new_with_http(starknet.rpc_url)
                 .get_nonce(contract_address, &block_id)
                 .await?;
             println!("{nonce}");
@@ -171,7 +171,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Rika::new(starknet.rpc_url)
+            let res = Rika::new_with_http(starknet.rpc_url)
                 .get_storage_at(contract_address, index, &block_id)
                 .await?;
 
@@ -190,7 +190,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Rika::new(starknet.rpc_url)
+            let res = Rika::new_with_http(starknet.rpc_url)
                 .call(&contract_address, &function, &input, &block_id)
                 .await?;
 
@@ -198,7 +198,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::StateUpdate { block_id, starknet } => {
-            let res = Rika::new(starknet.rpc_url)
+            let res = Rika::new_with_http(starknet.rpc_url)
                 .get_state_update(&block_id)
                 .await?;
             println!("{res}");
@@ -227,7 +227,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Rika::new(starknet.rpc_url)
+            let res = Rika::new_with_http(starknet.rpc_url)
                 .get_class_code(hash, &block_id)
                 .await?;
             println!("{res}");
@@ -238,7 +238,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Rika::new(starknet.rpc_url)
+            let res = Rika::new_with_http(starknet.rpc_url)
                 .get_contract_code(contract_address, &block_id)
                 .await?;
             println!("{res}");
@@ -249,7 +249,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Rika::new(starknet.rpc_url)
+            let res = Rika::new_with_http(starknet.rpc_url)
                 .get_contract_class(contract_address, &block_id)
                 .await?;
             println!("{res}");
@@ -275,7 +275,7 @@ async fn main() -> Result<()> {
             to_block,
             starknet,
         } => {
-            let res = Rika::new(starknet.rpc_url)
+            let res = Rika::new_with_http(starknet.rpc_url)
                 .get_events(
                     EventFilter {
                         address: from,
@@ -304,7 +304,7 @@ async fn main() -> Result<()> {
             block_id,
             starknet,
         } => {
-            let res = Rika::new(starknet.rpc_url)
+            let res = Rika::new_with_http(starknet.rpc_url)
                 .get_eth_balance(address, block_id)
                 .await?;
             println!("{res}");
@@ -328,7 +328,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::Syncing { starknet } => {
-            let res = Rika::new(starknet.rpc_url).syncing().await?;
+            let res = Rika::new_with_http(starknet.rpc_url).syncing().await?;
             println!("{res}");
         }
     }

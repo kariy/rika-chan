@@ -28,20 +28,28 @@ use starknet::core::{
         parse_cairo_short_string, starknet_keccak,
     },
 };
-use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
+use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient, JsonRpcTransport};
 use starknet::providers::Provider;
 
-pub struct Rika {
-    client: JsonRpcClient<HttpTransport>,
+pub struct Rika<P> {
+    provider: P,
 }
 
-impl Rika {
-    pub fn new(url: Url) -> Self {
+impl<T: JsonRpcTransport> Rika<JsonRpcClient<T>> {
+    pub fn new_with_transport(transport: T) -> Self {
         Self {
-            client: JsonRpcClient::new(HttpTransport::new(url)),
+            provider: JsonRpcClient::new(transport),
         }
     }
+}
 
+impl Rika<JsonRpcClient<HttpTransport>> {
+    pub fn new_with_http(url: Url) -> Self {
+        Self::new_with_transport(HttpTransport::new(url))
+    }
+}
+
+impl<P: Provider> Rika<P> {
     pub async fn block(
         &self,
         block_id: BlockId,
@@ -49,7 +57,7 @@ impl Rika {
         field: Option<String>,
         to_json: bool,
     ) -> Result<String> {
-        let block = self.client.get_block_with_txs(block_id).await?;
+        let block = self.provider.get_block_with_txs(block_id).await?;
 
         if to_json || field.is_some() {
             let mut json = match block {
@@ -79,16 +87,16 @@ impl Rika {
     }
 
     pub async fn get_block_transaction_count(&self, block_id: BlockId) -> Result<u64> {
-        let total = self.client.get_block_transaction_count(block_id).await?;
+        let total = self.provider.get_block_transaction_count(block_id).await?;
         Ok(total)
     }
 
     pub async fn block_number(&self) -> Result<u64> {
-        Ok(self.client.block_number().await?)
+        Ok(self.provider.block_number().await?)
     }
 
     pub async fn chain_id(&self) -> Result<String> {
-        Ok(self.client.chain_id().await?.to_string())
+        Ok(self.provider.chain_id().await?.to_string())
     }
 
     pub async fn get_transaction_by_hash(
@@ -98,7 +106,7 @@ impl Rika {
         to_json: bool,
     ) -> Result<String> {
         let tx = self
-            .client
+            .provider
             .get_transaction_by_hash(transaction_hash)
             .await?;
 
@@ -125,7 +133,7 @@ impl Rika {
         to_json: bool,
     ) -> Result<String> {
         let receipt = self
-            .client
+            .provider
             .get_transaction_receipt(transaction_hash)
             .await?;
 
@@ -147,7 +155,7 @@ impl Rika {
 
     pub async fn get_transaction_status(&self, transaction_hash: FieldElement) -> Result<String> {
         let receipt = self
-            .client
+            .provider
             .get_transaction_receipt(transaction_hash)
             .await?;
 
@@ -170,7 +178,7 @@ impl Rika {
         contract_address: FieldElement,
         block_id: &BlockId,
     ) -> Result<String> {
-        let nonce = self.client.get_nonce(block_id, contract_address).await?;
+        let nonce = self.provider.get_nonce(block_id, contract_address).await?;
         let nonce = format!("{:#x}", nonce.to_string().parse::<u128>()?);
         Ok(nonce)
     }
@@ -182,7 +190,7 @@ impl Rika {
         block_id: &BlockId,
     ) -> Result<String> {
         let res = self
-            .client
+            .provider
             .get_storage_at(contract_address, key, block_id)
             .await?;
 
@@ -197,7 +205,7 @@ impl Rika {
         block_id: &BlockId,
     ) -> Result<String> {
         let res = self
-            .client
+            .provider
             .call(
                 FunctionCall {
                     calldata: calldata.to_owned(),
@@ -217,7 +225,7 @@ impl Rika {
     }
 
     pub async fn get_state_update(&self, block_id: &BlockId) -> Result<String> {
-        let res = self.client.get_state_update(block_id).await?;
+        let res = self.provider.get_state_update(block_id).await?;
         let res = serde_json::to_value(res)?;
         Ok(serde_json::to_string_pretty(&res)?)
     }
@@ -227,7 +235,7 @@ impl Rika {
         class_hash: FieldElement,
         block_id: &BlockId,
     ) -> Result<String> {
-        let res = self.client.get_class(block_id, class_hash).await?;
+        let res = self.provider.get_class(block_id, class_hash).await?;
         let res = serde_json::to_value(res)?;
         Ok(serde_json::to_string_pretty(&res)?)
     }
@@ -237,7 +245,10 @@ impl Rika {
         contract_address: FieldElement,
         block_id: &BlockId,
     ) -> Result<String> {
-        let res = self.client.get_class_at(block_id, contract_address).await?;
+        let res = self
+            .provider
+            .get_class_at(block_id, contract_address)
+            .await?;
         let res = serde_json::to_value(res)?;
         Ok(serde_json::to_string_pretty(&res)?)
     }
@@ -248,7 +259,7 @@ impl Rika {
         block_id: &BlockId,
     ) -> Result<String> {
         let res = self
-            .client
+            .provider
             .get_class_hash_at(block_id, contract_address)
             .await?;
         Ok(format!("{res:#x}"))
@@ -261,7 +272,7 @@ impl Rika {
         continuation_token: Option<String>,
     ) -> Result<String> {
         let res = self
-            .client
+            .provider
             .get_events(filter, continuation_token, chunk_size)
             .await?;
         let value = serde_json::to_value(res)?;
@@ -275,7 +286,7 @@ impl Rika {
     ) -> Result<String> {
         // value is a Uint256(low,high)
         let res = self
-            .client
+            .provider
             .call(
                 &FunctionCall {
                     calldata: vec![account],
@@ -301,7 +312,7 @@ impl Rika {
     }
 
     pub async fn syncing(&self) -> Result<String> {
-        let res = self.client.syncing().await?;
+        let res = self.provider.syncing().await?;
         Ok(serde_json::to_string_pretty(&res)?)
     }
 }
@@ -332,9 +343,8 @@ impl SimpleRika {
         Ok(format!("{hash:#x}"))
     }
 
-    pub fn pedersen(data: &[FieldElement]) -> Result<FieldElement> {
-        let hash = compute_hash_on_elements(data);
-        Ok(hash)
+    pub fn pedersen(data: &[FieldElement]) -> FieldElement {
+        compute_hash_on_elements(data)
     }
 
     pub fn max_felt() -> String {

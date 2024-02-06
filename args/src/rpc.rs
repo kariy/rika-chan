@@ -30,7 +30,7 @@ rpc starknet_getStorageAt '["0x123", "0x69420", "latest"]' --raw
     #[arg(value_name = "URL")]
     #[arg(help = "The RPC endpoint")]
     #[arg(env = "STARKNET_RPC_URL")]
-    #[arg(default_value = "http://localhost:5050/rpc")]
+    #[arg(default_value = "http://localhost:5050/")]
     rpc_url: Url,
 }
 

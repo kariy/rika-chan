@@ -6,8 +6,11 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+chrono.workspace = true
 clap.workspace = true
 clap_complete.workspace = true
+colored_json = "4.1.0"
+comfy-table = "6.1.4"
 dunce = "1.0.3"
 eyre.workspace = true
 hex.workspace = true
@@ -20,5 +23,6 @@ serde_json.workspace = true
 shellexpand.workspace = true
 starknet-keystore = { git = "https://github.com/kariy/starknet-keystore-rs" }
 starknet.workspace = true
+strum = { version = "0.26", features = [ "derive" ] }
 thiserror.workspace = true
 walkdir = "2.3.2"

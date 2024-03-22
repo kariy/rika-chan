@@ -1,4 +1,3 @@
-pub mod fmt;
 
 // const STARKNET_ACCOUNT_FILEPATH: &'static str = "~/.starknet_accounts";
 pub const SIGNED_FELT_MIN: &str =

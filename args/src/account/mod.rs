@@ -2,7 +2,7 @@ pub mod simple_account;
 
 use super::account::simple_account::SimpleWallet;
 use crate::opts::account::{utils::get_main_keystore_dir, WalletOptions};
-use crate::opts::starknet::StarknetChain;
+use crate::opts::starknet::ChainId;
 use crate::utils::canonicalize_path;
 use crate::utils::parse_hex_or_str_as_felt;
 
@@ -41,7 +41,7 @@ pub enum WalletCommands {
         #[arg(long)]
         #[arg(requires = "path")]
         #[arg(value_name = "CHAIN")]
-        chain: Option<FieldElement>,
+        chain: Option<ChainId>,
 
         #[arg(long)]
         #[arg(requires = "path")]
@@ -120,10 +120,10 @@ impl WalletCommands {
 
                     let chain = Select::new(
                         "Please select the chain for this account.",
-                        [StarknetChain::options(), vec!["OTHER".to_string()]].concat(),
+                        [ChainId::options(), vec!["OTHER".to_string()]].concat(),
                     )
                     .prompt()
-                    .map(|chain| StarknetChain::from_str(&chain).ok())?;
+                    .map(|chain| ChainId::from_str(&chain).ok())?;
 
                     wallet.chain = chain;
 

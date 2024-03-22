@@ -1,7 +1,5 @@
 pub mod utils;
 
-use self::utils::fmt::{pretty_block_without_txs, Pretty};
-
 use std::cmp::Ordering;
 use std::fs::File;
 use std::io::BufReader;
@@ -13,6 +11,7 @@ use cairo_lang_starknet::contract_class::ContractClass;
 use crypto_bigint::U256;
 use eyre::{eyre, Report, Result};
 use reqwest::Url;
+use rika_args::fmt::{pretty_block_without_txs, Pretty};
 use starknet::accounts::Call;
 use starknet::core::crypto::{compute_hash_on_elements, ExtendedSignature};
 use starknet::core::types::contract::CompiledClass;
@@ -129,15 +128,15 @@ impl<P: Provider> Rika<P> {
     pub async fn get_transaction_receipt(
         &self,
         transaction_hash: FieldElement,
-        field: Option<String>,
-        to_json: bool,
+        field: Option<&str>,
+        json: bool,
     ) -> Result<String> {
         let receipt = self
             .provider
             .get_transaction_receipt(transaction_hash)
             .await?;
 
-        if to_json || field.is_some() {
+        if json || field.is_some() {
             let mut json = serde_json::to_value(&receipt)?;
 
             if let Some(field) = field {

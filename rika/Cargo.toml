@@ -8,17 +8,16 @@ version = "0.1.0"
 [dependencies]
 cairo-lang-starknet = "2.5.3"
 chrono.workspace = true
-comfy-table = "6.1.4"
+clap.workspace = true
+clap_complete.workspace = true
 crypto-bigint = "0.5.3"
 eyre.workspace = true
 hex.workspace = true
 reqwest.workspace = true
+rika-args.workspace = true
 serde_json.workspace = true
 shellexpand.workspace = true
 starknet.workspace = true
-rika-args.workspace = true
-clap.workspace = true
-clap_complete.workspace = true
 tokio = { version = "1.24.2", features = [ "full" ] }
 
 [[bin]]

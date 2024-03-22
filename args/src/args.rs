@@ -1,7 +1,7 @@
 use super::account::WalletCommands;
 use super::parser::BlockIdParser;
 use super::rpc::RpcArgs;
-use crate::opts::starknet::StarknetOptions;
+use crate::opts::{display::DisplayOptions, starknet::StarknetOptions};
 use crate::utils::parse_event_keys;
 
 use clap::{Parser, Subcommand};
@@ -487,12 +487,9 @@ Example: 0x12,0x23 0x34,0x45 - Which will be parsed as [[0x12,0x23], [0x34,0x45]
         #[arg(value_name = "TX_HASH")]
         hash: FieldElement,
 
-        #[arg(long)]
-        field: Option<String>,
-
-        #[arg(short = 'j', long = "json")]
-        #[arg(help_heading = "Display options")]
-        to_json: bool,
+        #[command(flatten)]
+        #[command(next_help_heading = "Display options")]
+        display: DisplayOptions,
 
         #[command(flatten)]
         #[command(next_help_heading = "Starknet options")]

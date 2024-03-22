@@ -11,7 +11,7 @@ use inquire::{CustomType, Password, Select};
 use starknet::core::types::FieldElement;
 use walkdir::WalkDir;
 
-use super::starknet::StarknetChain;
+use super::starknet::ChainId;
 
 #[derive(Debug, Clone, Args, Default)]
 #[command(group(ArgGroup::new("wallet-method").args(["private_key", "keystore_path"])))]
@@ -68,7 +68,7 @@ impl WalletOptions {
     }
 
     pub fn interactive(&self) -> Result<Option<SimpleWallet>> {
-        Ok(if self.interactive {
+        let wallet = if self.interactive {
             let felt_prompter = |message: &'static str| {
                 CustomType::new(message)
                     .with_parser(&|input| FieldElement::from_str(input).map_err(|_| ()))
@@ -83,11 +83,8 @@ impl WalletOptions {
 
             Some(SimpleWallet::new(account, private_key, None))
         } else {
-            let chain = Select::new(
-                "Select chain",
-                [StarknetChain::options(), vec!["OTHER".to_string()]].concat(),
-            )
-            .prompt()?;
+            let chain = Select::new("Select chain id", [ChainId::options(), &["OTHER"]].concat())
+                .prompt()?;
 
             let mut keystores_path: Vec<String> = Vec::new();
 
@@ -108,7 +105,9 @@ impl WalletOptions {
             let keystore = Select::new("Select keystore", keystores_path).prompt()?;
             let password = Password::new("Enter keystore password :").prompt()?;
             Some(SimpleWallet::decrypt_keystore(keystore, password)?)
-        })
+        };
+
+        Ok(wallet)
     }
 
     pub fn raw(&self) -> Option<SimpleWallet> {

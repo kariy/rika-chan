@@ -1,10 +1,9 @@
-use crate::parser::ChainParser;
+use crate::parser::ChainIdParser;
 
-use std::{fmt, str::FromStr};
+use std::str::FromStr;
 
 use clap::Args;
 use reqwest::Url;
-use starknet::core::chain_id::{MAINNET, TESTNET, TESTNET2};
 use starknet::core::types::FieldElement;
 use starknet::providers::{jsonrpc::HttpTransport, JsonRpcClient};
 
@@ -20,8 +19,8 @@ pub struct StarknetOptions {
     #[arg(long)]
     #[arg(env = "STARKNET_CHAIN")]
     #[arg(value_name = "CHAIN_ID")]
-    #[arg(value_parser(ChainParser))]
-    pub chain: Option<FieldElement>,
+    #[arg(value_parser(ChainIdParser))]
+    pub chain: Option<ChainId>,
 }
 
 impl StarknetOptions {
@@ -30,69 +29,66 @@ impl StarknetOptions {
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum StarknetChain {
+#[derive(Debug, Clone, strum::Display)]
+#[strum(serialize_all = "lowercase")]
+pub enum ChainId {
     Mainnet,
-    Testnet,
-    Testnet2,
+    Sepolia,
 }
 
-impl StarknetChain {
+impl ChainId {
+    /// `SN_MAIN` in ASCII
+    pub const SN_MAIN: FieldElement = FieldElement::from_mont([
+        0xf596341657d6d657,
+        0xffffffffffffffff,
+        0xffffffffffffffff,
+        0x6f9757bd5443bc6,
+    ]);
+
+    /// `SN_SEPOLIA` in ASCII
+    pub const SN_SEPOLIA: FieldElement = FieldElement::from_mont([
+        0x159755f62c97a933,
+        0xfffffffffff59634,
+        0xffffffffffffffff,
+        0x70cb558f6123c62,
+    ]);
+
     pub fn id(&self) -> FieldElement {
         match self {
-            Self::Mainnet => MAINNET,
-            Self::Testnet => TESTNET,
-            Self::Testnet2 => TESTNET2,
+            Self::Mainnet => Self::SN_MAIN,
+            Self::Sepolia => Self::SN_SEPOLIA,
         }
     }
 
-    pub fn options() -> Vec<String> {
-        vec![
-            Self::Mainnet.to_string(),
-            Self::Testnet.to_string(),
-            Self::Testnet2.to_string(),
-        ]
+    pub fn options<'a>() -> &'a [&'static str] {
+        &["Mainnet", "Sepolia"]
     }
 }
 
-impl From<FieldElement> for StarknetChain {
-    fn from(chain_id: FieldElement) -> Self {
-        if chain_id == MAINNET {
-            Self::Mainnet
-        } else if chain_id == TESTNET {
-            Self::Testnet
-        } else if chain_id == TESTNET2 {
-            Self::Testnet2
+impl TryFrom<FieldElement> for ChainId {
+    type Error = InvalidChain;
+    fn try_from(value: FieldElement) -> Result<Self, Self::Error> {
+        if value == Self::SN_MAIN {
+            Ok(Self::Mainnet)
+        } else if value == Self::SN_SEPOLIA {
+            Ok(Self::Sepolia)
         } else {
-            panic!("{}", InvalidStarknetChain(format!("{chain_id:#x}")))
+            Err(InvalidChain(format!("{value:#x}")))
         }
     }
 }
 
-impl fmt::Display for StarknetChain {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Mainnet => write!(f, "SN_MAIN"),
-            Self::Testnet => write!(f, "SN_GOERLI"),
-            Self::Testnet2 => write!(f, "SN_GOERLI2"),
-        }
-    }
-}
-
-impl FromStr for StarknetChain {
-    type Err = InvalidStarknetChain;
-
+impl FromStr for ChainId {
+    type Err = InvalidChain;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let s = s.to_uppercase();
-        match s.as_str() {
-            "SN_MAIN" => Ok(Self::Mainnet),
-            "SN_GOERLI" => Ok(Self::Testnet),
-            "SN_GOERLI2" => Ok(Self::Testnet2),
-            _ => Err(InvalidStarknetChain(s)),
+        match s.to_lowercase().as_str() {
+            "mainnet" => Ok(Self::Mainnet),
+            "sepolia" => Ok(Self::Sepolia),
+            _ => Err(InvalidChain(s.to_string())),
         }
     }
 }
 
 #[derive(Debug, thiserror::Error)]
-#[error("Invalid chain id: {0}")]
-pub struct InvalidStarknetChain(String);
+#[error("invalid chain: {0}")]
+pub struct InvalidChain(String);

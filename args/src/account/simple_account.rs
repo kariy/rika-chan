@@ -1,5 +1,5 @@
 use crate::opts::account::utils::read_json_file;
-use crate::opts::starknet::StarknetChain;
+use crate::opts::starknet::ChainId;
 
 use std::fs::DirBuilder;
 use std::path::{Path, PathBuf};
@@ -18,15 +18,11 @@ use starknet_keystore::Keystore;
 pub struct SimpleWallet {
     pub signing_key: SigningKey,
     pub account: FieldElement,
-    pub chain: Option<StarknetChain>,
+    pub chain: Option<ChainId>,
 }
 
 impl SimpleWallet {
-    pub fn new(
-        account: FieldElement,
-        signing_key: FieldElement,
-        chain: Option<StarknetChain>,
-    ) -> Self {
+    pub fn new(account: FieldElement, signing_key: FieldElement, chain: Option<ChainId>) -> Self {
         Self {
             chain,
             account,
@@ -116,7 +112,7 @@ impl SimpleWallet {
         let v = starknet_keystore::decrypt_key(path, password)?;
         let priv_key = unsafe { FieldElement::from_bytes_be(&*(v.as_ptr() as *const [u8; 32]))? };
         let chain = if let Some(c) = keystore.chain {
-            Some(StarknetChain::from_str(&c)?)
+            Some(ChainId::from_str(&c)?)
         } else {
             None
         };

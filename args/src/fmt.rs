@@ -4,7 +4,9 @@ use chrono::{Local, TimeZone};
 use comfy_table::modifiers::UTF8_SOLID_INNER_BORDERS;
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::Table;
-use starknet::core::types::{DeclareTransaction, FieldElement};
+use starknet::core::types::{
+    DataAvailabilityMode, DeclareTransaction, DeployAccountTransaction, FieldElement,
+};
 use starknet::core::types::{
     Event, InvokeTransaction, MaybePendingBlockWithTxs, MaybePendingTransactionReceipt, MsgToL1,
     Transaction, TransactionReceipt,
@@ -22,7 +24,7 @@ impl Pretty for FieldElement {
 
 impl Pretty for u64 {
     fn prettify(&self) -> String {
-        format!("{self}")
+        format!("{self:#x}")
     }
 }
 
@@ -169,6 +171,29 @@ impl Pretty for Transaction {
                 table.add_row(vec!["TYPE", "INVOKE"]);
 
                 match invoke {
+                    InvokeTransaction::V3(tx) => {
+                        table
+                            .add_row(vec!["TRANSACTION HASH", &tx.transaction_hash.prettify()])
+                            .add_row(vec!["SENDER ADDRESS", &tx.sender_address.prettify()])
+                            .add_row(vec!["SIGNATURE", &tx.signature.prettify()])
+                            .add_row(vec!["NONCE", &tx.nonce.prettify()])
+                            .add_row(vec!["CALLDATA", &tx.calldata.prettify()])
+                            .add_row(vec!["TIP", &tx.tip.prettify()])
+                            .add_row(vec!["PAYMASTER DATA", &tx.paymaster_data.prettify()])
+                            .add_row(vec![
+                                "ACCOUNT DEPLOYMENT DATA",
+                                &tx.account_deployment_data.prettify(),
+                            ])
+                            .add_row(vec![
+                                "NONCE DA MODE",
+                                &tx.nonce_data_availability_mode.prettify(),
+                            ])
+                            .add_row(vec![
+                                "FEE DA MODE",
+                                &tx.fee_data_availability_mode.prettify(),
+                            ])
+                            .add_row(vec!["VERSION", "3"]);
+                    }
                     InvokeTransaction::V1(tx) => {
                         table
                             .add_row(vec!["TRANSACTION HASH", &tx.transaction_hash.prettify()])
@@ -229,6 +254,16 @@ impl Pretty for Transaction {
                             .add_row(vec!["MAX FEE", &tx.max_fee.prettify()])
                             .add_row(vec!["VERSION", &FieldElement::TWO.prettify()]);
                     }
+
+                    DeclareTransaction::V3(tx) => {
+                        table
+                            .add_row(vec!["TRANSACTION HASH", &tx.transaction_hash.prettify()])
+                            .add_row(vec!["SENDER ADDRESS", &tx.sender_address.prettify()])
+                            .add_row(vec!["CLASS HASH", &tx.class_hash.prettify()])
+                            .add_row(vec!["SIGNATURE", &tx.signature.prettify()])
+                            .add_row(vec!["NONCE", &tx.nonce.prettify()])
+                            .add_row(vec!["VERSION", &FieldElement::THREE.prettify()]);
+                    }
                 }
             }
 
@@ -263,21 +298,46 @@ impl Pretty for Transaction {
             }
 
             Self::DeployAccount(tx) => {
-                table
-                    .add_row(vec!["TYPE", "DEPLOY_ACCOUNT"])
-                    .add_row(vec!["TRANSACTION HASH", &tx.transaction_hash.prettify()])
-                    .add_row(vec!["CLASS HASH", &tx.class_hash.prettify()])
-                    .add_row(vec![
-                        "CONTRACT ADDRESS\nSALT",
-                        &tx.contract_address_salt.prettify(),
-                    ])
-                    .add_row(vec![
-                        "CONSTRUCTOR\nCALLDATA",
-                        &tx.constructor_calldata.prettify(),
-                    ])
-                    .add_row(vec!["SIGNATURE", &tx.signature.prettify()])
-                    .add_row(vec!["MAX FEE", &tx.max_fee.prettify()])
-                    .add_row(vec!["NONCE", &tx.nonce.prettify()]);
+                table.add_row(vec!["TYPE", "DEPLOY_ACCOUNT"]);
+
+                match tx {
+                    DeployAccountTransaction::V1(tx) => {
+                        table
+                            .add_row(vec!["TYPE", "DEPLOY_ACCOUNT"])
+                            .add_row(vec!["TRANSACTION HASH", &tx.transaction_hash.prettify()])
+                            .add_row(vec!["CLASS HASH", &tx.class_hash.prettify()])
+                            .add_row(vec![
+                                "CONTRACT ADDRESS\nSALT",
+                                &tx.contract_address_salt.prettify(),
+                            ])
+                            .add_row(vec![
+                                "CONSTRUCTOR\nCALLDATA",
+                                &tx.constructor_calldata.prettify(),
+                            ])
+                            .add_row(vec!["SIGNATURE", &tx.signature.prettify()])
+                            .add_row(vec!["MAX FEE", &tx.max_fee.prettify()])
+                            .add_row(vec!["NONCE", &tx.nonce.prettify()])
+                            .add_row(vec!["VERSION", &FieldElement::ONE.prettify()]);
+                    }
+
+                    DeployAccountTransaction::V3(tx) => {
+                        table
+                            .add_row(vec!["TYPE", "DEPLOY_ACCOUNT"])
+                            .add_row(vec!["TRANSACTION HASH", &tx.transaction_hash.prettify()])
+                            .add_row(vec!["CLASS HASH", &tx.class_hash.prettify()])
+                            .add_row(vec![
+                                "CONTRACT ADDRESS\nSALT",
+                                &tx.contract_address_salt.prettify(),
+                            ])
+                            .add_row(vec![
+                                "CONSTRUCTOR\nCALLDATA",
+                                &tx.constructor_calldata.prettify(),
+                            ])
+                            .add_row(vec!["SIGNATURE", &tx.signature.prettify()])
+                            .add_row(vec!["NONCE", &tx.nonce.prettify()])
+                            .add_row(vec!["VERSION", &FieldElement::THREE.prettify()]);
+                    }
+                }
             }
         }
 
@@ -392,4 +452,13 @@ pub fn pretty_block_without_txs(block: &MaybePendingBlockWithTxs) -> String {
     }
 
     format!("{table}")
+}
+
+impl Pretty for DataAvailabilityMode {
+    fn prettify(&self) -> String {
+        match self {
+            DataAvailabilityMode::L1 => format!("L1"),
+            DataAvailabilityMode::L2 => format!("L2"),
+        }
+    }
 }

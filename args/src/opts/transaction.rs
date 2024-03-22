@@ -5,6 +5,7 @@ use starknet::core::types::FieldElement;
 #[derive(Debug, Clone)]
 pub struct TransactionOptions {
     #[arg(long)]
+    #[arg(help = "Set the transaction nonce")]
     pub nonce: Option<FieldElement>,
 
     #[arg(long)]
@@ -17,8 +18,16 @@ pub struct TransactionOptions {
     pub signature: Option<Vec<FieldElement>>,
 
     #[arg(long)]
-    #[arg(help = "Version of the transaction scheme")]
-    pub version: Option<u64>,
+    #[arg(help = "Specify the fee multiplier of the actual max fee based on the estimated fee")]
+    pub fee_multiplier: Option<FieldElement>,
+
+    #[arg(long)]
+    #[arg(help = "Estimate the transaction fee without submitting it to the network")]
+    pub estimate: bool,
+
+    #[arg(long)]
+    #[arg(help = "Wait for the transaction until it gets executed and return the receipt")]
+    pub wait: bool,
 }
 
 #[cfg(test)]

@@ -2,11 +2,11 @@ use std::str::FromStr;
 
 use clap::builder::{PossibleValue, TypedValueParser};
 use clap::error::{Error, ErrorKind};
+use starknet::core::types::FieldElement;
 use starknet::core::types::{BlockId, BlockTag};
-use starknet::core::{
-    chain_id::{MAINNET, TESTNET},
-    types::FieldElement,
-};
+use starknet::core::utils::get_selector_from_name;
+
+use crate::opts::starknet::ChainId;
 
 #[derive(Debug, Clone, Copy)]
 pub struct BlockIdParser;
@@ -23,12 +23,13 @@ impl TypedValueParser for BlockIdParser {
     ) -> Result<Self::Value, Error> {
         let value = value
             .to_str()
-            .ok_or_else(|| Error::raw(ErrorKind::InvalidUtf8, "Invalid utf-8"))?;
+            .ok_or_else(|| Error::raw(ErrorKind::InvalidUtf8, "invalid utf-8"))?;
 
         // There must be a more idiomatic way of doing this.
         if value.starts_with("0x") {
-            let hash = FieldElement::from_hex_be(value)
-                .map_err(|e| Error::raw(ErrorKind::InvalidValue, e))?;
+            let hash = FieldElement::from_hex_be(value).map_err(|e| {
+                Error::raw(ErrorKind::InvalidValue, format!("invalid block id: {e}"))
+            })?;
 
             Ok(BlockId::Hash(hash))
         } else if let Ok(number) = value.parse::<u64>() {
@@ -36,20 +37,18 @@ impl TypedValueParser for BlockIdParser {
         } else {
             match value.to_lowercase().as_str() {
                 "latest" => Ok(BlockId::Tag(BlockTag::Latest)),
-
                 "pending" => Ok(BlockId::Tag(BlockTag::Pending)),
-
-                _ => Err(Error::raw(ErrorKind::InvalidValue, "Invalid value")),
+                _ => Err(Error::raw(ErrorKind::InvalidValue, "invalid block tag")),
             }
         }
     }
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct ChainParser;
+pub struct ChainIdParser;
 
-impl TypedValueParser for ChainParser {
-    type Value = FieldElement;
+impl TypedValueParser for ChainIdParser {
+    type Value = ChainId;
 
     #[allow(unused_variables)]
     fn parse_ref(
@@ -62,21 +61,34 @@ impl TypedValueParser for ChainParser {
             .to_str()
             .ok_or_else(|| Error::raw(ErrorKind::InvalidUtf8, "invalid utf-8"))?;
 
-        if value.parse::<u128>().is_ok() {
-            FieldElement::from_str(value)
-                .map_err(|e| Error::raw(ErrorKind::InvalidValue, e.to_string()))
-        } else {
-            match value {
-                "mainnet" => Ok(MAINNET),
-                "goerli" => Ok(TESTNET),
-                _ => Err(Error::raw(ErrorKind::InvalidValue, "invalid chain id")),
+        match ChainId::from_str(value) {
+            Ok(chain_id) => Ok(chain_id),
+            Err(_) => {
+                let felt = FieldElement::from_str(value)
+                    .map_err(|_| Error::raw(ErrorKind::InvalidValue, "invalid felt value"))?;
+
+                Ok(ChainId::try_from(felt)
+                    .map_err(|_| Error::raw(ErrorKind::InvalidValue, "invalid chain id"))?)
             }
         }
     }
 
     fn possible_values(&self) -> Option<Box<dyn Iterator<Item = PossibleValue> + '_>> {
-        let possible_values: Vec<PossibleValue> =
-            vec![PossibleValue::new("mainnet"), PossibleValue::new("goerli")];
-        Some(Box::new(possible_values.into_iter()))
+        Some(Box::new(
+            [PossibleValue::new("mainnet"), PossibleValue::new("sepolia")].into_iter(),
+        ))
     }
+}
+
+/// Used as clap's value parser for `selector` field in `InvokeArgs`.
+pub fn selector_parser(selector: &str) -> eyre::Result<FieldElement> {
+    let value = FieldElement::from_str(selector);
+    match value {
+        Ok(selector) => Ok(selector),
+        Err(_) => Ok(get_selector_from_name(selector)?),
+    }
+}
+
+pub fn calldata_parser(calldata: &str) -> eyre::Result<Vec<FieldElement>> {
+    todo!()
 }

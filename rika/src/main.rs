@@ -103,14 +103,15 @@ async fn main() -> Result<()> {
 
         Commands::TransactionReceipt {
             hash,
-            field,
-            to_json,
+            display,
             starknet,
         } => {
-            let res = Rika::new_with_http(starknet.rpc_url)
-                .get_transaction_receipt(hash, field, to_json)
-                .await?;
-            println!("{res}");
+            // let res = Rika::new_with_http(starknet.rpc_url)
+            //     .get_transaction_receipt(hash, field, to_json)
+            //     .await?;
+            // println!("{res}");
+
+            todo!()
         }
 
         Commands::Block {

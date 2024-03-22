@@ -89,26 +89,21 @@ impl WalletCommands {
                 name,
                 password,
             } => {
-                let (path, account_address, private_key, chain) = if let Some(path) = path {
+                let (path, account_address, chain) = if let Some(path) = path {
                     if !path.is_dir() {
                         // we require path to be an existing directory
                         bail!("'{}' is not a directory.", path.display())
                     }
 
-                    let wallet = SimpleWallet::new(
-                        account.unwrap(),
-                        privatekey.unwrap(),
-                        chain.map(|c| c.into()),
-                    );
+                    let wallet = SimpleWallet::new(account.unwrap(), privatekey.unwrap(), chain);
                     let path = wallet.encrypt_keystore(&path, password.unwrap(), name)?;
 
                     (
                         path.display().to_string(),
                         wallet.account,
-                        wallet.signing_key.secret_scalar(),
                         wallet
                             .chain
-                            .map_or_else(|| "OTHER".to_string(), |c| c.to_string()),
+                            .map_or_else(|| "other".to_string(), |c| c.to_string()),
                     )
                 } else {
                     let wallet = WalletOptions {
@@ -120,7 +115,7 @@ impl WalletCommands {
 
                     let chain = Select::new(
                         "Please select the chain for this account.",
-                        [ChainId::options(), vec!["OTHER".to_string()]].concat(),
+                        [ChainId::options(), &["other"]].concat(),
                     )
                     .prompt()
                     .map(|chain| ChainId::from_str(&chain).ok())?;
@@ -139,19 +134,14 @@ impl WalletCommands {
                     (
                         path.display().to_string(),
                         wallet.account,
-                        wallet.signing_key.secret_scalar(),
                         wallet
                             .chain
-                            .map_or_else(|| "OTHER".to_string(), |c| c.to_string()),
+                            .map_or_else(|| "other".to_string(), |c| c.to_string()),
                     )
                 };
 
                 println!(
-                    "\n🎉 Successfully created new encrypted keystore at {}\n\nAccount address: {:#x}\nPrivate key: {:#x}\nChain: {}",
-                    path,
-                    account_address,
-                    private_key,
-                    chain
+                    "🎉 Successfully created new encrypted keystore at {path}\n\nAccount address: {account_address:#x}\nChain: {chain}",
                 );
 
                 Ok(())

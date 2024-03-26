@@ -483,7 +483,7 @@ Example: 0x12,0x23 0x34,0x45 - Which will be parsed as [[0x12,0x23], [0x34,0x45]
     #[command(visible_alias = "rct")]
     #[command(name = "receipt")]
     #[command(about = "Get the receipt of a transaction.")]
-    TransactionReceipt {
+    Receipt {
         #[arg(value_name = "TX_HASH")]
         hash: FieldElement,
 

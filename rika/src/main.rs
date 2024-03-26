@@ -1,5 +1,5 @@
-use rika::{Rika, SimpleRika};
 use rika_args::commands::{App, Commands, EcdsaCommand};
+use rika_old::{Rika, SimpleRika};
 
 use chrono::{Local, TimeZone};
 use clap::{CommandFactory, Parser};
@@ -101,7 +101,7 @@ async fn main() -> Result<()> {
             println!("{res}");
         }
 
-        Commands::TransactionReceipt {
+        Commands::Receipt {
             hash,
             display,
             starknet,

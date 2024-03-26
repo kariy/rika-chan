@@ -1,5 +1,5 @@
 [workspace]
-members = [ "args", "bin", "rika", "waiter" ]
+members = [ "bin", "crates/args", "crates/rika", "crates/waiter" ]
 resolver = "2"
 
 [workspace.package]
@@ -12,8 +12,7 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [workspace.dependencies]
-rika-args = { path = "args" }
-rika-old = { path = "rika" }
+rika-args = { path = "crates/args" }
 
 chrono = "0.4.23"
 clap = { version = "4.1.8", features = [ "derive", "env" ] }

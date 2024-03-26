@@ -1,5 +1,5 @@
 pub mod account;
-pub mod args;
+pub mod commands;
 pub mod fmt;
 pub mod opts;
 pub mod parser;

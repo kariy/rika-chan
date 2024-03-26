@@ -1,5 +1,5 @@
 use rika::{Rika, SimpleRika};
-use rika_args::args::{Args, Commands, EcdsaCommand};
+use rika_args::commands::{App, Commands, EcdsaCommand};
 
 use chrono::{Local, TimeZone};
 use clap::{CommandFactory, Parser};
@@ -9,7 +9,7 @@ use starknet::core::types::EventFilter;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let cli = Args::parse();
+    let cli = App::parse();
 
     match cli.command {
         Commands::DecToHex { dec, pad } => {
@@ -325,7 +325,7 @@ async fn main() -> Result<()> {
             let shell = shell
                 .or_else(Shell::from_env)
                 .ok_or_else(|| eyre!("unable to identify shell from environment variable"))?;
-            generate(shell, &mut Args::command(), "rika", &mut std::io::stdout());
+            generate(shell, &mut App::command(), "rika", &mut std::io::stdout());
         }
 
         Commands::Syncing { starknet } => {

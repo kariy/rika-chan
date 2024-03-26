@@ -74,7 +74,7 @@ impl RpcArgs {
 
 #[cfg(test)]
 mod tests {
-    use crate::args::{Args, Commands};
+    use crate::commands::{App, Commands};
 
     use clap::Parser;
     use serde_json::json;
@@ -91,7 +91,7 @@ mod tests {
         })
         .to_string();
 
-        let args: Args = Args::parse_from(["rika", "rpc", "starknet_call", &p, "latest"]);
+        let args: App = App::parse_from(["rika", "rpc", "starknet_call", &p, "latest"]);
 
         match args.command {
             Commands::Rpc(args) => {

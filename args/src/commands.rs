@@ -11,7 +11,7 @@ use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
 #[command(name = "rika", version, about, long_about = None)]
-pub struct Args {
+pub struct App {
     #[command(subcommand)]
     pub command: Commands,
 }
@@ -544,15 +544,15 @@ pub enum EcdsaCommand {
 
 #[cfg(test)]
 mod tests {
-    use crate::args::Commands;
+    use crate::commands::Commands;
 
-    use super::Args;
+    use super::App;
     use clap::{CommandFactory, Parser};
     use starknet::core::types::FieldElement;
 
     #[test]
     fn verify_cli() {
-        Args::command().debug_assert()
+        App::command().debug_assert()
     }
 
     #[test]
@@ -562,7 +562,7 @@ mod tests {
             vec![FieldElement::from(0x6666u64), FieldElement::from(0x7777u64)],
         ];
 
-        let app = Args::parse_from([
+        let app = App::parse_from([
             "rika",
             "events",
             "--chunk-size",

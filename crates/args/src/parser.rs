@@ -11,14 +11,13 @@ use crate::opts::starknet::ChainId;
 #[derive(Debug, Clone, Copy)]
 pub struct BlockIdParser;
 
-#[allow(unused_variables)]
 impl TypedValueParser for BlockIdParser {
     type Value = BlockId;
 
     fn parse_ref(
         &self,
-        cmd: &clap::Command,
-        arg: Option<&clap::Arg>,
+        _: &clap::Command,
+        _: Option<&clap::Arg>,
         value: &std::ffi::OsStr,
     ) -> Result<Self::Value, Error> {
         let value = value
@@ -50,11 +49,10 @@ pub struct ChainIdParser;
 impl TypedValueParser for ChainIdParser {
     type Value = ChainId;
 
-    #[allow(unused_variables)]
     fn parse_ref(
         &self,
-        cmd: &clap::Command,
-        arg: Option<&clap::Arg>,
+        _: &clap::Command,
+        _: Option<&clap::Arg>,
         value: &std::ffi::OsStr,
     ) -> Result<Self::Value, Error> {
         let value = value
@@ -76,6 +74,68 @@ impl TypedValueParser for ChainIdParser {
     fn possible_values(&self) -> Option<Box<dyn Iterator<Item = PossibleValue> + '_>> {
         Some(Box::new(
             [PossibleValue::new("mainnet"), PossibleValue::new("sepolia")].into_iter(),
+        ))
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct TokenAddressParser;
+
+impl TypedValueParser for TokenAddressParser {
+    type Value = FieldElement;
+
+    fn parse_ref(
+        &self,
+        _: &clap::Command,
+        _: Option<&clap::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, Error> {
+        let value = value
+            .to_str()
+            .ok_or(Error::raw(ErrorKind::InvalidUtf8, "invalid utf-8"))?;
+
+        let address = match value.to_lowercase().as_str() {
+            // 0x049D36570D4e46f48e99674bd3fcc84644DdD6b96F7C741B1562B82f9e004dC7
+            "eth" => FieldElement::from_mont([
+                4380532846569209554,
+                17839402928228694863,
+                17240401758547432026,
+                418961398025637529,
+            ]),
+            // 0x04718f5a0Fc34cC1AF16A1cdee98fFB20C31f5cD61D6Ab07201858f4287c938D
+            "strk" => FieldElement::from_mont([
+                16432072983745651214,
+                1325769094487018516,
+                5134018303144032807,
+                468300854463065062,
+            ]),
+            // 0x053C91253BC9682c04929cA02ED00b3E423f6710D2ee7e0D5EBB06F3eCF368A8
+            "usdc" => FieldElement::from_mont([
+                5808361013446951402,
+                13558485962494585092,
+                9528015766451344574,
+                198270530439797869,
+            ]),
+
+            _ => {
+                return Err(Error::raw(
+                    ErrorKind::InvalidValue,
+                    format!("invalid token: {value}"),
+                ))
+            }
+        };
+
+        Ok(address)
+    }
+
+    fn possible_values(&self) -> Option<Box<dyn Iterator<Item = PossibleValue> + '_>> {
+        Some(Box::new(
+            [
+                PossibleValue::new("ETH"),
+                PossibleValue::new("STRK"),
+                PossibleValue::new("USDC"),
+            ]
+            .into_iter(),
         ))
     }
 }

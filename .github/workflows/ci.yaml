@@ -7,28 +7,12 @@ on:
             - main
 
 jobs:
-    check:
-        name: "Check"
-        runs-on: "ubuntu-latest"
-        steps:
-            - uses: "actions/checkout@v3"
-            - name: "Setup cmake"
-              uses: "jwlawson/actions-setup-cmake@v1.13"
-            - uses: "actions-rs/toolchain@v1"
-              with:
-                  override: true
-                  profile: "minimal"
-                  toolchain: "stable"
-            - uses: "actions-rs/cargo@v1"
-              with:
-                  command: "check"
-
     test:
+        name: "Cargo test"
         runs-on: "ubuntu-latest"
         steps:
             - uses: "actions/checkout@v3"
-            - name: "Setup cmake"
-              uses: "jwlawson/actions-setup-cmake@v1.13"
+            - uses: Swatinem/rust-cache@v2
             - uses: "actions-rs/toolchain@v1"
               with:
                   override: true
@@ -39,7 +23,7 @@ jobs:
                   command: "test"
 
     fmt:
-        name: "Rustfmt"
+        name: "Formatting"
         runs-on: "ubuntu-latest"
         steps:
             - uses: "actions/checkout@v3"

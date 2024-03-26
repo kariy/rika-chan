@@ -1,5 +1,5 @@
 use super::account::WalletCommands;
-use super::parser::BlockIdParser;
+use super::parser::{BlockIdParser, TokenAddressParser};
 use super::rpc::RpcArgs;
 use crate::opts::{display::DisplayOptions, starknet::StarknetOptions};
 use crate::utils::parse_event_keys;
@@ -101,15 +101,19 @@ pub enum Commands {
     },
 
     #[command(visible_alias = "bal")]
-    #[command(about = "Get the ETH balance of an address.")]
+    #[command(about = "Get the ETH/STRK balance of an address.")]
     Balance {
         #[arg(value_name = "ADDRESS")]
         #[arg(help = "The address whose balance you want to query.")]
         address: FieldElement,
 
+        #[arg(help = "The token you want to query the balance of.")]
+        #[arg(value_parser(TokenAddressParser))]
+        token: FieldElement,
+
         #[arg(next_line_help = true)]
         #[arg(short, long = "block")]
-        #[arg(default_value = "latest")]
+        #[arg(default_value = "pending")]
         #[arg(value_parser(BlockIdParser))]
         #[arg(
             help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
@@ -391,13 +395,16 @@ Example: 0x12,0x23 0x34,0x45 - Which will be parsed as [[0x12,0x23], [0x34,0x45]
     #[command(about = "Get the information about the result of executing the requested block")]
     StateUpdate {
         #[arg(next_line_help = true)]
-        #[arg(short, long = "block")]
-        #[arg(default_value = "latest")]
+        #[arg(default_value = "pending")]
         #[arg(value_parser(BlockIdParser))]
         #[arg(
             help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
         )]
         block_id: BlockId,
+
+        #[command(flatten)]
+        #[command(next_help_heading = "Display options")]
+        display: DisplayOptions,
 
         #[command(flatten)]
         #[command(next_help_heading = "Starknet options")]
@@ -439,12 +446,9 @@ Example: 0x12,0x23 0x34,0x45 - Which will be parsed as [[0x12,0x23], [0x34,0x45]
         #[arg(value_name = "TX_HASH")]
         hash: FieldElement,
 
-        #[arg(long)]
-        field: Option<String>,
-
-        #[arg(short = 'j', long = "json")]
-        #[arg(help_heading = "Display options")]
-        to_json: bool,
+        #[command(flatten)]
+        #[command(next_help_heading = "Display options")]
+        display: DisplayOptions,
 
         #[command(flatten)]
         #[command(next_help_heading = "Starknet options")]

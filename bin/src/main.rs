@@ -23,6 +23,26 @@ fn execute(args: App) -> Result<()> {
             display.display(result)?;
         }
 
+        Commands::StateUpdate {
+            block_id,
+            display,
+            starknet,
+        } => {
+            let provider = starknet.provider();
+            let result = utils::block_on(provider.get_state_update(block_id))?;
+            // display.display(result)?;
+        }
+
+        Commands::Transaction {
+            hash,
+            display,
+            starknet,
+        } => {
+            let provider = starknet.provider();
+            let result = utils::block_on(provider.get_transaction_by_hash(hash))?;
+            display.display(result)?;
+        }
+
         _ => {
             unimplemented!("This command is not implemented yet")
         }

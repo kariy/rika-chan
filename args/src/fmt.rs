@@ -12,21 +12,24 @@ use starknet::core::types::{
     Transaction, TransactionReceipt,
 };
 
+/// Macro for implementing the [Pretty] trait for types implement [LowerHex](std::fmt::LowerHex) trait.
+macro_rules! pretty_for_lower_hex {
+	($($name:ty),*) => {
+		$(
+			impl Pretty for $name {
+	            fn prettify(&self) -> String {
+	                format!("{self:#x}")
+	            }
+	        }
+		)*
+	};
+}
+
 pub trait Pretty {
     fn prettify(&self) -> String;
 }
 
-impl Pretty for FieldElement {
-    fn prettify(&self) -> String {
-        format!("{self:#x}")
-    }
-}
-
-impl Pretty for u64 {
-    fn prettify(&self) -> String {
-        format!("{self:#x}")
-    }
-}
+pretty_for_lower_hex!(FieldElement, u64);
 
 impl<T> Pretty for Vec<T>
 where

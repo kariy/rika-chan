@@ -1,0 +1,16 @@
+[package]
+authors.workspace = true
+description.workspace = true
+edition.workspace = true
+name = "waiter"
+repository.workspace = true
+version.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+futures = { version = "0.3.30", default-features = false }
+starknet.workspace = true
+thiserror.workspace = true
+tokio = { version = "1.36.0", features = [ "time" ] }
+tokio-retry = "0.3.0"

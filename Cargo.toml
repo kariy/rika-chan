@@ -1,5 +1,5 @@
 [workspace]
-members = [ "args", "bin", "rika" ]
+members = [ "args", "bin", "rika", "waiter" ]
 resolver = "2"
 
 [workspace.package]

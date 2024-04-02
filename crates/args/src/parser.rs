@@ -6,8 +6,6 @@ use starknet::core::types::{BlockId, BlockTag};
 use starknet::core::types::{FieldElement, FromStrError};
 use starknet::core::utils::get_selector_from_name;
 
-use crate::opts::starknet::ChainId;
-
 #[derive(Debug, Clone, Copy)]
 pub struct BlockIdParser;
 
@@ -129,6 +127,12 @@ pub fn selector_parser(selector: &str) -> eyre::Result<FieldElement> {
 
 pub fn calldata_parser(calldata: &str) -> eyre::Result<Vec<FieldElement>> {
     todo!()
+}
+
+// Expected format for keys : 0x124123,0x14123,0x1342
+// where each array is a key
+pub fn parse_event_keys(value: &str) -> std::result::Result<Vec<FieldElement>, FromStrError> {
+    value.split(',').map(FieldElement::from_str).collect()
 }
 
 #[cfg(test)]

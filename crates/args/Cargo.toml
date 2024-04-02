@@ -13,7 +13,6 @@ colored_json = "4.1.0"
 comfy-table = "6.1.4"
 dunce = "1.0.3"
 eyre.workspace = true
-hex.workspace = true
 home = "0.5.4"
 inquire = "0.6.2"
 rand = "0.8.5"

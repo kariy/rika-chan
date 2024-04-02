@@ -18,6 +18,432 @@ pub struct App {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
+    #[command(visible_alias = "acc")]
+    #[command(about = "Account management utilities")]
+    Account(AccountArgs),
+
+    #[command(about = "Get the timestamp of a block.")]
+    Age(AgeArgs),
+
+    #[command(visible_alias = "bal")]
+    #[command(about = "Get an ERC20 token balance of an address.")]
+    Balance(BalanceArgs),
+
+    #[command(visible_alias = "b")]
+    #[command(about = "Get information about a block.")]
+    Block(BlockArgs),
+
+    #[command(visible_alias = "bn")]
+    #[command(about = "Get the latest block number.")]
+    BlockNumber(BlockNumberArgs),
+
+    #[command(about = "Call a StarkNet function without creating a transaction.")]
+    Call(CallArgs),
+
+    #[command(visible_alias = "ci")]
+    #[command(about = "Get the StarkNet chain ID.")]
+    ChainId(ChainIdArgs),
+
+    #[command(visible_alias = "cl")]
+    #[command(
+        about = "Get the contract class definition in the given block associated with the given hash"
+    )]
+    Class(ClassArgs),
+
+    #[command(visible_alias = "cd")]
+    #[command(about = "Get the contract class definition in the given block at the given address")]
+    Code(CodeArgs),
+
+    #[command(visible_alias = "cc")]
+    #[command(
+        about = "Get the contract class hash in the given block for the contract deployed at the given address"
+    )]
+    ContractClass(ContractClassArgs),
+
+    #[command(visible_alias = "ev")]
+    #[command(about = "Returns all events matching the given filter")]
+    #[command(
+        long_about = "Returns all event objects matching the conditions in the provided filter"
+    )]
+    Events(EventsArgs),
+
+    #[command(visible_alias = "n1")]
+    #[command(about = "Get the latest nonce associated with the address.")]
+    Nonce(NonceArgs),
+
+    #[command(about = "Perform a raw JSON-RPC request.")]
+    Rpc(RpcArgs),
+
+    #[command(name = "completions")]
+    #[command(visible_alias = "com")]
+    #[command(about = "Generate command completion script for a specific shell.")]
+    ShellCompletions { shell: Option<Shell> },
+
+    #[command(about = "Get the information about the result of executing the requested block")]
+    StateUpdate(StateUpdateArgs),
+
+    #[command(visible_alias = "str")]
+    #[command(about = "Get the value of a contract's storage at the given index")]
+    Storage(StorageArgs),
+
+    #[command(visible_alias = "sync")]
+    #[command(about = "Get the synchronization status of the StarkNet node")]
+    Syncing(SyncingArgs),
+
+    #[command(name = "tx")]
+    #[command(about = "Get information about a transaction.")]
+    Tx(TxArgs),
+
+    #[command(visible_alias = "txc")]
+    #[command(name = "tx-count")]
+    #[command(about = "Get the number of transactions in a block.")]
+    TxCount(TxCountArgs),
+
+    #[command(visible_alias = "txs")]
+    #[command(name = "tx-status")]
+    #[command(about = "Get the status of a transaction.")]
+    TxStatus(TxStatusArgs),
+
+    #[command(visible_alias = "rct")]
+    #[command(name = "receipt")]
+    #[command(about = "Get the receipt of a transaction.")]
+    Receipt(ReceiptArgs),
+}
+
+#[derive(Debug, Parser)]
+pub struct AccountArgs {
+    #[command(subcommand)]
+    commands: WalletCommands,
+}
+
+#[derive(Debug, Parser)]
+pub struct AgeArgs {
+    #[arg(next_line_help = true)]
+    #[arg(default_value = "latest")]
+    #[arg(value_parser(BlockIdParser))]
+    #[arg(
+        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+    )]
+    block_id: BlockId,
+
+    #[arg(short = 'r', long)]
+    #[arg(help_heading = "Display options")]
+    human_readable: bool,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct BalanceArgs {
+    #[arg(value_name = "ADDRESS")]
+    #[arg(help = "The address whose balance you want to query.")]
+    address: FieldElement,
+
+    #[arg(help = "The token you want to query the balance of.")]
+    #[arg(value_parser(TokenAddressParser))]
+    token: FieldElement,
+
+    #[arg(next_line_help = true)]
+    #[arg(short, long = "block")]
+    #[arg(default_value = "pending")]
+    #[arg(value_parser(BlockIdParser))]
+    #[arg(
+        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+    )]
+    block_id: BlockId,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct BlockArgs {
+    #[arg(next_line_help = true)]
+    #[arg(value_name = "BLOCK_ID")]
+    #[arg(default_value = "latest")]
+    #[arg(value_parser(BlockIdParser))]
+    #[arg(
+        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+    )]
+    id: BlockId,
+
+    #[arg(long)]
+    #[arg(action(clap::ArgAction::SetTrue))]
+    #[arg(help = "Get the full information (incl. transactions) of the block.")]
+    full: bool,
+
+    #[arg(long)]
+    field: Option<String>,
+
+    #[arg(short = 'j', long = "json")]
+    #[arg(help_heading = "Display options")]
+    to_json: bool,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct BlockNumberArgs {
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct CallArgs {
+    #[arg(display_order = 1)]
+    contract_address: FieldElement,
+
+    #[arg(display_order = 2)]
+    #[arg(help = "The name of the function to be called")]
+    #[arg(value_name = "FUNCTION_NAME")]
+    function: String,
+
+    #[arg(short, long)]
+    #[arg(display_order = 3)]
+    #[arg(value_delimiter = ',')]
+    #[arg(help = "Comma seperated values e.g., 0x12345,0x69420,...")]
+    input: Vec<FieldElement>,
+
+    #[arg(next_line_help = true)]
+    #[arg(display_order = 5)]
+    #[arg(short, long = "block")]
+    #[arg(default_value = "latest")]
+    #[arg(value_parser(BlockIdParser))]
+    #[arg(
+        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+    )]
+    block_id: BlockId,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct ChainIdArgs {
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct ClassArgs {
+    #[arg(value_name = "CLASS_HASH")]
+    #[arg(help = "The hash of the requested contract class")]
+    hash: FieldElement,
+
+    #[arg(next_line_help = true)]
+    #[arg(default_value = "latest")]
+    #[arg(value_parser(BlockIdParser))]
+    #[arg(
+        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+    )]
+    block_id: BlockId,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct CodeArgs {
+    #[arg(help = "The address of the contract whose class definition will be returned")]
+    contract_address: FieldElement,
+
+    #[arg(next_line_help = true)]
+    #[arg(short, long = "block")]
+    #[arg(default_value = "latest")]
+    #[arg(value_parser(BlockIdParser))]
+    #[arg(
+        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+    )]
+    block_id: BlockId,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct ContractClassArgs {
+    #[arg(help = "The address of the contract whose class hash will be returned")]
+    contract_address: FieldElement,
+
+    #[arg(next_line_help = true)]
+    #[arg(short, long = "block")]
+    #[arg(default_value = "latest")]
+    #[arg(value_parser(BlockIdParser))]
+    #[arg(
+        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+    )]
+    block_id: BlockId,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct EventsArgs {
+    #[arg(num_args(0..))]
+    #[arg(help = r"The values used to filter the events.
+Example: 0x12,0x23 0x34,0x45 - Which will be parsed as [[0x12,0x23], [0x34,0x45]]")]
+    #[arg(value_parser = parse_event_keys)]
+    keys: Option<Vec<Vec<FieldElement>>>,
+
+    #[arg(required = true)]
+    #[arg(short = 's', long)]
+    #[arg(help = "The number of events to return in each page")]
+    chunk_size: u64,
+
+    #[arg(short = 'C', long)]
+    #[arg(value_name = "CONTRACT_ADDRESS")]
+    #[arg(help = "Address of the contract emitting the events")]
+    from: Option<FieldElement>,
+
+    #[arg(short, long)]
+    #[arg(value_parser(BlockIdParser))]
+    from_block: Option<BlockId>,
+
+    #[arg(short, long)]
+    #[arg(value_parser(BlockIdParser))]
+    to_block: Option<BlockId>,
+
+    #[arg(short = 'c', long)]
+    #[arg(
+        help = "A pointer to the last element of the delivered page, use this token in a subsequent query to obtain the next page"
+    )]
+    continuation_token: Option<String>,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct NonceArgs {
+    contract_address: FieldElement,
+
+    #[arg(next_line_help = true)]
+    #[arg(default_value = "latest")]
+    #[arg(value_parser(BlockIdParser))]
+    #[arg(
+        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+    )]
+    block_id: BlockId,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct StateUpdateArgs {
+    #[arg(next_line_help = true)]
+    #[arg(default_value = "pending")]
+    #[arg(value_parser(BlockIdParser))]
+    #[arg(
+        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+    )]
+    block_id: BlockId,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Display options")]
+    display: DisplayOptions,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct StorageArgs {
+    contract_address: FieldElement,
+
+    index: FieldElement,
+
+    #[arg(next_line_help = true)]
+    #[arg(short, long = "block")]
+    #[arg(default_value = "latest")]
+    #[arg(value_parser(BlockIdParser))]
+    #[arg(
+        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+    )]
+    block_id: BlockId,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct SyncingArgs {
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct TxArgs {
+    #[arg(value_name = "TX_HASH")]
+    hash: FieldElement,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Display options")]
+    display: DisplayOptions,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct TxCountArgs {
+    #[arg(next_line_help = true)]
+    #[arg(default_value = "latest")]
+    #[arg(value_parser(BlockIdParser))]
+    #[arg(
+        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
+    )]
+    block_id: BlockId,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct TxStatusArgs {
+    #[arg(value_name = "TX_HASH")]
+    hash: FieldElement,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Debug, Parser)]
+pub struct ReceiptArgs {
+    #[arg(value_name = "TX_HASH")]
+    hash: FieldElement,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Display options")]
+    display: DisplayOptions,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Starknet options")]
+    starknet: StarknetOptions,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum UtilityCommands {
     #[command(visible_alias = "th")]
     #[command(name = "--to-hex")]
     #[command(about = "Convert decimal felt to hexadecimal.")]
@@ -38,20 +464,12 @@ pub enum Commands {
         hex: FieldElement,
     },
 
-    #[command(visible_alias = "mxf")]
-    #[command(name = "--max-felt")]
-    #[command(about = "Get the maximum felt value.")]
-    MaxUnsignedFelt,
-
-    #[command(visible_alias = "mxsf")]
-    #[command(name = "--max-sfelt")]
-    #[command(about = "Get the maximum signed felt value.")]
-    MaxSignedFelt,
-
-    #[command(visible_alias = "mnsf")]
-    #[command(name = "--min-sfelt")]
-    #[command(about = "Get the minimum signed felt value.")]
-    MinSignedFelt,
+    #[command(visible_alias = "ec")]
+    #[command(about = "Perform ECDSA operations over the STARK-friendly elliptic curve.")]
+    Ecdsa {
+        #[command(subcommand)]
+        commands: EcdsaCommand,
+    },
 
     #[command(visible_alias = "fa")]
     #[command(name = "--from-ascii")]
@@ -74,211 +492,36 @@ pub enum Commands {
     #[command(about = "Split a uint256 into its low and high components.")]
     SplitU256 { value: String },
 
-    #[command(visible_alias = "acc")]
-    #[command(about = "Account management utilities")]
-    Account {
-        #[command(subcommand)]
-        commands: WalletCommands,
+    #[command(visible_alias = "kck")]
+    #[command(about = "Hash abritrary data using Starknet keccak.")]
+    Keccak {
+        #[arg(value_name = "DATA")]
+        data: String,
     },
 
-    #[command(about = "Get the timestamp of a block.")]
-    Age {
-        #[arg(next_line_help = true)]
-        #[arg(default_value = "latest")]
-        #[arg(value_parser(BlockIdParser))]
-        #[arg(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[arg(short = 'r', long)]
-        #[arg(help_heading = "Display options")]
-        human_readable: bool,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
+    #[command(visible_alias = "ped")]
+    #[command(about = "Calculate the Pedersen hash on an array of elements.")]
+    Pedersen {
+        #[arg(help = "List of elements to compute the hash on.")]
+        elements: Vec<FieldElement>,
     },
 
-    #[command(visible_alias = "bal")]
-    #[command(about = "Get an ERC20 token balance of an address.")]
-    Balance {
-        #[arg(value_name = "ADDRESS")]
-        #[arg(help = "The address whose balance you want to query.")]
-        address: FieldElement,
-
-        #[arg(help = "The token you want to query the balance of.")]
-        #[arg(value_parser(TokenAddressParser))]
-        token: FieldElement,
-
-        #[arg(next_line_help = true)]
-        #[arg(short, long = "block")]
-        #[arg(default_value = "pending")]
-        #[arg(value_parser(BlockIdParser))]
-        #[arg(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
+    #[command(visible_alias = "pos")]
+    #[command(about = "Calculate the Poseidon hash on an array of elements.")]
+    Poseidon {
+        #[arg(help = "List of elements to compute the hash on.")]
+        elements: Vec<FieldElement>,
     },
 
-    #[command(visible_alias = "b")]
-    #[command(about = "Get information about a block.")]
-    Block {
-        #[arg(next_line_help = true)]
-        #[arg(value_name = "BLOCK_ID")]
-        #[arg(default_value = "latest")]
-        #[arg(value_parser(BlockIdParser))]
-        #[arg(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        id: BlockId,
+    #[command(visible_alias = "idx")]
+    #[command(about = "Compute the address of a storage variable.")]
+    Index {
+        #[arg(value_name = "VAR_NAME")]
+        #[arg(help = "The storage variable name.")]
+        variable_name: String,
 
-        #[arg(long)]
-        #[arg(action(clap::ArgAction::SetTrue))]
-        #[arg(help = "Get the full information (incl. transactions) of the block.")]
-        full: bool,
-
-        #[arg(long)]
-        field: Option<String>,
-
-        #[arg(short = 'j', long = "json")]
-        #[arg(help_heading = "Display options")]
-        to_json: bool,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
-    #[command(visible_alias = "bn")]
-    #[command(about = "Get the latest block number.")]
-    BlockNumber {
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
-    #[command(about = "Call a StarkNet function without creating a transaction.")]
-    Call {
-        #[arg(display_order = 1)]
-        contract_address: FieldElement,
-
-        #[arg(display_order = 2)]
-        #[arg(help = "The name of the function to be called")]
-        #[arg(value_name = "FUNCTION_NAME")]
-        function: String,
-
-        #[arg(short, long)]
-        #[arg(display_order = 3)]
-        #[arg(value_delimiter = ',')]
-        #[arg(help = "Comma seperated values e.g., 0x12345,0x69420,...")]
-        input: Vec<FieldElement>,
-
-        #[arg(next_line_help = true)]
-        #[arg(display_order = 5)]
-        #[arg(short, long = "block")]
-        #[arg(default_value = "latest")]
-        #[arg(value_parser(BlockIdParser))]
-        #[arg(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
-    #[command(visible_alias = "ci")]
-    #[command(about = "Get the StarkNet chain ID.")]
-    ChainId {
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
-    #[command(visible_alias = "cl")]
-    #[command(
-        about = "Get the contract class definition in the given block associated with the given hash"
-    )]
-    Class {
-        #[arg(value_name = "CLASS_HASH")]
-        #[arg(help = "The hash of the requested contract class")]
-        hash: FieldElement,
-
-        #[arg(next_line_help = true)]
-        #[arg(default_value = "latest")]
-        #[arg(value_parser(BlockIdParser))]
-        #[arg(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
-    #[command(visible_alias = "cd")]
-    #[command(about = "Get the contract class definition in the given block at the given address")]
-    Code {
-        #[arg(help = "The address of the contract whose class definition will be returned")]
-        contract_address: FieldElement,
-
-        #[arg(next_line_help = true)]
-        #[arg(short, long = "block")]
-        #[arg(default_value = "latest")]
-        #[arg(value_parser(BlockIdParser))]
-        #[arg(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
-    #[command(visible_alias = "ca")]
-    #[command(about = "Compute the contract address from the given information")]
-    ComputeAddress {
-        #[arg(help = "The address of the deploying account contract (currently always zero)")]
-        caller_address: FieldElement,
-
-        #[arg(help = "The salt used in the deploy transaction")]
-        salt: FieldElement,
-
-        #[arg(help = "The hash of the class to instantiate a new contract from")]
-        class_hash: FieldElement,
-
-        #[arg(help = "The inputs passed to the constructor")]
-        calldata: Vec<FieldElement>,
-    },
-
-    #[command(visible_alias = "cc")]
-    #[command(
-        about = "Get the contract class hash in the given block for the contract deployed at the given address"
-    )]
-    ContractClass {
-        #[arg(help = "The address of the contract whose class hash will be returned")]
-        contract_address: FieldElement,
-
-        #[arg(next_line_help = true)]
-        #[arg(short, long = "block")]
-        #[arg(default_value = "latest")]
-        #[arg(value_parser(BlockIdParser))]
-        #[arg(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
+        #[arg(help = "The storage keys")]
+        keys: Vec<FieldElement>,
     },
 
     #[command(visible_alias = "ch")]
@@ -295,219 +538,20 @@ pub enum Commands {
         contract: PathBuf,
     },
 
-    #[command(visible_alias = "ec")]
-    #[command(about = "Perform ECDSA operations over the STARK-friendly elliptic curve.")]
-    Ecdsa {
-        #[command(subcommand)]
-        commands: EcdsaCommand,
-    },
+    #[command(visible_alias = "ca")]
+    #[command(about = "Compute the contract address from the given information")]
+    ComputeAddress {
+        #[arg(help = "The address of the deploying account contract (currently always zero)")]
+        caller_address: FieldElement,
 
-    #[command(visible_alias = "ev")]
-    #[command(about = "Returns all events matching the given filter")]
-    #[command(
-        long_about = "Returns all event objects matching the conditions in the provided filter"
-    )]
-    Events {
-        #[arg(num_args(0..))]
-        #[arg(help = r"The values used to filter the events.
-Example: 0x12,0x23 0x34,0x45 - Which will be parsed as [[0x12,0x23], [0x34,0x45]]")]
-        #[arg(value_parser = parse_event_keys)]
-        keys: Option<Vec<Vec<FieldElement>>>,
+        #[arg(help = "The salt used in the deploy transaction")]
+        salt: FieldElement,
 
-        #[arg(required = true)]
-        #[arg(short = 's', long)]
-        #[arg(help = "The number of events to return in each page")]
-        chunk_size: u64,
+        #[arg(help = "The hash of the class to instantiate a new contract from")]
+        class_hash: FieldElement,
 
-        #[arg(short = 'C', long)]
-        #[arg(value_name = "CONTRACT_ADDRESS")]
-        #[arg(help = "Address of the contract emitting the events")]
-        from: Option<FieldElement>,
-
-        #[arg(short, long)]
-        #[arg(value_parser(BlockIdParser))]
-        from_block: Option<BlockId>,
-
-        #[arg(short, long)]
-        #[arg(value_parser(BlockIdParser))]
-        to_block: Option<BlockId>,
-
-        #[arg(short = 'c', long)]
-        #[arg(
-            help = "A pointer to the last element of the delivered page, use this token in a subsequent query to obtain the next page"
-        )]
-        continuation_token: Option<String>,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
-    #[command(visible_alias = "idx")]
-    #[command(about = "Compute the address of a storage variable.")]
-    Index {
-        #[arg(value_name = "VAR_NAME")]
-        variable_name: String,
-
-        keys: Vec<FieldElement>,
-    },
-
-    #[command(visible_alias = "kck")]
-    #[command(about = "Hash abritrary data using StarkNet keccak.")]
-    Keccak {
-        #[arg(value_name = "DATA")]
-        data: String,
-    },
-
-    #[command(visible_alias = "n1")]
-    #[command(about = "Get the latest nonce associated with the address.")]
-    Nonce {
-        contract_address: FieldElement,
-
-        #[arg(next_line_help = true)]
-        #[arg(default_value = "latest")]
-        #[arg(value_parser(BlockIdParser))]
-        #[arg(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
-    #[command(visible_alias = "ped")]
-    #[command(about = "Calculate the Pedersen hash on two field elements.")]
-    Pedersen {
-        #[arg(help = "List of elements to compute the hash on.")]
-        elements: Vec<FieldElement>,
-    },
-
-    #[command(about = "Perform a raw JSON-RPC request.")]
-    Rpc(RpcArgs),
-
-    #[command(name = "completions")]
-    #[command(visible_alias = "com")]
-    #[command(about = "Generate command completion script for a specific shell.")]
-    ShellCompletions { shell: Option<Shell> },
-
-    #[command(about = "Get the information about the result of executing the requested block")]
-    StateUpdate {
-        #[arg(next_line_help = true)]
-        #[arg(default_value = "pending")]
-        #[arg(value_parser(BlockIdParser))]
-        #[arg(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Display options")]
-        display: DisplayOptions,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
-    #[command(visible_alias = "str")]
-    #[command(about = "Get the value of a contract's storage at the given index")]
-    Storage {
-        contract_address: FieldElement,
-
-        index: FieldElement,
-
-        #[arg(next_line_help = true)]
-        #[arg(short, long = "block")]
-        #[arg(default_value = "latest")]
-        #[arg(value_parser(BlockIdParser))]
-        #[arg(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
-    #[command(visible_alias = "sync")]
-    #[command(about = "Get the synchronization status of the StarkNet node")]
-    Syncing {
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
-    #[command(name = "tx")]
-    #[command(about = "Get information about a transaction.")]
-    Transaction {
-        #[arg(value_name = "TX_HASH")]
-        hash: FieldElement,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Display options")]
-        display: DisplayOptions,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
-    #[command(visible_alias = "txc")]
-    #[command(name = "tx-count")]
-    #[command(about = "Get the number of transactions in a block.")]
-    TransactionCount {
-        #[arg(next_line_help = true)]
-        #[arg(default_value = "latest")]
-        #[arg(value_parser(BlockIdParser))]
-        #[arg(
-            help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-        )]
-        block_id: BlockId,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
-    #[command(visible_alias = "txs")]
-    #[command(name = "tx-status")]
-    #[command(about = "Get the status of a transaction.")]
-    TransactionStatus {
-        #[arg(value_name = "TX_HASH")]
-        hash: FieldElement,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
-    #[command(visible_alias = "rct")]
-    #[command(name = "receipt")]
-    #[command(about = "Get the receipt of a transaction.")]
-    Receipt {
-        #[arg(value_name = "TX_HASH")]
-        hash: FieldElement,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Display options")]
-        display: DisplayOptions,
-
-        #[command(flatten)]
-        #[command(next_help_heading = "Starknet options")]
-        starknet: StarknetOptions,
-    },
-
-    #[command(visible_alias = "gca")]
-    #[command(about = "Generate call array calldata")]
-    CallArray {
-        #[arg(required = true)]
-        #[arg(value_delimiter = ' ')]
-        #[arg(help = r#"List of calls seperated with a hyphen, -
-        example : <contract address> <function name> [<calldata> ...] - ..."#)]
-        calls: Vec<String>,
+        #[arg(help = "The inputs passed to the constructor")]
+        calldata: Vec<FieldElement>,
     },
 }
 
@@ -544,42 +588,4 @@ pub enum EcdsaCommand {
         #[arg(help = "The key for verification.")]
         verifying_key: FieldElement,
     },
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::commands::Commands;
-
-    use super::App;
-    use clap::{CommandFactory, Parser};
-    use starknet::core::types::FieldElement;
-
-    #[test]
-    fn verify_cli() {
-        App::command().debug_assert()
-    }
-
-    #[test]
-    fn parse_event_keys() {
-        let expected_keys = vec![
-            vec![FieldElement::from(0x1234u64), FieldElement::from(0x12u64)],
-            vec![FieldElement::from(0x6666u64), FieldElement::from(0x7777u64)],
-        ];
-
-        let app = App::parse_from([
-            "rika",
-            "events",
-            "--chunk-size",
-            "2",
-            "0x1234,0x12",
-            "0x6666,0x7777",
-        ]);
-
-        match app.command {
-            Commands::Events { keys, .. } => {
-                assert_eq!(keys, Some(expected_keys));
-            }
-            _ => panic!("wrong command"),
-        }
-    }
 }

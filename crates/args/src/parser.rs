@@ -6,7 +6,7 @@ use starknet::core::types::{BlockId, BlockTag};
 use starknet::core::types::{FieldElement, FromStrError};
 use starknet::core::utils::get_selector_from_name;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct BlockIdParser;
 
 impl TypedValueParser for BlockIdParser {
@@ -123,10 +123,6 @@ pub fn selector_parser(selector: &str) -> eyre::Result<FieldElement> {
         Ok(selector) => Ok(selector),
         Err(_) => Ok(get_selector_from_name(selector)?),
     }
-}
-
-pub fn calldata_parser(calldata: &str) -> eyre::Result<Vec<FieldElement>> {
-    todo!()
 }
 
 // Expected format for keys : 0x124123,0x14123,0x1342

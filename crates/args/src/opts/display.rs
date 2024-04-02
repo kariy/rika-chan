@@ -28,7 +28,7 @@ impl DisplayOptions {
                 self.display_json(
                     serde_json::to_value(&value)?
                         .get(field)
-                        .context(format!("No such field exist: {field}"))?,
+                        .context(format!("no such field exist: {field}"))?,
                 )
             } else {
                 self.display_json(&serde_json::to_value(&value)?)

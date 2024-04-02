@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use eyre::Result;
+use eyre::{Context, Result};
 use starknet::core::{types::FieldElement, utils::cairo_short_string_to_felt};
 
 pub fn parse_hex_or_str_as_felt(data: &str) -> Result<FieldElement> {
@@ -11,7 +11,9 @@ pub fn parse_hex_or_str_as_felt(data: &str) -> Result<FieldElement> {
     }
 }
 
+/// Canonicalizes a path and performs both tilde and environment expansions in the default system context.
 pub fn canonicalize_path(path: &str) -> Result<PathBuf> {
-    let path = PathBuf::from(shellexpand::full(path)?.into_owned());
+    let expanded = shellexpand::full(path).context(format!("failed to expand path {path}"))?;
+    let path = PathBuf::from(expanded.into_owned());
     Ok(dunce::canonicalize(path)?)
 }

@@ -92,7 +92,7 @@ impl Pretty for MaybePendingTransactionReceipt {
                     table.add_row(vec!["TYPE", "DEPLOY ACCOUNT"]);
                 }
                 TransactionReceipt::L1Handler(_) => {
-                    table.add_row(vec!["TYPE", "DEPLOY ACCOUNT"]);
+                    table.add_row(vec!["TYPE", "L1 HANDLER"]);
                 }
             },
 

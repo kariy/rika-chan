@@ -28,6 +28,11 @@ pub struct TransactionOptions {
     #[arg(long)]
     #[arg(help = "Wait for the transaction until it gets executed and return the receipt")]
     pub wait: bool,
+
+    #[arg(long)]
+    #[arg(requires = "wait")]
+    #[arg(help = "Output the transaction receipt upon waiting for its completion")]
+    pub receipt: bool,
 }
 
 #[cfg(test)]

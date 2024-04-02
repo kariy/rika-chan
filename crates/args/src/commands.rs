@@ -101,7 +101,7 @@ pub enum Commands {
     },
 
     #[command(visible_alias = "bal")]
-    #[command(about = "Get the ETH/STRK balance of an address.")]
+    #[command(about = "Get an ERC20 token balance of an address.")]
     Balance {
         #[arg(value_name = "ADDRESS")]
         #[arg(help = "The address whose balance you want to query.")]

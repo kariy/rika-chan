@@ -1,5 +1,3 @@
-use crate::parser::ChainIdParser;
-
 use std::str::FromStr;
 
 use clap::Args;
@@ -15,12 +13,6 @@ pub struct StarknetOptions {
     #[arg(help = "The Starknet JSON-RPC endpoint")]
     #[arg(default_value = "http://localhost:5050/")]
     pub rpc_url: Url,
-
-    #[arg(long)]
-    #[arg(env = "STARKNET_CHAIN")]
-    #[arg(value_name = "CHAIN_ID")]
-    #[arg(value_parser(ChainIdParser))]
-    pub chain: Option<ChainId>,
 }
 
 impl StarknetOptions {
@@ -29,7 +21,7 @@ impl StarknetOptions {
     }
 }
 
-#[derive(Debug, Clone, strum::Display)]
+#[derive(Debug, Clone, strum::Display, PartialEq, Eq)]
 #[strum(serialize_all = "lowercase")]
 pub enum ChainId {
     Mainnet,

@@ -2,17 +2,15 @@
 authors.workspace = true
 description.workspace = true
 edition.workspace = true
-name = "rika"
+name = "rika-ops"
 repository.workspace = true
 version.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap.workspace = true
-color-eyre = "0.6.3"
 eyre.workspace = true
 rika-args.workspace = true
-rika-ops.workspace = true
 starknet.workspace = true
-tokio = { version = "1.36.0", features = [ "full" ] }
+thiserror.workspace = true
+tokio = { version = "1.37.0", features = [ "full" ] }

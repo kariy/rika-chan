@@ -6,6 +6,7 @@ use comfy_table::presets::UTF8_FULL;
 use comfy_table::Table;
 use starknet::core::types::{
     DataAvailabilityMode, DeclareTransaction, DeployAccountTransaction, FieldElement,
+    TransactionExecutionStatus, TransactionStatus,
 };
 use starknet::core::types::{
     Event, InvokeTransaction, MaybePendingBlockWithTxs, MaybePendingTransactionReceipt, MsgToL1,
@@ -462,6 +463,34 @@ impl Pretty for DataAvailabilityMode {
         match self {
             DataAvailabilityMode::L1 => format!("L1"),
             DataAvailabilityMode::L2 => format!("L2"),
+        }
+    }
+}
+
+impl Pretty for TransactionStatus {
+    fn prettify(&self) -> String {
+        match self {
+            TransactionStatus::AcceptedOnL1(s) => {
+                format!("ACCEPTED ON L1 ({})", s.prettify())
+            }
+            TransactionStatus::AcceptedOnL2(s) => {
+                format!("ACCEPTED ON L2 ({})", s.prettify())
+            }
+            TransactionStatus::Received => format!("RECEIVED"),
+            TransactionStatus::Rejected => format!("REJECTED"),
+        }
+    }
+}
+
+impl Pretty for TransactionExecutionStatus {
+    fn prettify(&self) -> String {
+        match self {
+            TransactionExecutionStatus::Succeeded => {
+                format!("Succeeded")
+            }
+            TransactionExecutionStatus::Reverted => {
+                format!("Reverted")
+            }
         }
     }
 }

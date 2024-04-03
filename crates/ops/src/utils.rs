@@ -5,9 +5,10 @@ pub fn block_on<F, T>(future: F) -> T
 where
     F: Future<Output = T>,
 {
-    tokio::runtime::Builder::new_current_thread()
+    use tokio::runtime::Builder;
+    Builder::new_current_thread()
         .enable_all()
         .build()
-        .expect("failed to build tokio runtime")
+        .expect("failed to build async runtime")
         .block_on(future)
 }

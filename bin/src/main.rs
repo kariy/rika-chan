@@ -1,3 +1,5 @@
+#![cfg_attr(not(test), warn(unused_crate_dependencies))]
+
 use clap::Parser;
 use eyre::Result;
 use rika_args::commands::{App, Commands};

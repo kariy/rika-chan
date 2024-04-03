@@ -29,3 +29,8 @@ thiserror = "1.0.56"
 # Ref https://docs.rs/color-eyre/0.6.3/color_eyre/#improving-perf-on-debug-builds
 [profile.dev.package.backtrace]
 opt-level = 3
+
+[profile.release]
+codegen-units = 1
+incremental = false
+lto = "fat"

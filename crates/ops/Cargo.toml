@@ -12,5 +12,4 @@ version.workspace = true
 eyre.workspace = true
 rika-args.workspace = true
 starknet.workspace = true
-thiserror.workspace = true
 tokio = { version = "1.37.0", features = [ "full" ] }

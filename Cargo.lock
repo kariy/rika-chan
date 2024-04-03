@@ -2694,8 +2694,6 @@ dependencies = [
  "eyre",
  "rika-args",
  "rika-ops",
- "starknet",
- "tokio",
 ]
 
 [[package]]
@@ -2749,7 +2747,6 @@ dependencies = [
  "eyre",
  "rika-args",
  "starknet",
- "thiserror",
  "tokio",
 ]
 

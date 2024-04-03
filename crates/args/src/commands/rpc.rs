@@ -1,12 +1,10 @@
 use clap::Args;
-use eyre::Result;
 use reqwest::Url;
-use serde_json::json;
 
 #[derive(Debug, Clone, Args)]
 pub struct RpcArgs {
     #[arg(help = "RPC method name")]
-    method: String,
+    pub method: String,
 
     #[arg(short, long)]
     #[arg(help = r#"Pass the "params" as is"#)]
@@ -14,7 +12,7 @@ pub struct RpcArgs {
 If --raw is passed the first PARAM will be taken as the value of "params". If no params are given, stdin will be used. For example:
 rpc starknet_getStorageAt '["0x123", "0x69420", "latest"]' --raw
     => {"method": "eth_getBlockByNumber", "params": ["0x123", false] ... }"#)]
-    raw: bool,
+    pub raw: bool,
 
     #[arg(value_name = "PARAMS")]
     #[arg(help = "RPC parameters")]
@@ -24,52 +22,12 @@ rpc starknet_getStorageAt '["0x123", "0x69420", "latest"]' --raw
 
     rpc starknet_getStorageAt 0x123 0x69420 latest
     => {"method": "starknet_getStorageAt", "params": ["0x123", "0x69420", "latest"] ... }"#)]
-    params: Vec<String>,
+    pub params: Vec<String>,
 
     #[arg(long)]
     #[arg(value_name = "URL")]
     #[arg(help = "The RPC endpoint")]
-    #[arg(env = "STARKNET_RPC_URL")]
-    #[arg(default_value = "http://localhost:5050/")]
-    rpc_url: Url,
-}
-
-impl RpcArgs {
-    pub async fn run(self) -> Result<String> {
-        let Self {
-            method,
-            raw,
-            params,
-            rpc_url,
-        } = self;
-
-        let mut vec = Vec::new();
-        if raw {
-            if let Some(p) = params.get(0) {
-                vec.push(serde_json::from_str(p)?)
-            }
-        } else {
-            for value in params.into_iter() {
-                vec.push(serde_json::from_str(&value).unwrap_or(serde_json::Value::String(value)))
-            }
-        }
-
-        let params = serde_json::Value::Array(vec);
-        let res = reqwest::Client::new()
-            .post(rpc_url)
-            .json(&json!({
-                "id": 1,
-                "jsonrpc": "2.0",
-                "method": method,
-                "params": params
-            }))
-            .send()
-            .await?
-            .json::<serde_json::Value>()
-            .await?;
-
-        Ok(serde_json::to_string_pretty(&res)?)
-    }
+    pub url: Url,
 }
 
 #[cfg(test)]

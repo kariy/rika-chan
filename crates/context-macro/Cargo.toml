@@ -1,0 +1,16 @@
+[package]
+description = "An attribute macro to add context to errors from a function."
+edition = "2018"
+name = "fn-error-context"
+readme = "README.md"
+version = "0.1.0"
+
+[lib]
+name = "fn_error_context"
+proc-macro = true
+
+[dependencies]
+eyre.workspace = true
+proc-macro2 = "1.0.79"
+quote = "1.0.35"
+syn = { version = "2.0.57", features = [ "full" ] }

@@ -8,11 +8,11 @@ use rika_ops as ops;
 fn main() -> Result<()> {
     color_eyre::install()?;
     let args = App::parse();
-    execute(args)
+    execute(args.command)
 }
 
-fn execute(args: App) -> Result<()> {
-    match args.command {
+fn execute(command: Commands) -> Result<()> {
+    match command {
         Commands::Tx(args) => ops::transaction::get(args)?,
         Commands::TxCount(args) => ops::transaction::count(args)?,
         Commands::TxStatus(args) => ops::transaction::status(args)?,

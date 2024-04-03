@@ -17,6 +17,7 @@ fn execute(args: App) -> Result<()> {
         Commands::TxCount(args) => ops::transaction::count(args)?,
         Commands::TxStatus(args) => ops::transaction::status(args)?,
         Commands::Receipt(args) => ops::transaction::receipt(args)?,
+        Commands::Rpc(args) => ops::rpc::send(args)?,
 
         _ => {
             unimplemented!("This command is not implemented yet")

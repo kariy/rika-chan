@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 
 use crate::utils;
 
-pub fn rpc(args: RpcArgs) -> Result<()> {
+pub fn send(args: RpcArgs) -> Result<()> {
     let RpcArgs {
         method,
         params,

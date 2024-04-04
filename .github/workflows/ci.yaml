@@ -27,6 +27,7 @@ jobs:
         runs-on: "ubuntu-latest"
         steps:
             - uses: "actions/checkout@v3"
+            - uses: Swatinem/rust-cache@v2
             - uses: "actions-rs/toolchain@v1"
               with:
                   override: true
@@ -39,22 +40,18 @@ jobs:
                   args: "--all"
             - run: |
                   "cargo install taplo-cli"
-                  "taplo fmt"
+                  "taplo format"
 
     clippy:
         name: "Clippy"
         runs-on: "ubuntu-latest"
         steps:
             - uses: "actions/checkout@v3"
-            - name: "Setup cmake"
-              uses: "jwlawson/actions-setup-cmake@v1.13"
+            - uses: Swatinem/rust-cache@v2
             - uses: "actions-rs/toolchain@v1"
               with:
                   override: true
                   profile: "minimal"
                   toolchain: "nightly"
                   components: "clippy"
-            - uses: "actions-rs/cargo@v1"
-              with:
-                  command: "clippy"
-                  args: "-- -D warnings"
+            - run: "scripts/clippy.sh"

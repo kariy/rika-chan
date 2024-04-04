@@ -10,9 +10,12 @@ version.workspace = true
 
 [dependencies]
 eyre.workspace = true
-reqwest = { workspace = true, features = ["rustls-tls"] }
+reqwest = { workspace = true, features = [ "rustls-tls" ] }
 rika-args.workspace = true
 serde = "1.0.197"
 serde_json.workspace = true
 starknet.workspace = true
 tokio = { version = "1.37.0", features = [ "full" ] }
+
+[dev-dependencies]
+similar-asserts.workspace = true

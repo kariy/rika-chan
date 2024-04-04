@@ -1,7 +1,7 @@
-use clap::Args;
+use clap::Parser;
 use reqwest::Url;
 
-#[derive(Debug, Clone, Args)]
+#[derive(Debug, Clone, Parser)]
 pub struct RpcArgs {
     #[arg(help = "RPC method name")]
     pub method: String,
@@ -32,33 +32,34 @@ rpc starknet_getStorageAt '["0x123", "0x69420", "latest"]' --raw
 
 #[cfg(test)]
 mod tests {
-    use crate::commands::{App, Commands};
-
-    use clap::Parser;
-    use serde_json::json;
+    use super::*;
 
     #[test]
-    fn parse_rpc_params() {
-        let p = json!({
-            "contract_address": "0x050225ec8d27d8d34c2a5dfd97f01bcd8d55b521fe34ac1db5ba9f544b99af01",
-            "entry_point_selector": "0x025ec026985a3bf9d0cc1fe17326b245dfdc3ff89b8fde106542a3ea56c5a918",
-            "calldata": [
-                "0x12314",
-                "0x42069"
-            ]
+    fn parse_params() {
+        let json = serde_json::json!({
+            "key": "value"
         })
         .to_string();
 
-        let args: App = App::parse_from(["rika", "rpc", "starknet_call", &p, "latest"]);
+        let args = RpcArgs::parse_from(&[
+            "rpc",
+            "starknet_getStorageAt",
+            "0x123",
+            "0x69420",
+            "\"latest\"",
+            &json,
+            "--url",
+            "http://localhost:8545",
+        ]);
 
-        match args.command {
-            Commands::Rpc(args) => {
-                let params = args.params;
-                assert_eq!(params, vec![p, "latest".to_string()])
-            }
-            _ => {
-                unreachable!()
-            }
-        };
+        let actual_params = args
+            .params
+            .as_slice()
+            .into_iter()
+            .map(String::as_str)
+            .collect::<Vec<&str>>();
+
+        let expected_params = ["0x123", "0x69420", "\"latest\"", &json];
+        similar_asserts::assert_eq!(actual_params.as_slice(), expected_params);
     }
 }

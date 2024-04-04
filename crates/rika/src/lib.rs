@@ -141,7 +141,7 @@ impl<P: Provider> Rika<P> {
 
             if let Some(field) = field {
                 json = json
-                    .get(&field)
+                    .get(field)
                     .ok_or_else(|| eyre!("`{field}` is not a valid transaction receipt field."))?
                     .to_owned();
             }

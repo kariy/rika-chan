@@ -46,7 +46,7 @@ mod tests {
 
     #[test]
     fn parse_tx_options() {
-        let cli = TransactionOptions::command().get_matches_from(&[
+        let cli = TransactionOptions::command().get_matches_from([
             "transaction_options",
             "--signature",
             "0x124142,0x3323234,0x12324131",

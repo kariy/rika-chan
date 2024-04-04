@@ -461,8 +461,8 @@ pub fn pretty_block_without_txs(block: &MaybePendingBlockWithTxs) -> String {
 impl Pretty for DataAvailabilityMode {
     fn prettify(&self) -> String {
         match self {
-            DataAvailabilityMode::L1 => format!("L1"),
-            DataAvailabilityMode::L2 => format!("L2"),
+            DataAvailabilityMode::L1 => "L1".to_string(),
+            DataAvailabilityMode::L2 => "L2".to_string(),
         }
     }
 }
@@ -476,8 +476,8 @@ impl Pretty for TransactionStatus {
             TransactionStatus::AcceptedOnL2(s) => {
                 format!("ACCEPTED ON L2 ({})", s.prettify())
             }
-            TransactionStatus::Received => format!("RECEIVED"),
-            TransactionStatus::Rejected => format!("REJECTED"),
+            TransactionStatus::Received => "RECEIVED".to_string(),
+            TransactionStatus::Rejected => "REJECTED".to_string(),
         }
     }
 }
@@ -486,10 +486,10 @@ impl Pretty for TransactionExecutionStatus {
     fn prettify(&self) -> String {
         match self {
             TransactionExecutionStatus::Succeeded => {
-                format!("Succeeded")
+                "Succeeded".to_string()
             }
             TransactionExecutionStatus::Reverted => {
-                format!("Reverted")
+                "Reverted".to_string()
             }
         }
     }

@@ -92,7 +92,7 @@ impl TypedValueParser for TokenAddressParser {
             value => FieldElement::from_str(value).map_err(|e| match e {
                 FromStrError::InvalidCharacter => Error::raw(
                     ErrorKind::InvalidValue,
-                    format!("value must be an address or one of the known tokens"),
+                    "value must be an address or one of the known tokens".to_string(),
                 ),
                 FromStrError::OutOfRange => Error::raw(
                     ErrorKind::InvalidValue,

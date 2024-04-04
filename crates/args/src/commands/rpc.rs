@@ -47,7 +47,7 @@ mod tests {
             "key": "value"
         });
 
-        let args = RpcArgs::parse_from(&[
+        let args = RpcArgs::parse_from([
             "rpc",
             "starknet_getStorageAt",
             "123",

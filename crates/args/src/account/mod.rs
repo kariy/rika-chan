@@ -118,7 +118,7 @@ impl WalletCommands {
                         [ChainId::options(), &["other"]].concat(),
                     )
                     .prompt()
-                    .map(|chain| ChainId::from_str(&chain).ok())?;
+                    .map(|chain| ChainId::from_str(chain).ok())?;
 
                     wallet.chain = chain;
 

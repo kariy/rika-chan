@@ -15,7 +15,7 @@ pub fn send(args: RpcArgs) -> Result<()> {
 
     let payload = build_payload(&method, params);
     let res = utils::block_on(send_request::<Value>(url, payload))?;
-    println!("{}", serde_json::to_string_pretty(&res)?);
+    println!("{}", colored_json::to_colored_json_auto(&res)?);
 
     Ok(())
 }

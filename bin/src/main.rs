@@ -13,6 +13,7 @@ fn main() -> Result<()> {
 
 fn execute(command: Commands) -> Result<()> {
     match command {
+        Commands::Balance(args) => ops::balance::get(args)?,
         Commands::Tx(args) => ops::transaction::get(args)?,
         Commands::TxCount(args) => ops::transaction::count(args)?,
         Commands::TxStatus(args) => ops::transaction::status(args)?,

@@ -1,5 +1,9 @@
 use std::future::Future;
 
+use alloy_primitives::U256;
+use eyre::{Context, Result};
+use starknet::core::types::FieldElement;
+
 /// Blocks on a future, returning the output.
 pub fn block_on<F, T>(future: F) -> T
 where
@@ -11,4 +15,10 @@ where
         .build()
         .expect("failed to build async runtime")
         .block_on(future)
+}
+
+pub fn to_u256(low: FieldElement, high: FieldElement) -> Result<U256> {
+    let low: u128 = low.try_into().context("parsing low")?;
+    let high: u128 = high.try_into().context("parsing high")?;
+    Ok(U256::from(high) << 128 | U256::from(low))
 }

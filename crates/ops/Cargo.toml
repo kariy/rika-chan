@@ -9,6 +9,9 @@ version.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+alloy-primitives = "0.7.0"
+bigdecimal = "0.4.3"
+colored_json.workspace = true
 eyre.workspace = true
 reqwest = { workspace = true, features = [ "rustls-tls" ] }
 rika-args.workspace = true

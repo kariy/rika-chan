@@ -7,14 +7,6 @@ pub struct RpcArgs {
     #[arg(help = "RPC method name")]
     pub method: String,
 
-    #[arg(short, long)]
-    #[arg(help = r#"Pass the "params" as is"#)]
-    #[arg(long_help = r#"Pass the "params" as is
-If --raw is passed the first PARAM will be taken as the value of "params". If no params are given, stdin will be used. For example:
-rpc starknet_getStorageAt '[123, "0x69420", "latest"]' --raw
-    => {"method": "eth_getBlockByNumber", "params": [123, "0x69420", false] ... }"#)]
-    pub raw: bool,
-
     #[arg(value_name = "PARAMS")]
     #[arg(help = "RPC parameters")]
     #[arg(value_parser = params_value_parser)]
@@ -33,12 +25,13 @@ rpc starknet_getStorageAt '[123, "0x69420", "latest"]' --raw
 }
 
 fn params_value_parser(value: &str) -> Result<Value, serde_json::Error> {
+    use serde_json::{from_str, Number};
     // parse as number if possible
     if let Ok(num) = value.parse::<i64>() {
-        Ok(Value::Number(serde_json::Number::from(num)))
+        Ok(Value::Number(Number::from(num)))
     } else {
-        // otherwise parse normally
-        serde_json::from_str(value)
+        // otherwise, try to parse as json and fall back to string
+        Ok(from_str(value).unwrap_or(Value::String(value.to_string())))
     }
 }
 

@@ -1,11 +1,11 @@
 [workspace]
 members = [
-    "bin",
-    "crates/args",
-    "crates/context-macro",
-    "crates/ops",
-    "crates/rika",
-    "crates/waiter",
+  "bin",
+  "crates/args",
+  "crates/context-macro",
+  "crates/ops",
+  "crates/rika",
+  "crates/waiter",
 ]
 resolver = "2"
 

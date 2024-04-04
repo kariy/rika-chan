@@ -8,7 +8,7 @@ on:
 
 jobs:
     test:
-        name: "Cargo test"
+        name: "Test"
         runs-on: "ubuntu-latest"
         steps:
             - uses: "actions/checkout@v3"
@@ -18,9 +18,9 @@ jobs:
                   override: true
                   profile: "minimal"
                   toolchain: "stable"
-            - uses: "actions-rs/cargo@v1"
-              with:
-                  command: "test"
+            - run: |
+                  "cargo install cargo-nextest"
+                  "cargo nextest --all-features"
 
     fmt:
         name: "Formatting"
@@ -32,11 +32,14 @@ jobs:
                   override: true
                   profile: "minimal"
                   toolchain: "nightly"
-            - run: "rustup component add rustfmt"
+                  components: "rustfmt"
             - uses: "actions-rs/cargo@v1"
               with:
                   command: "fmt"
-                  args: "--all -- --check"
+                  args: "--all"
+            - run: |
+                  "cargo install taplo-cli"
+                  "taplo fmt"
 
     clippy:
         name: "Clippy"
@@ -50,7 +53,7 @@ jobs:
                   override: true
                   profile: "minimal"
                   toolchain: "nightly"
-            - run: "rustup component add clippy"
+                  components: "clippy"
             - uses: "actions-rs/cargo@v1"
               with:
                   command: "clippy"

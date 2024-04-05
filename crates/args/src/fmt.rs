@@ -485,12 +485,8 @@ impl Pretty for TransactionStatus {
 impl Pretty for TransactionExecutionStatus {
     fn prettify(&self) -> String {
         match self {
-            TransactionExecutionStatus::Succeeded => {
-                "Succeeded".to_string()
-            }
-            TransactionExecutionStatus::Reverted => {
-                "Reverted".to_string()
-            }
+            TransactionExecutionStatus::Succeeded => "Succeeded".to_string(),
+            TransactionExecutionStatus::Reverted => "Reverted".to_string(),
         }
     }
 }

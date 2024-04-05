@@ -2,6 +2,7 @@
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
 pub mod balance;
+pub mod call;
 pub mod rpc;
 pub mod transaction;
 mod utils;

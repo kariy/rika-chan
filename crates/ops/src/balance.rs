@@ -5,14 +5,16 @@ use eyre::{eyre, ContextCompat, Report, Result};
 use rika_args::commands::balance::BalanceArgs;
 use starknet::{
     core::{
-        types::{BlockId, FieldElement, FunctionCall, StarknetError},
+        types::{BlockId, FieldElement, StarknetError},
         utils::parse_cairo_short_string,
     },
-    macros::selector,
     providers::{Provider, ProviderError},
 };
 
-use crate::utils;
+use crate::{
+    call::{contract_call, ContractCallError},
+    utils,
+};
 
 pub fn get(args: BalanceArgs) -> Result<()> {
     let BalanceArgs {
@@ -50,22 +52,27 @@ async fn get_balance<P>(
 where
     P: Provider,
 {
-    fn handle_error(err: ProviderError) -> Report {
+    fn handle_error(err: ContractCallError) -> Report {
         match err {
-            ProviderError::StarknetError(StarknetError::ContractNotFound) => {
+            ContractCallError::Provider(ProviderError::StarknetError(
+                StarknetError::ContractNotFound,
+            )) => {
                 eyre!("token contract not found")
             }
             e => eyre!(e),
         }
     }
 
-    let call = FunctionCall {
+    let retdata = contract_call(
+        provider,
         contract_address,
-        calldata: vec![address],
-        entry_point_selector: selector!("balanceOf"),
-    };
+        "balanceOf",
+        vec![address],
+        block_id,
+    )
+    .await
+    .map_err(handle_error)?;
 
-    let retdata = provider.call(call, block_id).await.map_err(handle_error)?;
     // the convention is to return a u256, which means there are two felts
     let low = retdata.first().context("missing low value")?;
     let high = retdata.last().context("missing high value")?;
@@ -81,44 +88,11 @@ async fn get_token_metadata<P>(
 where
     P: Provider + Sync,
 {
-    async fn get_decimals(
-        provider: impl Provider,
-        block_id: BlockId,
-        contract_address: FieldElement,
-    ) -> Result<u8> {
-        let request = FunctionCall {
-            contract_address,
-            calldata: Vec::new(),
-            entry_point_selector: selector!("decimals"),
-        };
-
-        let result = provider.call(request, block_id).await?;
-        let decimals = result.first().context("missing decimals in call retdata")?;
-        Ok((*decimals).try_into()?)
-    }
-
-    async fn get_symbol(
-        provider: impl Provider,
-        block_id: BlockId,
-        contract_address: FieldElement,
-    ) -> Result<String> {
-        let request = FunctionCall {
-            contract_address,
-            calldata: Vec::new(),
-            entry_point_selector: selector!("symbol"),
-        };
-
-        let result = provider.call(request, block_id).await?;
-        let symbol = result.first().context("missing symbol in call retdata")?;
-        Ok(parse_cairo_short_string(symbol)?)
-    }
-
     let (symbol, decimals) = join!(
         get_symbol(&provider, block_id, contract_address),
         get_decimals(&provider, block_id, contract_address)
     )
     .await;
-
     Ok((symbol?, decimals?))
 }
 
@@ -134,4 +108,25 @@ fn format_balance(balance: U256, symbol: &str, decimals: u8) -> String {
     );
 
     format!("{decimal} {symbol}")
+}
+
+async fn get_decimals(
+    provider: impl Provider,
+    block_id: BlockId,
+    contract_address: FieldElement,
+) -> Result<u8> {
+    let retdata =
+        contract_call(provider, contract_address, "decimals", Vec::new(), block_id).await?;
+    let dec = retdata.first().context("missing value in call retdata")?;
+    Ok((*dec).try_into()?)
+}
+
+async fn get_symbol(
+    provider: impl Provider,
+    block_id: BlockId,
+    contract_address: FieldElement,
+) -> Result<String> {
+    let retdata = contract_call(provider, contract_address, "symbol", Vec::new(), block_id).await?;
+    let symbol = retdata.first().context("missing value in call retdata")?;
+    Ok(parse_cairo_short_string(symbol)?)
 }

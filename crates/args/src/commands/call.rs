@@ -15,6 +15,7 @@ pub struct CallArgs {
     pub function: String,
 
     #[arg(display_order = 3)]
+    #[arg(help = "The input data for the function call")]
     pub input: Vec<FieldElement>,
 
     #[arg(next_line_help = true)]

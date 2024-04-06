@@ -3,7 +3,7 @@ pub mod simple_account;
 use super::account::simple_account::SimpleWallet;
 use crate::opts::account::{utils::get_main_keystore_dir, WalletOptions};
 use crate::opts::starknet::ChainId;
-use crate::utils::canonicalize_path;
+use crate::utils::fs::canonicalize_path;
 use crate::utils::parse_hex_or_str_as_felt;
 
 use std::path::PathBuf;

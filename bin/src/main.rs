@@ -8,7 +8,14 @@ use rika_ops as ops;
 fn main() -> Result<()> {
     color_eyre::install()?;
     let args = App::parse();
-    execute(args.command)
+
+    match execute(args.command) {
+        Ok(()) => Ok(()),
+        Err(e) => {
+            eprintln!("{e}");
+            std::process::exit(1);
+        }
+    }
 }
 
 fn execute(command: Commands) -> Result<()> {
@@ -20,6 +27,9 @@ fn execute(command: Commands) -> Result<()> {
         Commands::TxStatus(args) => ops::transaction::status(args)?,
         Commands::Receipt(args) => ops::transaction::receipt(args)?,
         Commands::Rpc(args) => ops::rpc::send(args)?,
+        Commands::Block(args) => ops::block::get(args)?,
+        Commands::Age(args) => ops::block::age(args)?,
+        Commands::BlockNumber(args) => ops::block::number(args)?,
 
         _ => {
             unimplemented!("This command is not implemented yet")

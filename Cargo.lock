@@ -3051,6 +3051,7 @@ version = "0.1.0"
 dependencies = [
  "alloy-primitives",
  "bigdecimal 0.4.3",
+ "chrono",
  "colored_json",
  "eyre",
  "reqwest 0.12.0",

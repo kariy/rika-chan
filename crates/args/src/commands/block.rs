@@ -1,7 +1,7 @@
-use clap::ArgAction;
 use clap::Parser;
 use starknet::core::types::BlockId;
 
+use crate::opts::display::DisplayOptions;
 use crate::opts::starknet::StarknetOptions;
 use crate::parser::BlockIdParser;
 
@@ -13,15 +13,15 @@ pub struct AgeArgs {
     #[arg(
         help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
     )]
-    block_id: BlockId,
+    pub block_id: BlockId,
 
     #[arg(short = 'r', long)]
     #[arg(help_heading = "Display options")]
-    human_readable: bool,
+    pub human_readable: bool,
 
     #[command(flatten)]
     #[command(next_help_heading = "Starknet options")]
-    starknet: StarknetOptions,
+    pub starknet: StarknetOptions,
 }
 
 #[derive(Debug, Parser)]
@@ -33,28 +33,29 @@ pub struct BlockArgs {
     #[arg(
         help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
     )]
-    id: BlockId,
+    pub id: BlockId,
 
     #[arg(long)]
-    #[arg(action(ArgAction::SetTrue))]
+    #[arg(conflicts_with = "compact")]
     #[arg(help = "Get the full information (incl. transactions) of the block.")]
-    full: bool,
+    pub full: bool,
 
     #[arg(long)]
-    field: Option<String>,
+    #[arg(help = "Get the block with the transaction hashes only, not the full transactions.")]
+    pub compact: bool,
 
-    #[arg(short = 'j', long = "json")]
-    #[arg(help_heading = "Display options")]
-    to_json: bool,
+    #[command(flatten)]
+    #[command(next_help_heading = "Display options")]
+    pub display: DisplayOptions,
 
     #[command(flatten)]
     #[command(next_help_heading = "Starknet options")]
-    starknet: StarknetOptions,
+    pub starknet: StarknetOptions,
 }
 
 #[derive(Debug, Parser)]
 pub struct BlockNumberArgs {
     #[command(flatten)]
     #[command(next_help_heading = "Starknet options")]
-    starknet: StarknetOptions,
+    pub starknet: StarknetOptions,
 }

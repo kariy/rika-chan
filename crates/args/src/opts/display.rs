@@ -6,7 +6,7 @@ use serde_json::Value;
 use crate::fmt::Pretty;
 
 #[derive(Debug, thiserror::Error)]
-#[error("Field not found: {field}.\nAvailable fields: {}", available_fields.join(", "))]
+#[error("Field '{field}' doesn't exist.\nAvailable fields: {}", available_fields.join(", "))]
 pub struct FieldNotFoundError {
     /// The field that was not found.
     field: String,
@@ -51,6 +51,7 @@ impl DisplayOptions {
                 "Unable to extract field '{field}'. Value is not an object."
             );
 
+            // TODO: allow specifying nested fields using dot notation (e.g. "block.number") in the cli
             match value.get(field) {
                 Some(field) => {
                     println!("{}", colored_json::to_colored_json_auto(field)?);

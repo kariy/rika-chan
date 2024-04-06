@@ -6,7 +6,7 @@ use comfy_table::presets::UTF8_FULL;
 use comfy_table::Table;
 use starknet::core::types::{
     DataAvailabilityMode, DeclareTransaction, DeployAccountTransaction, FieldElement,
-    TransactionExecutionStatus, TransactionStatus,
+    MaybePendingBlockWithTxHashes, TransactionExecutionStatus, TransactionStatus,
 };
 use starknet::core::types::{
     Event, InvokeTransaction, MaybePendingBlockWithTxs, MaybePendingTransactionReceipt, MsgToL1,
@@ -350,6 +350,63 @@ impl Pretty for Transaction {
 }
 
 impl Pretty for MaybePendingBlockWithTxs {
+    fn prettify(&self) -> String {
+        let mut table = Table::new();
+        table
+            .load_preset(UTF8_FULL)
+            .apply_modifier(UTF8_SOLID_INNER_BORDERS);
+
+        match self {
+            Self::Block(block) => {
+                table
+                    .add_row(vec!["BLOCK HASH", &block.block_hash.prettify()])
+                    .add_row(vec!["PARENT HASH", &block.parent_hash.prettify()])
+                    .add_row(vec!["BLOCK NUMBER", &block.block_number.prettify()])
+                    .add_row(vec!["NEW ROOT", &block.new_root.prettify()])
+                    .add_row(vec![
+                        "TIMESTAMP",
+                        &Local
+                            .timestamp_opt(block.timestamp as i64, 0)
+                            .unwrap()
+                            .to_string(),
+                    ])
+                    .add_row(vec![
+                        "SEQUENCER ADDRESS",
+                        &block.sequencer_address.prettify(),
+                    ])
+                    .add_row(vec![
+                        "STATUS",
+                        serde_json::to_value(block.status)
+                            .unwrap_or_default()
+                            .as_str()
+                            .unwrap_or_default(),
+                    ])
+                    .add_row(vec!["TRANSACTIONS", &block.transactions.prettify()]);
+            }
+
+            Self::PendingBlock(block) => {
+                table
+                    .add_row(vec!["PARENT HASH", &block.parent_hash.prettify()])
+                    .add_row(vec![
+                        "TIMESTAMP",
+                        &Local
+                            .timestamp_opt(block.timestamp as i64, 0)
+                            .unwrap()
+                            .to_string(),
+                    ])
+                    .add_row(vec![
+                        "SEQUENCER ADDRESS",
+                        &block.sequencer_address.prettify(),
+                    ])
+                    .add_row(vec!["TRANSACTIONS", &block.transactions.prettify()]);
+            }
+        }
+
+        format!("{table}")
+    }
+}
+
+impl Pretty for MaybePendingBlockWithTxHashes {
     fn prettify(&self) -> String {
         let mut table = Table::new();
         table

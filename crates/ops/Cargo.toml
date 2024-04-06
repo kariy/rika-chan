@@ -11,6 +11,7 @@ version.workspace = true
 [dependencies]
 alloy-primitives = "0.7.0"
 bigdecimal = "0.4.3"
+chrono.workspace = true
 colored_json.workspace = true
 eyre.workspace = true
 reqwest = { workspace = true, features = [ "rustls-tls" ] }

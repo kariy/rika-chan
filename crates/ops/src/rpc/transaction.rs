@@ -1,6 +1,6 @@
 use eyre::Result;
 use rika_args::{
-    commands::transaction::{ReceiptArgs, TxArgs, TxCountArgs, TxStatusArgs},
+    commands::rpc::{ReceiptArgs, TxArgs, TxCountArgs, TxStatusArgs},
     fmt::Pretty,
 };
 use starknet::providers::Provider;

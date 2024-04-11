@@ -1,6 +1,6 @@
 use eyre::Result;
 use rika_args::{
-    commands::block::{AgeArgs, BlockArgs, BlockNumberArgs},
+    commands::rpc::{AgeArgs, BlockArgs, BlockNumberArgs},
     fmt::pretty_block_without_txs,
 };
 use starknet::{

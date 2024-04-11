@@ -2,7 +2,7 @@ use std::future::join;
 
 use alloy_primitives::U256;
 use eyre::{eyre, ContextCompat, Report, Result};
-use rika_args::commands::balance::BalanceArgs;
+use rika_args::commands::rpc::BalanceArgs;
 use starknet::{
     core::{
         types::{BlockId, FieldElement, StarknetError},
@@ -11,10 +11,8 @@ use starknet::{
     providers::{Provider, ProviderError},
 };
 
-use crate::{
-    call::{contract_call, ContractCallError},
-    utils,
-};
+use super::call::{contract_call, ContractCallError};
+use crate::utils;
 
 pub fn get(args: BalanceArgs) -> Result<()> {
     let BalanceArgs {

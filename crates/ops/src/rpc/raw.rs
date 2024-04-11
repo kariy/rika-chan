@@ -1,13 +1,13 @@
 use eyre::Result;
 use reqwest::IntoUrl;
-use rika_args::commands::rpc::RpcArgs;
+use rika_args::commands::rpc::RawRpcArgs;
 use serde::de::DeserializeOwned;
 use serde_json::{json, Value};
 
 use crate::utils;
 
-pub fn send(args: RpcArgs) -> Result<()> {
-    let RpcArgs {
+pub fn send(args: RawRpcArgs) -> Result<()> {
+    let RawRpcArgs {
         method,
         params,
         url,
@@ -42,7 +42,7 @@ where
 mod tests {
     use serde_json::json;
 
-    use crate::rpc::build_payload;
+    use super::build_payload;
 
     #[test]
     fn test_build_payload() {

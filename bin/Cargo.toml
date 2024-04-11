@@ -14,3 +14,7 @@ color-eyre = "0.6.3"
 eyre.workspace = true
 rika-args.workspace = true
 rika-ops.workspace = true
+
+[features]
+default = [ "rpc" ]
+rpc = [  ]

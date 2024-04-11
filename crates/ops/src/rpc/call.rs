@@ -1,5 +1,5 @@
 use eyre::Result;
-use rika_args::{commands::call::CallArgs, fmt::Pretty};
+use rika_args::{commands::rpc::CallArgs, fmt::Pretty};
 use starknet::{
     core::{
         types::{BlockId, FieldElement, FunctionCall},

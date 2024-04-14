@@ -8,7 +8,7 @@ use starknet::{
     providers::{Provider, ProviderError},
 };
 
-use crate::utils;
+use super::utils;
 
 pub fn age(args: AgeArgs) -> Result<()> {
     let AgeArgs {
@@ -18,7 +18,7 @@ pub fn age(args: AgeArgs) -> Result<()> {
     } = args;
 
     let provider = starknet.provider();
-    let block = utils::block_on(get_block(provider, block_id))?;
+    let block = utils::do_call_with_mapped_rpc_err(get_block(provider, block_id))?;
 
     let timestamp = match block {
         MaybePendingBlockWithTxs::Block(b) => b.timestamp,
@@ -48,11 +48,11 @@ pub fn get(args: BlockArgs) -> Result<()> {
     let provider = starknet.provider();
 
     if compact {
-        let block = utils::block_on(get_block_compact(provider, id))?;
+        let block = utils::do_call_with_mapped_rpc_err(get_block_compact(provider, id))?;
         display.display(block)?;
         return Ok(());
     } else {
-        let block = utils::block_on(get_block(provider, id))?;
+        let block = utils::do_call_with_mapped_rpc_err(get_block(provider, id))?;
         if full || display.field.is_some() {
             display.display(block)?;
         } else {
@@ -65,7 +65,7 @@ pub fn get(args: BlockArgs) -> Result<()> {
 
 pub fn number(args: BlockNumberArgs) -> Result<()> {
     let provider = args.starknet.provider();
-    let number = utils::block_on(provider.block_number())?;
+    let number = utils::do_call_with_mapped_rpc_err(provider.block_number())?;
     println!("{number:#x}");
     Ok(())
 }

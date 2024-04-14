@@ -8,10 +8,11 @@ use starknet::{
         types::{BlockId, FieldElement, StarknetError},
         utils::parse_cairo_short_string,
     },
+    macros::selector,
     providers::{Provider, ProviderError},
 };
 
-use super::call::{contract_call, ContractCallError};
+use super::call::contract_call;
 use crate::utils;
 
 pub fn get(args: BalanceArgs) -> Result<()> {
@@ -50,21 +51,19 @@ async fn get_balance<P>(
 where
     P: Provider,
 {
-    fn handle_error(err: ContractCallError) -> Report {
+    let handle_error = |err: ProviderError| -> Report {
         match err {
-            ContractCallError::Provider(ProviderError::StarknetError(
-                StarknetError::ContractNotFound,
-            )) => {
-                eyre!("token contract not found")
+            ProviderError::StarknetError(StarknetError::ContractNotFound) => {
+                eyre!("token with address '{address:#x}' is not found")
             }
             e => eyre!(e),
         }
-    }
+    };
 
     let retdata = contract_call(
         provider,
         contract_address,
-        "balanceOf",
+        selector!("balanceOf"),
         vec![address],
         block_id,
     )
@@ -113,8 +112,14 @@ async fn get_decimals(
     block_id: BlockId,
     contract_address: FieldElement,
 ) -> Result<u8> {
-    let retdata =
-        contract_call(provider, contract_address, "decimals", Vec::new(), block_id).await?;
+    let retdata = contract_call(
+        provider,
+        contract_address,
+        selector!("decimals"),
+        Vec::new(),
+        block_id,
+    )
+    .await?;
     let dec = retdata.first().context("missing value in call retdata")?;
     Ok((*dec).try_into()?)
 }
@@ -124,7 +129,14 @@ async fn get_symbol(
     block_id: BlockId,
     contract_address: FieldElement,
 ) -> Result<String> {
-    let retdata = contract_call(provider, contract_address, "symbol", Vec::new(), block_id).await?;
+    let retdata = contract_call(
+        provider,
+        contract_address,
+        selector!("symbol"),
+        Vec::new(),
+        block_id,
+    )
+    .await?;
     let symbol = retdata.first().context("missing value in call retdata")?;
     Ok(parse_cairo_short_string(symbol)?)
 }

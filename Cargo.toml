@@ -39,7 +39,8 @@ thiserror = "1.0.56"
 [profile.dev.package.backtrace]
 opt-level = 3
 
-[profile.release]
+[profile.maxperf]
 codegen-units = 1
 incremental = false
+inherits = "release"
 lto = "fat"

@@ -13,7 +13,7 @@ use starknet::{
 };
 
 use super::call::contract_call;
-use crate::utils;
+use crate::utils::{self};
 
 pub fn get(args: BalanceArgs) -> Result<()> {
     let BalanceArgs {
@@ -36,7 +36,7 @@ pub fn get(args: BalanceArgs) -> Result<()> {
     if raw {
         println!("{:#x}", balance);
     } else {
-        println!("{}", format_balance(balance, &symbol, decimals));
+        println!("{}", rika_fmt::utils::format_erc20_balance(balance, &symbol, decimals));
     }
 
     Ok(())
@@ -91,20 +91,6 @@ where
     )
     .await;
     Ok((symbol?, decimals?))
-}
-
-fn format_balance(balance: U256, symbol: &str, decimals: u8) -> String {
-    use bigdecimal::{
-        num_bigint::{BigInt, Sign},
-        BigDecimal,
-    };
-
-    let decimal = BigDecimal::new(
-        BigInt::from_bytes_be(Sign::Plus, &balance.to_be_bytes::<{ U256::BYTES }>()),
-        decimals as i64,
-    );
-
-    format!("{decimal} {symbol}")
 }
 
 async fn get_decimals(

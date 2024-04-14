@@ -1,7 +1,8 @@
 use clap::Parser;
+use serde_json::Value;
 use starknet::core::types::BlockId;
 
-use crate::opts::display::DisplayOptions;
+use crate::opts::display::{DisplayOptions, JsonDisplay};
 use crate::opts::starknet::StarknetOptions;
 use crate::parser::BlockIdParser;
 
@@ -46,7 +47,7 @@ pub struct BlockArgs {
 
     #[command(flatten)]
     #[command(next_help_heading = "Display options")]
-    pub display: DisplayOptions,
+    pub display: DisplayOptions<JsonDisplay<Value>>,
 
     #[command(flatten)]
     #[command(next_help_heading = "Starknet options")]

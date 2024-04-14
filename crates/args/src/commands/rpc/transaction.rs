@@ -1,7 +1,9 @@
 use clap::Parser;
-use starknet::core::types::{BlockId, FieldElement};
+use starknet::core::types::{
+    BlockId, FieldElement, MaybePendingTransactionReceipt, Transaction, TransactionStatus,
+};
 
-use crate::opts::display::DisplayOptions;
+use crate::opts::display::{DisplayOptions, JsonDisplay};
 use crate::opts::starknet::StarknetOptions;
 use crate::parser::BlockIdParser;
 
@@ -12,7 +14,7 @@ pub struct TxArgs {
 
     #[command(flatten)]
     #[command(next_help_heading = "Display options")]
-    pub display: DisplayOptions,
+    pub display: DisplayOptions<JsonDisplay<Transaction>>,
 
     #[command(flatten)]
     #[command(next_help_heading = "Starknet options")]
@@ -30,6 +32,9 @@ pub struct TxCountArgs {
     pub block_id: BlockId,
 
     #[command(flatten)]
+    pub display: DisplayOptions,
+
+    #[command(flatten)]
     #[command(next_help_heading = "Starknet options")]
     pub starknet: StarknetOptions,
 }
@@ -38,6 +43,10 @@ pub struct TxCountArgs {
 pub struct TxStatusArgs {
     #[arg(value_name = "TX_HASH")]
     pub hash: FieldElement,
+
+    #[command(flatten)]
+    #[command(next_help_heading = "Display options")]
+    pub display: DisplayOptions<JsonDisplay<TransactionStatus>>,
 
     #[command(flatten)]
     #[command(next_help_heading = "Starknet options")]
@@ -51,7 +60,7 @@ pub struct ReceiptArgs {
 
     #[command(flatten)]
     #[command(next_help_heading = "Display options")]
-    pub display: DisplayOptions,
+    pub display: DisplayOptions<JsonDisplay<MaybePendingTransactionReceipt>>,
 
     #[command(flatten)]
     #[command(next_help_heading = "Starknet options")]

@@ -15,10 +15,9 @@ pub struct StateUpdateArgs {
     )]
     block_id: BlockId,
 
-    #[command(flatten)]
-    #[command(next_help_heading = "Display options")]
-    display: DisplayOptions,
-
+    // #[command(flatten)]
+    // #[command(next_help_heading = "Display options")]
+    // display: DisplayOptions,
     #[command(flatten)]
     #[command(next_help_heading = "Starknet options")]
     starknet: StarknetOptions,

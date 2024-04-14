@@ -5,7 +5,7 @@ members = [
     "crates/context-macro",
     "crates/fmt",
     "crates/ops",
-    "crates/rika",
+    # "crates/rika",
     "crates/waiter",
 ]
 resolver = "2"
@@ -24,6 +24,7 @@ rika-args = { path = "crates/args" }
 rika-fmt = { path = "crates/fmt" }
 rika-ops = { path = "crates/ops" }
 
+alloy-primitives = "0.7.0"
 chrono = "0.4.23"
 clap = { version = "4.1.8", features = [ "derive", "env" ] }
 clap_complete = "4.1.0"

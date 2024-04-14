@@ -4,20 +4,27 @@ use clap::Args;
 use eyre::Result;
 
 pub use self::json::JsonDisplay;
-use crate::fmt::Pretty;
+use rika_fmt::Pretty;
 
 #[derive(Debug, Args)]
-pub struct DisplayOptions<T>
+pub struct DisplayOptions<T = NullDisplayOptions>
 where
-    T: Args + RawDisplay,
+    T: Args,
 {
     #[command(flatten)]
     pub raw_format: T,
 }
 
+impl DisplayOptions {
+    pub fn print(&self, value: impl std::fmt::Display) -> Result<()> {
+        println!("{value}");
+        Ok(())
+    }
+}
+
 impl<T> DisplayOptions<T>
 where
-    T: RawDisplay + Args,
+    T: Args + RawDisplay,
 {
     pub fn print(&self, value: <T as RawDisplay>::Value) -> Result<()>
     where
@@ -44,3 +51,6 @@ pub trait RawDisplay {
         false
     }
 }
+
+#[derive(Debug, Args)]
+pub struct NullDisplayOptions;

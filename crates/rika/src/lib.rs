@@ -11,7 +11,7 @@ use cairo_lang_starknet::contract_class::ContractClass;
 use crypto_bigint::U256;
 use eyre::{eyre, Report, Result};
 use reqwest::Url;
-use rika_args::fmt::{pretty_block_without_txs, Pretty};
+use rika_fmt::Pretty;
 use starknet::accounts::Call;
 use starknet::core::crypto::{compute_hash_on_elements, ExtendedSignature};
 use starknet::core::types::contract::CompiledClass;

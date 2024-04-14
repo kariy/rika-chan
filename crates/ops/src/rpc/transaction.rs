@@ -1,45 +1,48 @@
 use eyre::Result;
-use rika_args::{
-    commands::rpc::{ReceiptArgs, TxArgs, TxCountArgs, TxStatusArgs},
-    fmt::Pretty,
-};
+use rika_args::commands::rpc::{ReceiptArgs, TxArgs, TxCountArgs, TxStatusArgs};
 use starknet::providers::Provider;
 
 use super::utils;
 
-pub fn get(args: TxArgs) -> Result<()> {
-    let TxArgs {
-        hash,
-        display,
-        starknet,
-    } = args;
+// pub fn get(args: TxArgs) -> Result<()> {
+//     let TxArgs {
+//         hash,
+//         display,
+//         starknet,
+//     } = args;
 
-    let provider = starknet.provider();
-    let result = utils::do_call_with_mapped_rpc_err(provider.get_transaction_by_hash(hash))?;
-    display.display(result)?;
+//     let provider = starknet.provider();
+//     let result = utils::do_call_with_mapped_rpc_err(provider.get_transaction_by_hash(hash))?;
+//     display.print(result)?;
 
-    Ok(())
-}
+//     Ok(())
+// }
 
-pub fn count(args: TxCountArgs) -> Result<()> {
-    let TxCountArgs { block_id, starknet } = args;
+// pub fn count(args: TxCountArgs) -> Result<()> {
+//     let TxCountArgs {
+//         block_id, starknet, ..
+//     } = args;
 
-    let provider = starknet.provider();
-    let count = utils::do_call_with_mapped_rpc_err(provider.get_block_transaction_count(block_id))?;
-    println!("{count}");
+//     let provider = starknet.provider();
+//     let count = utils::do_call_with_mapped_rpc_err(provider.get_block_transaction_count(block_id))?;
+//     println!("{count}");
 
-    Ok(())
-}
+//     Ok(())
+// }
 
-pub fn status(args: TxStatusArgs) -> Result<()> {
-    let TxStatusArgs { hash, starknet } = args;
+// pub fn status(args: TxStatusArgs) -> Result<()> {
+//     let TxStatusArgs {
+//         hash,
+//         display,
+//         starknet,
+//     } = args;
 
-    let provider = starknet.provider();
-    let status = utils::do_call_with_mapped_rpc_err(provider.get_transaction_status(hash))?;
-    println!("{}", status.prettify());
+//     let provider = starknet.provider();
+//     let status = utils::do_call_with_mapped_rpc_err(provider.get_transaction_status(hash))?;
+//     display.print(status)?;
 
-    Ok(())
-}
+//     Ok(())
+// }
 
 pub fn receipt(args: ReceiptArgs) -> Result<()> {
     let ReceiptArgs {
@@ -50,7 +53,7 @@ pub fn receipt(args: ReceiptArgs) -> Result<()> {
 
     let provider = starknet.provider();
     let receipt = utils::do_call_with_mapped_rpc_err(provider.get_transaction_receipt(hash))?;
-    display.display(receipt)?;
+    display.print(receipt)?;
 
     Ok(())
 }

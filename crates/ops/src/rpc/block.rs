@@ -49,15 +49,15 @@ pub fn get(args: BlockArgs) -> Result<()> {
 
     if compact {
         let block = utils::do_call_with_mapped_rpc_err(get_block_compact(provider, id))?;
-        display.display(block)?;
+        // display.display(block)?;
         return Ok(());
     } else {
-        let block = utils::do_call_with_mapped_rpc_err(get_block(provider, id))?;
-        if full || display.field.is_some() {
-            display.display(block)?;
-        } else {
-            println!("{}", pretty_block_without_txs(&block));
-        }
+        // let block = utils::do_call_with_mapped_rpc_err(get_block(provider, id))?;
+        // if full || display.field.is_some() {
+        //     display.display(block)?;
+        // } else {
+        //     println!("{}", pretty_block_without_txs(&block));
+        // }
     }
 
     Ok(())

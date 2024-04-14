@@ -3,6 +3,7 @@ members = [
     "bin",
     "crates/args",
     "crates/context-macro",
+    "crates/fmt",
     "crates/ops",
     "crates/rika",
     "crates/waiter",
@@ -20,6 +21,7 @@ version = "0.1.0"
 
 [workspace.dependencies]
 rika-args = { path = "crates/args" }
+rika-fmt = { path = "crates/fmt" }
 rika-ops = { path = "crates/ops" }
 
 chrono = "0.4.23"

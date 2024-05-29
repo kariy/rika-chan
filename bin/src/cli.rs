@@ -14,6 +14,20 @@ pub enum App {
     Rpc(rpc::RpcCommands),
 }
 
+pub mod utilities {
+    use super::*;
+    use rika_args::commands::utility;
+
+    pub fn execute(command: utility::UtilityCommands) -> Result<()> {
+        match command {
+            utility::UtilityCommands::Index(args) => ops::utility::storage_address(args)?,
+            _ => unimplemented!("This command is not implemented yet"),
+        }
+
+        Ok(())
+    }
+}
+
 #[cfg(feature = "rpc")]
 pub mod rpc {
     use super::*;

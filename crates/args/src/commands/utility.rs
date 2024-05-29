@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use clap::Subcommand;
+use clap::{Parser, Subcommand};
 use starknet::core::types::FieldElement;
 
 #[derive(Subcommand, Debug)]
@@ -76,14 +76,7 @@ pub enum UtilityCommands {
 
     #[command(visible_alias = "idx")]
     #[command(about = "Compute the address of a storage variable.")]
-    Index {
-        #[arg(value_name = "VAR_NAME")]
-        #[arg(help = "The storage variable name.")]
-        variable_name: String,
-
-        #[arg(help = "The storage keys")]
-        keys: Vec<FieldElement>,
-    },
+    Index(IndexArgs),
 
     #[command(visible_alias = "ch")]
     #[command(about = "Compute the hash of a contract class.")]
@@ -149,4 +142,14 @@ pub enum EcdsaCommand {
         #[arg(help = "The key for verification.")]
         verifying_key: FieldElement,
     },
+}
+
+#[derive(Debug, Parser)]
+pub struct IndexArgs {
+    #[arg(value_name = "VARIABLE_NAME")]
+    #[arg(help = "The storage variable name.")]
+    pub var_name: String,
+
+    #[arg(help = "The storage keys")]
+    pub keys: Vec<FieldElement>,
 }

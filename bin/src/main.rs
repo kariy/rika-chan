@@ -21,14 +21,10 @@ fn main() -> Result<()> {
 
 fn execute(commands: App) -> Result<()> {
     match commands {
-        App::Utilities(_) => {
-            unimplemented!("This command is not implemented yet")
-        }
+        App::Utilities(cmd) => cli::utilities::execute(cmd)?,
 
         #[cfg(feature = "rpc")]
-        App::Rpc(rpc) => {
-            cli::rpc::execute(rpc)?;
-        }
+        App::Rpc(rpc) => cli::rpc::execute(rpc)?,
     }
 
     Ok(())

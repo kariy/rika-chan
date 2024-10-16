@@ -1,12 +1,12 @@
 [workspace]
 members = [
-    "bin",
-    "crates/args",
-    "crates/context-macro",
-    "crates/fmt",
-    "crates/ops",
-    # "crates/rika",
-    "crates/waiter",
+	"bin",
+	"crates/args",
+	"crates/context-macro",
+	"crates/fmt",
+	"crates/ops",
+	# "crates/rika",
+	"crates/waiter",
 ]
 resolver = "2"
 
@@ -24,15 +24,15 @@ rika-args = { path = "crates/args" }
 rika-fmt = { path = "crates/fmt" }
 rika-ops = { path = "crates/ops" }
 
-alloy-primitives = "0.7.0"
+alloy-primitives = "0.8"
 chrono = "0.4.23"
-clap = { version = "4.1.8", features = [ "derive", "env" ] }
-clap_complete = "4.1.0"
-colored_json = "4.1.0"
-eyre = "0.6.8"
+clap = { version = "4.5", features = [ "derive", "env" ] }
+clap_complete = "4.5"
+color-eyre = "0.6"
+colored_json = "5.0"
 hex = "0.4.3"
-reqwest = { version = "0.12.0", features = [ "json", "rustls-tls" ], default-features = false }
-serde_json = "1.0.85"
+reqwest = { version = "0.12", features = [ "json", "rustls-tls" ], default-features = false }
+serde_json = "1.0"
 shellexpand = "3.1.0"
 similar-asserts = "1.5.0"
 starknet = "0.9.0"
@@ -47,3 +47,4 @@ codegen-units = 1
 incremental = false
 inherits = "release"
 lto = "fat"
+strip = true

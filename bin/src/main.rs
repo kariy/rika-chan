@@ -4,7 +4,7 @@ mod cli;
 
 use self::cli::App;
 use clap::Parser;
-use eyre::Result;
+use color_eyre::Result;
 
 fn main() -> Result<()> {
     color_eyre::install()?;

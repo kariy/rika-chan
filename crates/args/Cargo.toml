@@ -11,10 +11,10 @@ rika-fmt.workspace = true
 chrono.workspace = true
 clap.workspace = true
 clap_complete.workspace = true
+color-eyre.workspace = true
 colored_json.workspace = true
 comfy-table = "6.1.4"
 dunce = "1.0.3"
-eyre.workspace = true
 home = "0.5.4"
 inquire = "0.6.2"
 rand = "0.8.5"
@@ -22,8 +22,8 @@ reqwest.workspace = true
 serde = "1.0.145"
 serde_json.workspace = true
 shellexpand.workspace = true
-starknet-keystore = { git = "https://github.com/kariy/starknet-keystore-rs" }
 starknet.workspace = true
+starknet-keystore = { git = "https://github.com/kariy/starknet-keystore-rs" }
 strum = { version = "0.26", features = [ "derive" ] }
 thiserror.workspace = true
 walkdir = "2.3.2"

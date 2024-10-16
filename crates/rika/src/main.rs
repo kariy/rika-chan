@@ -4,7 +4,7 @@
 // use chrono::{Local, TimeZone};
 // use clap::{CommandFactory, Parser};
 // use clap_complete::{generate, Shell};
-use eyre::Result;
+use color_eyre::Result;
 // use starknet::core::types::EventFilter;
 
 #[tokio::main]

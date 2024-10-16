@@ -5,7 +5,10 @@ use std::fs::DirBuilder;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use eyre::{bail, eyre, Result};
+use color_eyre::{
+    eyre::{bail, eyre},
+    Result,
+};
 use rand::thread_rng;
 use starknet::accounts::{ExecutionEncoding, SingleOwnerAccount};
 use starknet::core::types::{BlockId, BlockTag, ContractClass, FieldElement};

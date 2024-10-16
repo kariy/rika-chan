@@ -4,7 +4,11 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use eyre::{bail, eyre, Result, WrapErr};
+use color_eyre::eyre::Context;
+use color_eyre::{
+    eyre::{bail, eyre},
+    Result,
+};
 use inquire::Password;
 use starknet::core::types::FieldElement;
 use starknet_keystore::Keystore;

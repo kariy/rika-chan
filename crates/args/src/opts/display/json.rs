@@ -1,7 +1,10 @@
 use std::marker::PhantomData;
 
 use clap::Args;
-use eyre::{ensure, eyre, Result};
+use color_eyre::{
+    eyre::{ensure, eyre},
+    Result,
+};
 use serde::Serialize;
 use serde_json::Value;
 

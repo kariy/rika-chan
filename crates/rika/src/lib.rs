@@ -9,7 +9,7 @@ use std::str::FromStr;
 use cairo_lang_starknet::casm_contract_class::CasmContractClass;
 use cairo_lang_starknet::contract_class::ContractClass;
 use crypto_bigint::U256;
-use eyre::{eyre, Report, Result};
+use color_eyre::{eyre::eyre, Report, Result};
 use reqwest::Url;
 use rika_fmt::Pretty;
 use starknet::accounts::Call;

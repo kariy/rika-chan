@@ -1,4 +1,4 @@
-use eyre::{eyre, Result};
+use color_eyre::{eyre::eyre, Result};
 
 #[derive(Debug, PartialEq, Eq)]
 struct NestedKey {

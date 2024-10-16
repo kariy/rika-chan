@@ -117,7 +117,7 @@ impl TypedValueParser for TokenAddressParser {
 }
 
 /// Used as clap's value parser for `selector` field in `InvokeArgs`.
-pub fn selector_parser(selector: &str) -> eyre::Result<FieldElement> {
+pub fn selector_parser(selector: &str) -> color_eyre::Result<FieldElement> {
     let value = FieldElement::from_str(selector);
     match value {
         Ok(selector) => Ok(selector),
@@ -139,7 +139,7 @@ mod tests {
     use crate::parser::TokenAddressParser;
 
     #[test]
-    fn test_parse_token_name() -> eyre::Result<()> {
+    fn test_parse_token_name() -> color_eyre::Result<()> {
         let parser = super::TokenAddressParser;
         let eth = parser.parse_ref(&clap::Command::new("test"), None, "ETH".as_ref())?;
         let usdc = parser.parse_ref(&clap::Command::new("test"), None, "USDC".as_ref())?;

@@ -1,4 +1,4 @@
-use eyre::Result;
+use color_eyre::Result;
 use rika_args::{
     commands::rpc::{AgeArgs, BlockArgs, BlockNumberArgs},
     fmt::pretty_block_without_txs,

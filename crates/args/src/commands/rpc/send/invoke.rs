@@ -4,7 +4,7 @@ use crate::opts::transaction::TransactionOptions;
 use crate::parser::selector_parser;
 
 use clap::Args;
-use eyre::{bail, Result};
+use color_eyre::{eyre::bail, Result};
 use starknet::accounts::{Account, Call};
 
 use starknet::core::types::FieldElement;

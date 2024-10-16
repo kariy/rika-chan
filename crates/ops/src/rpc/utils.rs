@@ -1,6 +1,6 @@
 use std::future::Future;
 
-use eyre::{eyre, Result};
+use color_eyre::{eyre::eyre, Result};
 use starknet::providers::ProviderError;
 
 use crate::{rpc::error::StarknetRpcError, utils};

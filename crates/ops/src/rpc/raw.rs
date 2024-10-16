@@ -1,4 +1,4 @@
-use eyre::Result;
+use color_eyre::Result;
 use reqwest::IntoUrl;
 use rika_args::commands::rpc::RawRpcArgs;
 use serde::de::DeserializeOwned;

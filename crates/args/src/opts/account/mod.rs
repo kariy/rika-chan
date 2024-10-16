@@ -6,7 +6,7 @@ use crate::account::simple_account::SimpleWallet;
 use std::{path::PathBuf, str::FromStr};
 
 use clap::{ArgGroup, Args};
-use eyre::{eyre, Result};
+use color_eyre::{eyre::eyre, Result};
 use inquire::{CustomType, Password, Select};
 use starknet::core::types::FieldElement;
 use walkdir::WalkDir;

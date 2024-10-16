@@ -1,7 +1,7 @@
 use std::future::Future;
 
 use alloy_primitives::U256;
-use eyre::{Context, Result};
+use color_eyre::{eyre::Context, Result};
 use starknet::core::types::FieldElement;
 
 /// Blocks on a future, returning the output.

@@ -1,7 +1,7 @@
 mod json;
 
 use clap::Args;
-use eyre::Result;
+use color_eyre::Result;
 
 pub use self::json::JsonDisplay;
 use rika_fmt::Pretty;

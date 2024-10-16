@@ -10,7 +10,8 @@ use std::path::PathBuf;
 use std::str::FromStr;
 
 use clap::{ArgGroup, Subcommand};
-use eyre::{bail, Context, Result};
+use color_eyre::eyre::Context;
+use color_eyre::{eyre::bail, Result};
 use inquire::{Password, Select, Text};
 use starknet::core::types::FieldElement;
 

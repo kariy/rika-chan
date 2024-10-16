@@ -1,5 +1,5 @@
 use clap::Parser;
-use eyre::Result;
+use color_eyre::Result;
 use rika_args::commands::utility;
 use rika_ops as ops;
 

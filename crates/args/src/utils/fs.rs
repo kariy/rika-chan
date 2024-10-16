@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use eyre::{Context, Result};
+use color_eyre::{eyre::Context, Result};
 
 /// Canonicalizes a path and performs both tilde and environment expansions in the default system context.
 pub fn canonicalize_path(path: &str) -> Result<PathBuf> {

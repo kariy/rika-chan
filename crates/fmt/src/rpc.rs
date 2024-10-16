@@ -3,11 +3,11 @@ use std::vec;
 use alloy_primitives::U256;
 use prettytable::format::Alignment;
 use prettytable::{Cell, Row, Table};
+use starknet::core::types::PendingTransactionReceipt;
 use starknet::core::types::{
     Event, ExecutionResources, ExecutionResult, FeePayment, MaybePendingTransactionReceipt,
     MsgToL1, PriceUnit, TransactionFinalityStatus, TransactionReceipt,
 };
-use starknet::core::types::{FieldElement, PendingTransactionReceipt};
 
 use crate::{utils, Pretty, Tabular};
 

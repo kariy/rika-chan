@@ -2,30 +2,19 @@
 
 mod cli;
 
-use self::cli::App;
 use clap::Parser;
+use cli::Cli;
 use color_eyre::Result;
 
 fn main() -> Result<()> {
     color_eyre::install()?;
-    let args = App::parse();
+    let cli = Cli::parse();
 
-    match execute(args) {
+    match cli.execute() {
         Ok(()) => Ok(()),
         Err(e) => {
             eprintln!("{e}");
             std::process::exit(1);
         }
     }
-}
-
-fn execute(commands: App) -> Result<()> {
-    match commands {
-        App::Utilities(cmd) => cli::utilities::execute(cmd)?,
-
-        #[cfg(feature = "rpc")]
-        App::Rpc(rpc) => cli::rpc::execute(rpc)?,
-    }
-
-    Ok(())
 }

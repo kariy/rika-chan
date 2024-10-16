@@ -29,93 +29,84 @@ use clap_complete::Shell;
 
 #[derive(Subcommand, Debug)]
 pub enum RpcCommands {
-    #[command(name = "completions")]
-    #[command(visible_alias = "com")]
-    #[command(about = "Generate command completion script for a specific shell.")]
+    /// Generate command completion script for a specific shell.
+    #[command(name = "completions", visible_alias = "com")]
     ShellCompletions { shell: Option<Shell> },
 
-    // #[command(visible_alias = "acc")]
-    // #[command(about = "Account management utilities")]
-    // Account(AccountArgs),
-    #[command(about = "Get the timestamp of a block.")]
+    /// Get the timestamp of a block.
     Age(AgeArgs),
 
+    /// Get an ERC20 token balance of an address.
     #[command(visible_alias = "bal")]
-    #[command(about = "Get an ERC20 token balance of an address.")]
     Balance(BalanceArgs),
 
+    /// Get information about a block.
     #[command(visible_alias = "b")]
-    #[command(about = "Get information about a block.")]
     Block(BlockArgs),
 
+    /// Get the latest block number.
     #[command(visible_alias = "bn")]
-    #[command(about = "Get the latest block number.")]
     BlockNumber(BlockNumberArgs),
 
-    #[command(about = "Call a StarkNet function without creating a transaction.")]
+    /// Call a StarkNet function without creating a transaction.
     Call(CallArgs),
 
+    /// Get the StarkNet chain ID.
     #[command(visible_alias = "ci")]
-    #[command(about = "Get the StarkNet chain ID.")]
     ChainId(ChainIdArgs),
 
+    /// Get the contract class definition in the given block associated with the given hash
     #[command(visible_alias = "cl")]
-    #[command(
-        about = "Get the contract class definition in the given block associated with the given hash"
-    )]
     Class(ClassArgs),
 
+    /// Get the contract class definition in the given block at the given address
     #[command(visible_alias = "cd")]
-    #[command(about = "Get the contract class definition in the given block at the given address")]
     Code(CodeArgs),
 
+    /// Get the contract class hash in the given block for the contract deployed at the given address
     #[command(visible_alias = "cc")]
-    #[command(
-        about = "Get the contract class hash in the given block for the contract deployed at the given address"
-    )]
     ContractClass(ContractClassArgs),
 
+    /// Returns all events matching the given filter
+    ///
+    /// Returns all event objects matching the conditions in the provided filter
     #[command(visible_alias = "ev")]
-    #[command(about = "Returns all events matching the given filter")]
-    #[command(
-        long_about = "Returns all event objects matching the conditions in the provided filter"
-    )]
     Events(EventsArgs),
 
+    /// Get the latest nonce associated with the address.
     #[command(visible_alias = "n1")]
-    #[command(about = "Get the latest nonce associated with the address.")]
     Nonce(NonceArgs),
 
-    #[command(about = "Perform a raw JSON-RPC request.")]
+    /// Perform a raw JSON-RPC request.
     Rpc(RawRpcArgs),
 
-    #[command(about = "Get the information about the result of executing the requested block")]
+    /// Get the information about the result of executing the requested block
     StateUpdate(StateUpdateArgs),
 
+    /// Get the value of a contract's storage at the given index
     #[command(visible_alias = "str")]
-    #[command(about = "Get the value of a contract's storage at the given index")]
     Storage(StorageArgs),
 
+    /// Get the synchronization status of the StarkNet node
     #[command(visible_alias = "sync")]
-    #[command(about = "Get the synchronization status of the StarkNet node")]
     Syncing(SyncingArgs),
 
+    /// Get information about a transaction.
     #[command(name = "tx")]
-    #[command(about = "Get information about a transaction.")]
     Tx(TxArgs),
 
+    /// Get the number of transactions in a block.
     #[command(visible_alias = "txc")]
     #[command(name = "tx-count")]
-    #[command(about = "Get the number of transactions in a block.")]
     TxCount(TxCountArgs),
 
+    /// Get the status of a transaction.
     #[command(visible_alias = "txs")]
     #[command(name = "tx-status")]
-    #[command(about = "Get the status of a transaction.")]
     TxStatus(TxStatusArgs),
 
+    /// Get the receipt of a transaction.
     #[command(visible_alias = "rct")]
     #[command(name = "receipt")]
-    #[command(about = "Get the receipt of a transaction.")]
     Receipt(ReceiptArgs),
 }

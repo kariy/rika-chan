@@ -3,10 +3,9 @@ use std::vec;
 use alloy_primitives::U256;
 use prettytable::format::Alignment;
 use prettytable::{Cell, Row, Table};
-use starknet::core::types::PendingTransactionReceipt;
 use starknet::core::types::{
     Event, ExecutionResources, ExecutionResult, FeePayment, MaybePendingTransactionReceipt,
-    MsgToL1, PriceUnit, TransactionFinalityStatus, TransactionReceipt,
+    MsgToL1, PendingTransactionReceipt, PriceUnit, TransactionFinalityStatus, TransactionReceipt,
 };
 
 use crate::{utils, Pretty, Tabular};
@@ -19,18 +18,12 @@ impl Tabular for TransactionReceipt {
                     "TX HASH".to_string(),
                     receipt.transaction_hash.prettify(),
                 ]));
-                table.add_row(Row::from([
-                    "BLOCK HASH".to_string(),
-                    receipt.block_hash.prettify(),
-                ]));
+                table.add_row(Row::from(["BLOCK HASH".to_string(), receipt.block_hash.prettify()]));
                 table.add_row(Row::from([
                     "BLOCK NUMBER".to_string(),
                     receipt.block_number.to_string(),
                 ]));
-                table.add_row(Row::from([
-                    "ACTUAL FEE".to_string(),
-                    receipt.actual_fee.prettify(),
-                ]));
+                table.add_row(Row::from(["ACTUAL FEE".to_string(), receipt.actual_fee.prettify()]));
                 table.add_row(Row::from([
                     "FINALITY STATUS".to_string(),
                     receipt.finality_status.prettify(),
@@ -45,19 +38,11 @@ impl Tabular for TransactionReceipt {
                 ]));
                 table.add_row(Row::from([
                     "EVENTS".to_string(),
-                    receipt
-                        .events
-                        .iter()
-                        .map(|e| e.tablify().to_string())
-                        .collect(),
+                    receipt.events.iter().map(|e| e.tablify().to_string()).collect(),
                 ]));
                 table.add_row(Row::from([
                     "MESSAGES SENT".to_string(),
-                    receipt
-                        .messages_sent
-                        .iter()
-                        .map(|e| e.tablify().to_string())
-                        .collect(),
+                    receipt.messages_sent.iter().map(|e| e.tablify().to_string()).collect(),
                 ]));
             }
 
@@ -114,10 +99,7 @@ impl Tabular for MaybePendingTransactionReceipt {
 
 impl Tabular for Event {
     fn build_table(&self, table: &mut Table) {
-        table.add_row(Row::from([
-            "From".to_string(),
-            self.from_address.prettify(),
-        ]));
+        table.add_row(Row::from(["From".to_string(), self.from_address.prettify()]));
         table.add_row(Row::from(["Keys".to_string(), self.keys.prettify()]));
         table.add_row(Row::from(["Data".to_string(), self.data.prettify()]));
     }
@@ -125,10 +107,7 @@ impl Tabular for Event {
 
 impl Tabular for MsgToL1 {
     fn build_table(&self, table: &mut Table) {
-        table.add_row(Row::from([
-            "From".to_string(),
-            self.from_address.prettify(),
-        ]));
+        table.add_row(Row::from(["From".to_string(), self.from_address.prettify()]));
         table.add_row(Row::from(["To".to_string(), self.to_address.prettify()]));
         table.add_row(Row::from(["Payload".to_string(), self.payload.prettify()]));
     }

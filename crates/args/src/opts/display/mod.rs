@@ -2,9 +2,9 @@ mod json;
 
 use clap::Args;
 use color_eyre::Result;
+use rika_fmt::Pretty;
 
 pub use self::json::JsonDisplay;
-use rika_fmt::Pretty;
 
 #[derive(Debug, Args)]
 pub struct DisplayOptions<T = NullDisplayOptions>

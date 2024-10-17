@@ -1,25 +1,16 @@
-use eyre::{Context, Result};
+use color_eyre::eyre::Context;
+use color_eyre::Result;
 use rika_args::commands::rpc::CallArgs;
 use rika_fmt::Pretty;
-use starknet::{
-    core::{
-        types::{BlockId, FieldElement, FunctionCall},
-        utils::get_selector_from_name,
-    },
-    providers::{Provider, ProviderError},
-};
+use starknet::core::types::{BlockId, FieldElement, FunctionCall};
+use starknet::core::utils::get_selector_from_name;
+use starknet::providers::{Provider, ProviderError};
 
 use super::utils;
 
 // TODO: parse the return data according to the ABI?
 pub fn call(args: CallArgs) -> Result<()> {
-    let CallArgs {
-        contract_address,
-        function,
-        input,
-        block_id,
-        starknet,
-    } = args;
+    let CallArgs { contract_address, function, input, block_id, starknet } = args;
 
     let provider = starknet.provider();
 
@@ -46,13 +37,6 @@ pub(crate) async fn contract_call<P: Provider>(
     block: BlockId,
 ) -> Result<Vec<FieldElement>, ProviderError> {
     Ok(provider
-        .call(
-            FunctionCall {
-                calldata,
-                contract_address,
-                entry_point_selector,
-            },
-            block,
-        )
+        .call(FunctionCall { calldata, contract_address, entry_point_selector }, block)
         .await?)
 }

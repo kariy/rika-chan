@@ -1,17 +1,14 @@
-use crate::account::simple_account::SimpleWallet;
-
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use color_eyre::eyre::Context;
-use color_eyre::{
-    eyre::{bail, eyre},
-    Result,
-};
+use color_eyre::eyre::{bail, eyre, Context};
+use color_eyre::Result;
 use inquire::Password;
 use starknet::core::types::FieldElement;
 use starknet_keystore::Keystore;
+
+use crate::account::simple_account::SimpleWallet;
 
 pub const KEYSTORE_DIR: &str = ".starknet/keystore";
 
@@ -43,9 +40,7 @@ pub fn find_keystore_file(
 
     if path.is_dir() {
         let Some(account) = account else {
-            return Err(eyre!(
-                "unable to find the keystore with unknown account address"
-            ));
+            return Err(eyre!("unable to find the keystore with unknown account address"));
         };
 
         let (_, file) = walkdir::WalkDir::new(path)
@@ -75,30 +70,33 @@ pub fn get_from_keystore(
     keystore_password: Option<&String>,
     keystore_password_file: Option<&PathBuf>,
 ) -> Result<Option<SimpleWallet>> {
-    Ok(
-        match (keystore_path, keystore_password, keystore_password_file) {
-            (Some(path), Some(password), _) => {
-                let path = find_keystore_file(account, path)?;
-                Some(
-                    SimpleWallet::decrypt_keystore(&path, password)
-                        .wrap_err_with(|| format!("Failed to decrypt keystore {path:?}"))?,
-                )
-            }
-            (Some(path), _, Some(password_file)) => {
-                let path = find_keystore_file(account, path)?;
-                Some(
-                SimpleWallet::decrypt_keystore(&path, password_from_file(password_file)?)
-                    .wrap_err_with(|| format!("Failed to decrypt keystore {path:?} with password file {password_file:?}"))?,
+    Ok(match (keystore_path, keystore_password, keystore_password_file) {
+        (Some(path), Some(password), _) => {
+            let path = find_keystore_file(account, path)?;
+            Some(
+                SimpleWallet::decrypt_keystore(&path, password)
+                    .wrap_err_with(|| format!("Failed to decrypt keystore {path:?}"))?,
             )
-            }
-            (Some(path), None, None) => {
-                let path = find_keystore_file(account, path)?;
-                let password = Password::new("Enter keystore password:").prompt()?;
-                Some(SimpleWallet::decrypt_keystore(path, password)?)
-            }
-            (None, _, _) => None,
-        },
-    )
+        }
+        (Some(path), _, Some(password_file)) => {
+            let path = find_keystore_file(account, path)?;
+            Some(
+                SimpleWallet::decrypt_keystore(&path, password_from_file(password_file)?)
+                    .wrap_err_with(|| {
+                        format!(
+                            "Failed to decrypt keystore {path:?} with password file \
+                             {password_file:?}"
+                        )
+                    })?,
+            )
+        }
+        (Some(path), None, None) => {
+            let path = find_keystore_file(account, path)?;
+            let password = Password::new("Enter keystore password:").prompt()?;
+            Some(SimpleWallet::decrypt_keystore(path, password)?)
+        }
+        (None, _, _) => None,
+    })
 }
 
 /// Attempts to read the keystore password from the password file.

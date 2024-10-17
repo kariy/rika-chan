@@ -3,14 +3,14 @@ use std::str::FromStr;
 use clap::Args;
 use reqwest::Url;
 use starknet::core::types::FieldElement;
-use starknet::providers::{jsonrpc::HttpTransport, JsonRpcClient};
+use starknet::providers::jsonrpc::HttpTransport;
+use starknet::providers::JsonRpcClient;
 
 #[derive(Debug, Clone, Args)]
+#[command(next_help_heading = "Starknet options")]
 pub struct StarknetOptions {
-    #[arg(long = "rpc")]
-    #[arg(value_name = "URL")]
-    #[arg(env = "STARKNET_RPC_URL")]
-    #[arg(help = "The Starknet JSON-RPC endpoint")]
+    /// The Starknet JSON-RPC endpoint.
+    #[arg(long = "rpc", value_name = "URL", env = "STARKNET_RPC_URL")]
     #[arg(default_value = "http://localhost:5050/")]
     pub rpc_url: Url,
 }

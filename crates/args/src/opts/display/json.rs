@@ -1,10 +1,8 @@
 use std::marker::PhantomData;
 
 use clap::Args;
-use color_eyre::{
-    eyre::{ensure, eyre},
-    Result,
-};
+use color_eyre::eyre::{ensure, eyre};
+use color_eyre::Result;
 use serde::Serialize;
 use serde_json::Value;
 
@@ -43,7 +41,8 @@ impl<T: Serialize> JsonDisplay<T> {
                 "Unable to extract field '{field}'. Value is not an object."
             );
 
-            // TODO: allow specifying nested fields using dot notation (e.g. "block.number") in the cli
+            // TODO: allow specifying nested fields using dot notation (e.g. "block.number") in the
+            // cli
             match value.get(field) {
                 Some(field) => Ok(colored_json::to_colored_json_auto(field)?),
 

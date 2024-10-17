@@ -24,8 +24,9 @@ use super::utils;
 //     } = args;
 
 //     let provider = starknet.provider();
-//     let count = utils::do_call_with_mapped_rpc_err(provider.get_block_transaction_count(block_id))?;
-//     println!("{count}");
+//     let count =
+// utils::do_call_with_mapped_rpc_err(provider.get_block_transaction_count(block_id))?;     println!
+// ("{count}");
 
 //     Ok(())
 // }
@@ -45,11 +46,7 @@ use super::utils;
 // }
 
 pub fn receipt(args: ReceiptArgs) -> Result<()> {
-    let ReceiptArgs {
-        hash,
-        display,
-        starknet,
-    } = args;
+    let ReceiptArgs { hash, display, starknet } = args;
 
     let provider = starknet.provider();
     let receipt = utils::do_call_with_mapped_rpc_err(provider.get_transaction_receipt(hash))?;

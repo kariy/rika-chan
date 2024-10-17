@@ -36,7 +36,8 @@ pub trait Tabular {
     }
 }
 
-/// Macro for implementing the [Pretty] trait for types implement [LowerHex](std::fmt::LowerHex) trait.
+/// Macro for implementing the [Pretty] trait for types implement [LowerHex](std::fmt::LowerHex)
+/// trait.
 macro_rules! pretty_for_lower_hex {
 	($($name:ty),*) => {
 		$(
@@ -53,9 +54,6 @@ pretty_for_lower_hex!(FieldElement, u64);
 
 impl<T: Pretty> Pretty for Vec<T> {
     fn prettify(&self) -> String {
-        self.iter()
-            .map(|i| i.prettify())
-            .collect::<Vec<String>>()
-            .join("\n")
+        self.iter().map(|i| i.prettify()).collect::<Vec<String>>().join("\n")
     }
 }

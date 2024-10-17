@@ -13,9 +13,8 @@ pub struct ClassArgs {
     #[arg(next_line_help = true)]
     #[arg(default_value = "latest")]
     #[arg(value_parser = BlockIdParser)]
-    #[arg(
-        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-    )]
+    #[arg(help = "The hash of the requested block, or number (height) of the requested block, \
+                  or a block tag (e.g. latest, pending).")]
     block_id: BlockId,
 
     #[command(flatten)]
@@ -32,9 +31,8 @@ pub struct CodeArgs {
     #[arg(short, long = "block")]
     #[arg(default_value = "pending")]
     #[arg(value_parser = BlockIdParser)]
-    #[arg(
-        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-    )]
+    #[arg(help = "The hash of the requested block, or number (height) of the requested block, \
+                  or a block tag (e.g. latest, pending).")]
     block_id: BlockId,
 
     #[command(flatten)]

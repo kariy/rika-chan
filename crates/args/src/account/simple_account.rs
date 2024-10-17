@@ -1,14 +1,9 @@
-use crate::opts::account::utils::read_json_file;
-use crate::opts::starknet::ChainId;
-
 use std::fs::DirBuilder;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use color_eyre::{
-    eyre::{bail, eyre},
-    Result,
-};
+use color_eyre::eyre::{bail, eyre};
+use color_eyre::Result;
 use rand::thread_rng;
 use starknet::accounts::{ExecutionEncoding, SingleOwnerAccount};
 use starknet::core::types::{BlockId, BlockTag, ContractClass, FieldElement};
@@ -16,6 +11,9 @@ use starknet::providers::jsonrpc::{HttpTransport, JsonRpcClient};
 use starknet::providers::Provider;
 use starknet::signers::{LocalWallet, SigningKey};
 use starknet_keystore::Keystore;
+
+use crate::opts::account::utils::read_json_file;
+use crate::opts::starknet::ChainId;
 
 #[derive(Debug)]
 pub struct SimpleWallet {
@@ -26,11 +24,7 @@ pub struct SimpleWallet {
 
 impl SimpleWallet {
     pub fn new(account: FieldElement, signing_key: FieldElement, chain: Option<ChainId>) -> Self {
-        Self {
-            chain,
-            account,
-            signing_key: SigningKey::from_secret_scalar(signing_key),
-        }
+        Self { chain, account, signing_key: SigningKey::from_secret_scalar(signing_key) }
     }
 
     pub async fn account(
@@ -114,11 +108,7 @@ impl SimpleWallet {
         let keystore: Keystore = read_json_file(path.as_ref())?;
         let v = starknet_keystore::decrypt_key(path, password)?;
         let priv_key = unsafe { FieldElement::from_bytes_be(&*(v.as_ptr() as *const [u8; 32]))? };
-        let chain = if let Some(c) = keystore.chain {
-            Some(ChainId::from_str(&c)?)
-        } else {
-            None
-        };
+        let chain = if let Some(c) = keystore.chain { Some(ChainId::from_str(&c)?) } else { None };
 
         Ok(SimpleWallet::new(
             FieldElement::from_str(&keystore.address.ok_or(eyre!("Missing account address."))?)?,

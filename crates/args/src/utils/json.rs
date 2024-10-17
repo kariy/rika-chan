@@ -1,4 +1,5 @@
-use color_eyre::{eyre::eyre, Result};
+use color_eyre::eyre::eyre;
+use color_eyre::Result;
 
 #[derive(Debug, PartialEq, Eq)]
 struct NestedKey {
@@ -8,10 +9,7 @@ struct NestedKey {
 
 impl NestedKey {
     fn new(name: String) -> Self {
-        Self {
-            parent: name,
-            child: None,
-        }
+        Self { parent: name, child: None }
     }
 
     fn append(&mut self, key: NestedKey) {

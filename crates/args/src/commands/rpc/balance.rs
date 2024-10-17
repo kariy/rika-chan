@@ -6,29 +6,27 @@ use crate::parser::{BlockIdParser, TokenAddressParser};
 
 #[derive(Debug, Parser)]
 pub struct BalanceArgs {
+    /// The address whose balance you want to query.
     #[arg(value_name = "ADDRESS")]
-    #[arg(help = "The address whose balance you want to query.")]
     pub address: FieldElement,
 
-    #[arg(help = "The token you want to query the balance of.")]
+    /// The token you want to query the balance of.
     #[arg(value_parser = TokenAddressParser)]
-    #[arg(default_value_t = TokenAddressParser::ETH)]
+    #[arg(default_value = "STRK")]
     pub token: FieldElement,
 
+    /// Return the balance as a raw integer value in hexadecimal form.
     #[arg(long)]
-    #[arg(help = "Return the balance as a raw integer value in hexadecimal form.")]
     pub raw: bool,
 
+    /// The hash of the requested block, or number (height) of the requested block, or a block tag
+    /// (e.g. latest, pending).
     #[arg(next_line_help = true)]
     #[arg(short, long = "block")]
     #[arg(default_value = "pending")]
     #[arg(value_parser = BlockIdParser)]
-    #[arg(
-        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-    )]
     pub block_id: BlockId,
 
     #[command(flatten)]
-    #[command(next_help_heading = "Starknet options")]
     pub starknet: StarknetOptions,
 }

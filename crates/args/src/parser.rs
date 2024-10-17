@@ -2,8 +2,7 @@ use std::str::FromStr;
 
 use clap::builder::{PossibleValue, TypedValueParser};
 use clap::error::{Error, ErrorKind};
-use starknet::core::types::{BlockId, BlockTag};
-use starknet::core::types::{FieldElement, FromStrError};
+use starknet::core::types::{BlockId, BlockTag, FieldElement, FromStrError};
 use starknet::core::utils::get_selector_from_name;
 
 #[derive(Debug, Clone)]
@@ -18,9 +17,8 @@ impl TypedValueParser for BlockIdParser {
         _: Option<&clap::Arg>,
         value: &std::ffi::OsStr,
     ) -> Result<Self::Value, Error> {
-        let value = value
-            .to_str()
-            .ok_or_else(|| Error::raw(ErrorKind::InvalidUtf8, "invalid utf-8"))?;
+        let value =
+            value.to_str().ok_or_else(|| Error::raw(ErrorKind::InvalidUtf8, "invalid utf-8"))?;
 
         // There must be a more idiomatic way of doing this.
         if value.starts_with("0x") {
@@ -80,9 +78,7 @@ impl TypedValueParser for TokenAddressParser {
         _: Option<&clap::Arg>,
         value: &std::ffi::OsStr,
     ) -> Result<Self::Value, Error> {
-        let value = value
-            .to_str()
-            .ok_or(Error::raw(ErrorKind::InvalidUtf8, "invalid utf-8"))?;
+        let value = value.to_str().ok_or(Error::raw(ErrorKind::InvalidUtf8, "invalid utf-8"))?;
 
         let address = match value.to_lowercase().as_str() {
             "eth" => Self::ETH,
@@ -94,10 +90,9 @@ impl TypedValueParser for TokenAddressParser {
                     ErrorKind::InvalidValue,
                     "value must be an address or one of the known tokens".to_string(),
                 ),
-                FromStrError::OutOfRange => Error::raw(
-                    ErrorKind::InvalidValue,
-                    format!("unknown token address '{e}'"),
-                ),
+                FromStrError::OutOfRange => {
+                    Error::raw(ErrorKind::InvalidValue, format!("unknown token address '{e}'"))
+                }
             })?,
         };
 
@@ -106,12 +101,8 @@ impl TypedValueParser for TokenAddressParser {
 
     fn possible_values(&self) -> Option<Box<dyn Iterator<Item = PossibleValue> + '_>> {
         Some(Box::new(
-            [
-                PossibleValue::new("ETH"),
-                PossibleValue::new("USDC"),
-                PossibleValue::new("STRK"),
-            ]
-            .into_iter(),
+            [PossibleValue::new("ETH"), PossibleValue::new("USDC"), PossibleValue::new("STRK")]
+                .into_iter(),
         ))
     }
 }
@@ -151,10 +142,12 @@ mod tests {
         assert_eq!(usdc, TokenAddressParser::USDC);
         assert_eq!(strk, TokenAddressParser::STRK);
         assert_eq!(address, FieldElement::from(0x123u16));
-        assert!(random
-            .unwrap_err()
-            .to_string()
-            .contains("value must be an address or one of the known tokens"));
+        assert!(
+            random
+                .unwrap_err()
+                .to_string()
+                .contains("value must be an address or one of the known tokens")
+        );
 
         Ok(())
     }

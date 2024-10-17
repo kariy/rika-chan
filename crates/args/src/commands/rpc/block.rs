@@ -11,9 +11,8 @@ pub struct AgeArgs {
     #[arg(next_line_help = true)]
     #[arg(default_value = "latest")]
     #[arg(value_parser = BlockIdParser)]
-    #[arg(
-        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-    )]
+    #[arg(help = "The hash of the requested block, or number (height) of the requested block, \
+                  or a block tag (e.g. latest, pending).")]
     pub block_id: BlockId,
 
     #[arg(short = 'r', long)]
@@ -31,9 +30,8 @@ pub struct BlockArgs {
     #[arg(value_name = "BLOCK_ID")]
     #[arg(default_value = "latest")]
     #[arg(value_parser = BlockIdParser)]
-    #[arg(
-        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-    )]
+    #[arg(help = "The hash of the requested block, or number (height) of the requested block, \
+                  or a block tag (e.g. latest, pending).")]
     pub id: BlockId,
 
     #[arg(long)]

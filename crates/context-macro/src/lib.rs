@@ -18,10 +18,7 @@
 //! }
 //!
 //! let error = parse_config("not-found").unwrap_err();
-//! assert_eq!(
-//!     error.to_string(),
-//!     "failed to parse config at `not-found`",
-//! );
+//! assert_eq!(error.to_string(), "failed to parse config at `not-found`",);
 //! assert_eq!(
 //!     error.source().unwrap().downcast_ref::<io::Error>().unwrap().kind(),
 //!     io::ErrorKind::NotFound,
@@ -53,9 +50,7 @@ use syn::Token;
 /// # fn function_body() -> anyhow::Result<()> { unimplemented!() }
 /// #
 /// pub fn function() -> anyhow::Result<()> {
-///     (|| -> anyhow::Result<()> {
-///         function_body()
-///     })().map_err(|err| err.context("context"))
+///     (|| -> anyhow::Result<()> { function_body() })().map_err(|err| err.context("context"))
 /// }
 /// ```
 ///

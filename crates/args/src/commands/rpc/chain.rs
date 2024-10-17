@@ -1,6 +1,7 @@
 use clap::Parser;
 
-use crate::opts::{display::DisplayOptions, starknet::StarknetOptions};
+use crate::opts::display::DisplayOptions;
+use crate::opts::starknet::StarknetOptions;
 
 #[derive(Debug, Parser)]
 pub struct ChainIdArgs {

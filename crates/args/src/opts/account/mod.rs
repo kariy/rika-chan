@@ -1,17 +1,18 @@
 pub mod utils;
 
-use self::utils::get_from_keystore;
-use crate::account::simple_account::SimpleWallet;
-
-use std::{path::PathBuf, str::FromStr};
+use std::path::PathBuf;
+use std::str::FromStr;
 
 use clap::{ArgGroup, Args};
-use color_eyre::{eyre::eyre, Result};
+use color_eyre::eyre::eyre;
+use color_eyre::Result;
 use inquire::{CustomType, Password, Select};
 use starknet::core::types::FieldElement;
 use walkdir::WalkDir;
 
+use self::utils::get_from_keystore;
 use super::starknet::ChainId;
+use crate::account::simple_account::SimpleWallet;
 
 #[derive(Debug, Clone, Args, Default)]
 #[command(group(ArgGroup::new("wallet-method").args(["private_key", "keystore_path"])))]

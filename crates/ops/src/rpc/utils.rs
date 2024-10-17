@@ -1,9 +1,11 @@
 use std::future::Future;
 
-use color_eyre::{eyre::eyre, Result};
+use color_eyre::eyre::eyre;
+use color_eyre::Result;
 use starknet::providers::ProviderError;
 
-use crate::{rpc::error::StarknetRpcError, utils};
+use crate::rpc::error::StarknetRpcError;
+use crate::utils;
 
 pub(super) fn do_call_with_mapped_rpc_err<F, T>(fut: F) -> Result<T>
 where

@@ -16,6 +16,8 @@ pub use balance::*;
 pub use block::*;
 pub use call::*;
 pub use chain::*;
+use clap::Subcommand;
+use clap_complete::Shell;
 pub use class::*;
 pub use contract::*;
 pub use events::*;
@@ -23,9 +25,6 @@ pub use raw::*;
 pub use send::*;
 pub use state_update::*;
 pub use transaction::*;
-
-use clap::Subcommand;
-use clap_complete::Shell;
 
 #[derive(Subcommand, Debug)]
 pub enum RpcCommands {
@@ -63,7 +62,8 @@ pub enum RpcCommands {
     #[command(visible_alias = "cd")]
     Code(CodeArgs),
 
-    /// Get the contract class hash in the given block for the contract deployed at the given address
+    /// Get the contract class hash in the given block for the contract deployed at the given
+    /// address
     #[command(visible_alias = "cc")]
     ContractClass(ContractClassArgs),
 

@@ -1,19 +1,20 @@
 pub mod simple_account;
 
-use super::account::simple_account::SimpleWallet;
-use crate::opts::account::{utils::get_main_keystore_dir, WalletOptions};
-use crate::opts::starknet::ChainId;
-use crate::utils::fs::canonicalize_path;
-use crate::utils::parse_hex_or_str_as_felt;
-
 use std::path::PathBuf;
 use std::str::FromStr;
 
 use clap::{ArgGroup, Subcommand};
-use color_eyre::eyre::Context;
-use color_eyre::{eyre::bail, Result};
+use color_eyre::eyre::{bail, Context};
+use color_eyre::Result;
 use inquire::{Password, Select, Text};
 use starknet::core::types::FieldElement;
+
+use super::account::simple_account::SimpleWallet;
+use crate::opts::account::utils::get_main_keystore_dir;
+use crate::opts::account::WalletOptions;
+use crate::opts::starknet::ChainId;
+use crate::utils::fs::canonicalize_path;
+use crate::utils::parse_hex_or_str_as_felt;
 
 #[derive(Debug, Subcommand)]
 pub enum WalletCommands {
@@ -28,9 +29,7 @@ pub enum WalletCommands {
 
         #[arg(long)]
         #[arg(value_name = "ACCOUNT_ADDRESS")]
-        #[arg(
-            help = "Address of the StarkNet account contract you want to create a keystore for."
-        )]
+        #[arg(help = "Address of the StarkNet account contract you want to create a keystore for.")]
         account: Option<FieldElement>,
 
         #[arg(long)]
@@ -82,14 +81,7 @@ pub enum WalletCommands {
 impl WalletCommands {
     pub async fn run(self) -> Result<()> {
         match self {
-            Self::New {
-                path,
-                account,
-                privatekey,
-                chain,
-                name,
-                password,
-            } => {
+            Self::New { path, account, privatekey, chain, name, password } => {
                 let (path, account_address, chain) = if let Some(path) = path {
                     if !path.is_dir() {
                         // we require path to be an existing directory
@@ -102,15 +94,10 @@ impl WalletCommands {
                     (
                         path.display().to_string(),
                         wallet.account,
-                        wallet
-                            .chain
-                            .map_or_else(|| "other".to_string(), |c| c.to_string()),
+                        wallet.chain.map_or_else(|| "other".to_string(), |c| c.to_string()),
                     )
                 } else {
-                    let wallet = WalletOptions {
-                        interactive: true,
-                        ..Default::default()
-                    };
+                    let wallet = WalletOptions { interactive: true, ..Default::default() };
 
                     let mut wallet = wallet.interactive()?.unwrap();
 
@@ -135,24 +122,19 @@ impl WalletCommands {
                     (
                         path.display().to_string(),
                         wallet.account,
-                        wallet
-                            .chain
-                            .map_or_else(|| "other".to_string(), |c| c.to_string()),
+                        wallet.chain.map_or_else(|| "other".to_string(), |c| c.to_string()),
                     )
                 };
 
                 println!(
-                    "🎉 Successfully created new encrypted keystore at {path}\n\nAccount address: {account_address:#x}\nChain: {chain}",
+                    "🎉 Successfully created new encrypted keystore at {path}\n\nAccount address: \
+                     {account_address:#x}\nChain: {chain}",
                 );
 
                 Ok(())
             }
 
-            Self::Sign {
-                keystore: path,
-                password,
-                message,
-            } => {
+            Self::Sign { keystore: path, password, message } => {
                 // construct a SimpleAccount from the keystore
                 // `path` must be the encrypted keystore json file
                 if let Some(path) = path {
@@ -166,7 +148,12 @@ impl WalletCommands {
                         .wrap_err_with(|| "Failed to open keystore".to_string())?
                         .expect("Must create wallet from keystore");
 
-                    let message = Text::new("Enter message to sign : ").with_help_message("Message with 0x prefix is treated as hex value otherwise literal string").prompt()?;
+                    let message = Text::new("Enter message to sign : ")
+                        .with_help_message(
+                            "Message with 0x prefix is treated as hex value otherwise literal \
+                             string",
+                        )
+                        .prompt()?;
                     let hash = parse_hex_or_str_as_felt(&message)?;
                     let sig = wallet.signing_key.sign(&hash)?;
 

@@ -23,9 +23,8 @@ pub struct CallArgs {
     #[arg(short, long = "block")]
     #[arg(default_value = "pending")]
     #[arg(value_parser = BlockIdParser)]
-    #[arg(
-        help = "The hash of the requested block, or number (height) of the requested block, or a block tag (e.g. latest, pending)."
-    )]
+    #[arg(help = "The hash of the requested block, or number (height) of the requested block, \
+                  or a block tag (e.g. latest, pending).")]
     pub block_id: BlockId,
 
     #[command(flatten)]

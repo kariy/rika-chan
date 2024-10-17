@@ -109,17 +109,11 @@ where
 
     pub fn with_interval(self, milisecond: u64) -> Self {
         let interval = Duration::from_millis(milisecond);
-        Self {
-            interval: tokio::time::interval_at(Instant::now() + interval, interval),
-            ..self
-        }
+        Self { interval: tokio::time::interval_at(Instant::now() + interval, interval), ..self }
     }
 
     pub fn with_tx_status(self, status: TransactionFinalityStatus) -> Self {
-        Self {
-            tx_finality_status: Some(status),
-            ..self
-        }
+        Self { tx_finality_status: Some(status), ..self }
     }
 
     pub fn with_timeout(self, timeout: Duration) -> Self {
@@ -146,9 +140,9 @@ where
 
                 match execution_status_from_pending_receipt(r) {
                     ExecutionResult::Succeeded => Some(Ok(receipt)),
-                    ExecutionResult::Reverted { reason } => Some(Err(
-                        TransactionWaitingError::TransactionReverted(reason.clone()),
-                    )),
+                    ExecutionResult::Reverted { reason } => {
+                        Some(Err(TransactionWaitingError::TransactionReverted(reason.clone())))
+                    }
                 }
             }
 

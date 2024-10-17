@@ -1,0 +1,28 @@
+edition = "2021"
+max_width = 100
+newline_style = "Unix"
+use_field_init_shorthand = true
+use_small_heuristics = "Max"
+use_try_shorthand = true
+
+# Unstable features below
+comment_width = 100
+format_code_in_doc_comments = true
+format_macro_bodies = true
+format_macro_matchers = true
+format_strings = true
+group_imports = "StdExternalCrate"
+imports_granularity = "Module"
+normalize_comments = true
+normalize_doc_attributes = true
+unstable_features = true
+version = "Two"
+wrap_comments = true
+
+# To use these settings in vscode, add the following line to your settings.json file:
+#
+# "rust-analyzer.rustfmt.extraArgs": [
+#         "+nightly"
+#     ],
+#
+# and run "rustup toolchain install nightly".

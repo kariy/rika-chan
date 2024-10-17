@@ -4,8 +4,8 @@ use rika_ops as ops;
 
 pub fn execute(command: RpcCommands) -> Result<()> {
     match command {
+        RpcCommands::Balance(args) => ops::rpc::balance::get(args)?,
         // RpcCommands::Call(args) => ops::rpc::call::call(args)?,
-        // RpcCommands::Balance(args) => ops::rpc::balance::get(args)?,
         // RpcCommands::Tx(args) => ops::rpc::transaction::get(args)?,
         // RpcCommands::TxCount(args) => ops::rpc::transaction::count(args)?,
         // RpcCommands::TxStatus(args) => ops::rpc::transaction::status(args)?,

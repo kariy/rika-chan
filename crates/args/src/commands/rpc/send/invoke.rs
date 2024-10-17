@@ -1,14 +1,13 @@
+use clap::Args;
+use color_eyre::eyre::bail;
+use color_eyre::Result;
+use starknet::accounts::{Account, Call};
+use starknet::core::types::{FieldElement, InvokeTransactionResult};
+
 use crate::opts::account::WalletOptions;
 use crate::opts::starknet::StarknetOptions;
 use crate::opts::transaction::TransactionOptions;
 use crate::parser::selector_parser;
-
-use clap::Args;
-use color_eyre::{eyre::bail, Result};
-use starknet::accounts::{Account, Call};
-
-use starknet::core::types::FieldElement;
-use starknet::core::types::InvokeTransactionResult;
 
 #[derive(Debug, Args)]
 pub struct InvokeArgs {
@@ -17,9 +16,8 @@ pub struct InvokeArgs {
 
     #[arg(value_name = "SELECTOR")]
     #[arg(help = "The function of that contract that you want to call.")]
-    #[arg(long_help = "The function of that contract that you want to call. \
-        Can be the actual function name or the function selector. \
-        E.g., 'foo' or '0x12345678'.")]
+    #[arg(long_help = "The function of that contract that you want to call. Can be the actual \
+                       function name or the function selector. E.g., 'foo' or '0x12345678'.")]
     #[arg(value_parser(selector_parser))]
     pub selector: FieldElement,
 
@@ -42,26 +40,13 @@ pub struct InvokeArgs {
 
 impl InvokeArgs {
     pub async fn run(self) -> Result<InvokeTransactionResult> {
-        let InvokeArgs {
-            to,
-            selector,
-            calldata,
-            starknet,
-            wallet,
-            transaction,
-        } = self;
+        let InvokeArgs { to, selector, calldata, starknet, wallet, transaction } = self;
 
-        let Some(wallet) = wallet.build_wallet()? else {
-            bail!("missing wallet")
-        };
+        let Some(wallet) = wallet.build_wallet()? else { bail!("missing wallet") };
 
         let account = wallet.account(starknet.provider()).await?;
 
-        let mut tx = account.execute(vec![Call {
-            to,
-            selector,
-            calldata,
-        }]);
+        let mut tx = account.execute(vec![Call { to, selector, calldata }]);
 
         if let Some(nonce) = transaction.nonce {
             tx = tx.nonce(nonce);

@@ -1,5 +1,5 @@
-// use rika_args::commands::{App, Commands, EcdsaCommand};
-// use rika_old::{Rika, SimpleRika};
+// use probe_args::commands::{App, Commands, EcdsaCommand};
+// use probe_old::{Rika, SimpleRika};
 
 // use chrono::{Local, TimeZone};
 // use clap::{CommandFactory, Parser};
@@ -325,7 +325,7 @@ async fn main() -> Result<()> {
     //         let shell = shell
     //             .or_else(Shell::from_env)
     //             .ok_or_else(|| eyre!("unable to identify shell from environment variable"))?;
-    //         generate(shell, &mut App::command(), "rika", &mut std::io::stdout());
+    //         generate(shell, &mut App::command(), "probe", &mut std::io::stdout());
     //     }
 
     //     Commands::Syncing { starknet } => {

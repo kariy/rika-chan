@@ -2004,6 +2004,73 @@ dependencies = [
 ]
 
 [[package]]
+name = "probe"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "color-eyre",
+ "probe-args",
+ "probe-ops",
+]
+
+[[package]]
+name = "probe-args"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "clap",
+ "clap_complete",
+ "color-eyre",
+ "colored_json",
+ "comfy-table",
+ "dunce",
+ "home",
+ "inquire",
+ "probe-fmt",
+ "rand",
+ "reqwest 0.12.0",
+ "serde",
+ "serde_json",
+ "shellexpand",
+ "similar-asserts",
+ "starknet",
+ "starknet-keystore",
+ "strum 0.26.2",
+ "thiserror",
+ "walkdir",
+]
+
+[[package]]
+name = "probe-fmt"
+version = "0.1.0"
+dependencies = [
+ "alloy-primitives",
+ "bigdecimal 0.4.3",
+ "chrono",
+ "prettytable-rs",
+ "starknet",
+]
+
+[[package]]
+name = "probe-ops"
+version = "0.1.0"
+dependencies = [
+ "alloy-primitives",
+ "chrono",
+ "color-eyre",
+ "colored_json",
+ "probe-args",
+ "probe-fmt",
+ "reqwest 0.12.0",
+ "serde",
+ "serde_json",
+ "similar-asserts",
+ "starknet",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
 name = "proc-macro-crate"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2223,73 +2290,6 @@ checksum = "f8dd2a808d456c4a54e300a23e9f5a67e122c3024119acbfd73e3bf664491cb2"
 dependencies = [
  "hmac",
  "subtle",
-]
-
-[[package]]
-name = "rika"
-version = "0.1.0"
-dependencies = [
- "clap",
- "color-eyre",
- "rika-args",
- "rika-ops",
-]
-
-[[package]]
-name = "rika-args"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "clap",
- "clap_complete",
- "color-eyre",
- "colored_json",
- "comfy-table",
- "dunce",
- "home",
- "inquire",
- "rand",
- "reqwest 0.12.0",
- "rika-fmt",
- "serde",
- "serde_json",
- "shellexpand",
- "similar-asserts",
- "starknet",
- "starknet-keystore",
- "strum 0.26.2",
- "thiserror",
- "walkdir",
-]
-
-[[package]]
-name = "rika-fmt"
-version = "0.1.0"
-dependencies = [
- "alloy-primitives",
- "bigdecimal 0.4.3",
- "chrono",
- "prettytable-rs",
- "starknet",
-]
-
-[[package]]
-name = "rika-ops"
-version = "0.1.0"
-dependencies = [
- "alloy-primitives",
- "chrono",
- "color-eyre",
- "colored_json",
- "reqwest 0.12.0",
- "rika-args",
- "rika-fmt",
- "serde",
- "serde_json",
- "similar-asserts",
- "starknet",
- "thiserror",
- "tokio",
 ]
 
 [[package]]

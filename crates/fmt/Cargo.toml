@@ -2,7 +2,7 @@
 authors.workspace = true
 description.workspace = true
 edition.workspace = true
-name = "rika-fmt"
+name = "probe-fmt"
 repository.workspace = true
 version.workspace = true
 

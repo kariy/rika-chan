@@ -2,7 +2,7 @@
 authors.workspace = true
 description.workspace = true
 edition.workspace = true
-name = "rika"
+name = "probe"
 repository.workspace = true
 version.workspace = true
 
@@ -11,8 +11,8 @@ version.workspace = true
 [dependencies]
 clap.workspace = true
 color-eyre.workspace = true
-rika-args.workspace = true
-rika-ops.workspace = true
+probe-args.workspace = true
+probe-ops.workspace = true
 
 [features]
 default = [ "rpc" ]

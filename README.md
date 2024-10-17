@@ -1,20 +1,20 @@
-# `rika`
+# `probe`
 
 A Starknet toolkit.
 
 ## Installation
 
 ```
-λ cargo install --git https://github.com/kariy/rika-chan --locked --force
+λ cargo install --git https://github.com/kariy/probe-chan --locked --force
 ```
 
 ## Usage
 
 ```console
-λ rika
+λ probe
 A Starknet toolkit.
 
-Usage: rika <COMMAND>
+Usage: probe <COMMAND>
 
 Commands:
   --to-hex             Convert decimal felt to hexadecimal. [aliases: th]

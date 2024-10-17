@@ -1,17 +1,13 @@
 use color_eyre::Result;
+use probe_args::commands::rpc::RawRpcArgs;
 use reqwest::IntoUrl;
-use rika_args::commands::rpc::RawRpcArgs;
 use serde::de::DeserializeOwned;
 use serde_json::{json, Value};
 
 use crate::utils;
 
 pub fn send(args: RawRpcArgs) -> Result<()> {
-    let RawRpcArgs {
-        method,
-        params,
-        url,
-    } = args;
+    let RawRpcArgs { method, params, url } = args;
 
     let payload = build_payload(&method, params);
     let res = utils::block_on(send_request::<Value>(url, payload))?;
@@ -47,12 +43,7 @@ mod tests {
     #[test]
     fn test_build_payload() {
         let method = "starknet_getStorageAt";
-        let params = vec![
-            json!(123),
-            json!(69420),
-            json!("latest"),
-            json!({ "key": "value" }),
-        ];
+        let params = vec![json!(123), json!(69420), json!("latest"), json!({ "key": "value" })];
 
         let expected = json!({
             "id": 1,

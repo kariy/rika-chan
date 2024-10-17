@@ -1,7 +1,7 @@
 use color_eyre::eyre::Context;
 use color_eyre::Result;
-use rika_args::commands::rpc::CallArgs;
-use rika_fmt::Pretty;
+use probe_args::commands::rpc::CallArgs;
+use probe_fmt::Pretty;
 use starknet::core::types::{BlockId, FieldElement, FunctionCall};
 use starknet::core::utils::get_selector_from_name;
 use starknet::providers::{Provider, ProviderError};

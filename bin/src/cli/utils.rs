@@ -1,6 +1,6 @@
 use color_eyre::Result;
-pub use rika_args::commands::utility::UtilityCommands;
-use rika_ops as ops;
+pub use probe_args::commands::utility::UtilityCommands;
+use probe_ops as ops;
 
 pub fn execute(command: UtilityCommands) -> Result<()> {
     match command {

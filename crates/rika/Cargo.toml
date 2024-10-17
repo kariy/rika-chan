@@ -1,6 +1,6 @@
 [package]
 edition = "2021"
-name = "rika-old"
+name = "probe-old"
 version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -13,13 +13,13 @@ clap_complete.workspace = true
 crypto-bigint = "0.5.3"
 eyre.workspace = true
 hex.workspace = true
+probe-args.workspace = true
 reqwest.workspace = true
-rika-args.workspace = true
 serde_json.workspace = true
 shellexpand.workspace = true
 starknet.workspace = true
 tokio = { version = "1.24.2", features = [ "full" ] }
 
 [[bin]]
-name = "rika-old"
+name = "probe-old"
 path = "src/main.rs"

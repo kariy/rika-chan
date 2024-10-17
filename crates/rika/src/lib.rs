@@ -8,10 +8,10 @@ use std::str::FromStr;
 
 use cairo_lang_starknet::casm_contract_class::CasmContractClass;
 use cairo_lang_starknet::contract_class::ContractClass;
-use crypto_bigint::U256;
 use color_eyre::{eyre::eyre, Report, Result};
+use crypto_bigint::U256;
+use probe_fmt::Pretty;
 use reqwest::Url;
-use rika_fmt::Pretty;
 use starknet::accounts::Call;
 use starknet::core::crypto::{compute_hash_on_elements, ExtendedSignature};
 use starknet::core::types::contract::CompiledClass;
@@ -36,9 +36,7 @@ pub struct Rika<P> {
 
 impl<T: JsonRpcTransport> Rika<JsonRpcClient<T>> {
     pub fn new_with_transport(transport: T) -> Self {
-        Self {
-            provider: JsonRpcClient::new(transport),
-        }
+        Self { provider: JsonRpcClient::new(transport) }
     }
 }
 
@@ -104,10 +102,7 @@ impl<P: Provider> Rika<P> {
         field: Option<String>,
         to_json: bool,
     ) -> Result<String> {
-        let tx = self
-            .provider
-            .get_transaction_by_hash(transaction_hash)
-            .await?;
+        let tx = self.provider.get_transaction_by_hash(transaction_hash).await?;
 
         if to_json || field.is_some() {
             let mut value = serde_json::to_value(tx)?;
@@ -131,10 +126,7 @@ impl<P: Provider> Rika<P> {
         field: Option<&str>,
         json: bool,
     ) -> Result<String> {
-        let receipt = self
-            .provider
-            .get_transaction_receipt(transaction_hash)
-            .await?;
+        let receipt = self.provider.get_transaction_receipt(transaction_hash).await?;
 
         if json || field.is_some() {
             let mut json = serde_json::to_value(&receipt)?;
@@ -153,20 +145,12 @@ impl<P: Provider> Rika<P> {
     }
 
     pub async fn get_transaction_status(&self, transaction_hash: FieldElement) -> Result<String> {
-        let receipt = self
-            .provider
-            .get_transaction_receipt(transaction_hash)
-            .await?;
+        let receipt = self.provider.get_transaction_receipt(transaction_hash).await?;
 
         match receipt {
             MaybePendingTransactionReceipt::Receipt(receipt) => {
                 let json = serde_json::to_value(receipt)?;
-                Ok(json
-                    .get("status")
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .replace('_', " "))
+                Ok(json.get("status").unwrap().as_str().unwrap().replace('_', " "))
             }
             MaybePendingTransactionReceipt::PendingReceipt(_) => Ok("PENDING".into()),
         }
@@ -188,10 +172,7 @@ impl<P: Provider> Rika<P> {
         key: FieldElement,
         block_id: &BlockId,
     ) -> Result<String> {
-        let res = self
-            .provider
-            .get_storage_at(contract_address, key, block_id)
-            .await?;
+        let res = self.provider.get_storage_at(contract_address, key, block_id).await?;
 
         Ok(format!("{res:#x}"))
     }
@@ -215,10 +196,7 @@ impl<P: Provider> Rika<P> {
             )
             .await?;
 
-        let res = res
-            .into_iter()
-            .map(|value| format!("{value:#x}"))
-            .collect::<Vec<String>>();
+        let res = res.into_iter().map(|value| format!("{value:#x}")).collect::<Vec<String>>();
 
         Ok(res.join(" "))
     }
@@ -244,10 +222,7 @@ impl<P: Provider> Rika<P> {
         contract_address: FieldElement,
         block_id: &BlockId,
     ) -> Result<String> {
-        let res = self
-            .provider
-            .get_class_at(block_id, contract_address)
-            .await?;
+        let res = self.provider.get_class_at(block_id, contract_address).await?;
         let res = serde_json::to_value(res)?;
         Ok(serde_json::to_string_pretty(&res)?)
     }
@@ -257,10 +232,7 @@ impl<P: Provider> Rika<P> {
         contract_address: FieldElement,
         block_id: &BlockId,
     ) -> Result<String> {
-        let res = self
-            .provider
-            .get_class_hash_at(block_id, contract_address)
-            .await?;
+        let res = self.provider.get_class_hash_at(block_id, contract_address).await?;
         Ok(format!("{res:#x}"))
     }
 
@@ -270,10 +242,7 @@ impl<P: Provider> Rika<P> {
         chunk_size: u64,
         continuation_token: Option<String>,
     ) -> Result<String> {
-        let res = self
-            .provider
-            .get_events(filter, continuation_token, chunk_size)
-            .await?;
+        let res = self.provider.get_events(filter, continuation_token, chunk_size).await?;
         let value = serde_json::to_value(res)?;
         Ok(serde_json::to_string_pretty(&value)?)
     }
@@ -383,10 +352,7 @@ impl SimpleRika {
         ecdsa_verify(
             public_key,
             message_hash,
-            &Signature {
-                r: signature_r.to_owned(),
-                s: signature_s.to_owned(),
-            },
+            &Signature { r: signature_r.to_owned(), s: signature_s.to_owned() },
         )
         .map_err(Report::new)
     }
@@ -464,9 +430,8 @@ impl SimpleRika {
                 .next()
                 .ok_or_else(|| eyre!("missing contract address for call {}", idx + 1))?;
 
-            let selector = data
-                .next()
-                .ok_or_else(|| eyre!("missing function name for call {}", idx + 1))?;
+            let selector =
+                data.next().ok_or_else(|| eyre!("missing function name for call {}", idx + 1))?;
 
             let mut calldata: Vec<FieldElement> = Vec::new();
             for i in data {

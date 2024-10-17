@@ -1,7 +1,7 @@
 use alloy_primitives::U256;
 use color_eyre::eyre::{eyre, ContextCompat};
 use color_eyre::{Report, Result};
-use rika_args::commands::rpc::BalanceArgs;
+use probe_args::commands::rpc::BalanceArgs;
 use starknet::core::types::{BlockId, FieldElement, StarknetError};
 use starknet::core::utils::parse_cairo_short_string;
 use starknet::macros::selector;
@@ -27,7 +27,7 @@ pub fn get(args: BalanceArgs) -> Result<()> {
     if raw {
         println!("{balance:#x}");
     } else {
-        let formatted = rika_fmt::utils::format_erc20_balance(balance, &symbol, decimals);
+        let formatted = probe_fmt::utils::format_erc20_balance(balance, &symbol, decimals);
         println!("{formatted}",);
     }
 

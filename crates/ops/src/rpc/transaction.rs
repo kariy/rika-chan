@@ -1,5 +1,5 @@
 use color_eyre::Result;
-use rika_args::commands::rpc::{ReceiptArgs, TxArgs, TxCountArgs, TxStatusArgs};
+use probe_args::commands::rpc::{ReceiptArgs, TxArgs, TxCountArgs, TxStatusArgs};
 use starknet::providers::Provider;
 
 use super::utils;

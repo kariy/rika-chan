@@ -1,5 +1,5 @@
 use color_eyre::Result;
-use rika_args::{
+use probe_args::{
     commands::rpc::{AgeArgs, BlockArgs, BlockNumberArgs},
     fmt::pretty_block_without_txs,
 };
@@ -11,11 +11,7 @@ use starknet::{
 use super::utils;
 
 pub fn age(args: AgeArgs) -> Result<()> {
-    let AgeArgs {
-        block_id,
-        starknet,
-        human_readable,
-    } = args;
+    let AgeArgs { block_id, starknet, human_readable } = args;
 
     let provider = starknet.provider();
     let block = utils::do_call_with_mapped_rpc_err(get_block(provider, block_id))?;
@@ -37,13 +33,7 @@ pub fn age(args: AgeArgs) -> Result<()> {
 }
 
 pub fn get(args: BlockArgs) -> Result<()> {
-    let BlockArgs {
-        id,
-        starknet,
-        full,
-        compact,
-        display,
-    } = args;
+    let BlockArgs { id, starknet, full, compact, display } = args;
 
     let provider = starknet.provider();
 

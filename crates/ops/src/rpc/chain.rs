@@ -1,5 +1,5 @@
 use eyre::{Context, Result};
-use rika_args::commands::rpc::{ChainIdArgs, SyncingArgs};
+use probe_args::commands::rpc::{ChainIdArgs, SyncingArgs};
 use starknet::{
     core::{
         types::{SyncStatus, SyncStatusType},

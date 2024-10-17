@@ -4,10 +4,10 @@ mod utils;
 
 use clap::Parser;
 use color_eyre::Result;
-use rika_args::commands::utility;
+use probe_args::commands::utility;
 
 #[derive(Parser, Debug)]
-#[command(name = "rika", version, about, long_about = None)]
+#[command(name = "probe", version, about, long_about = None)]
 pub enum Cli {
     #[command(flatten)]
     Utilities(utility::UtilityCommands),

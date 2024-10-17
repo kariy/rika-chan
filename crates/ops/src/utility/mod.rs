@@ -1,5 +1,5 @@
 use color_eyre::Result;
-use rika_args::commands::utility::IndexArgs;
+use probe_args::commands::utility::IndexArgs;
 use starknet::core::utils::get_storage_var_address;
 
 pub fn storage_address(args: IndexArgs) -> Result<()> {
